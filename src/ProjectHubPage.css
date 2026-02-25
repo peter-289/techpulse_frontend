@@ -1,0 +1,157 @@
+.ph-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.ph-header-card h1 {
+  margin: 0;
+}
+
+.ph-header-card p {
+  margin: 8px 0 0;
+  color: #64748b;
+}
+
+.ph-filter-row {
+  display: grid;
+  gap: 12px;
+}
+
+.ph-chip-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.ph-chip {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ph-chip.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.ph-filter-controls {
+  display: grid;
+  grid-template-columns: 1fr 180px 180px;
+  gap: 8px;
+}
+
+.ph-input,
+.ph-select {
+  min-height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #fff;
+  color: #0f172a;
+}
+
+.ph-card {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.ph-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--tp-shadow-md);
+}
+
+.ph-card-top {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ph-card-top h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.ph-thumb {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-content: center;
+  border-radius: 10px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 700;
+}
+
+.ph-meta {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.ph-tags {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.ph-tag {
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+}
+
+.ph-tag.is-public {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.ph-tag.is-private {
+  color: #92400e;
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+
+.ph-lock {
+  font-size: 0.9rem;
+}
+
+.ph-description {
+  margin: 12px 0;
+  color: #475569;
+  min-height: 42px;
+}
+
+.ph-stats {
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.ph-actions {
+  margin-top: 12px;
+}
+
+.tp-btn.disabled {
+  pointer-events: auto;
+  opacity: 0.68;
+}
+
+.ph-error {
+  color: #b91c1c;
+}
+
+@media (max-width: 1024px) {
+  .ph-filter-controls {
+    grid-template-columns: 1fr;
+  }
+}

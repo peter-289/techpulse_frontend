@@ -1,0 +1,22 @@
+﻿{
+  "versions": [
+    { "id": "v2", "label": "v2.0", "latest": true, "deprecated": false },
+    { "id": "v1", "label": "v1.0", "latest": false, "deprecated": true }
+  ],
+  "defaultVersion": "v2",
+  "sections": [
+    { "id": "getting-started", "label": "Getting Started", "items": [{ "id": "getting-started", "title": "Getting Started", "path": "getting-started.md" }] },
+    { "id": "installation", "label": "Installation", "items": [{ "id": "installation", "title": "Installation", "path": "installation.md" }] },
+    { "id": "quick-start", "label": "Quick Start", "items": [{ "id": "quick-start", "title": "Quick Start", "path": "quick-start.md" }] },
+    { "id": "authentication", "label": "Authentication", "items": [{ "id": "authentication", "title": "Authentication", "path": "authentication.md" }] },
+    { "id": "api-reference", "label": "API Reference", "items": [{ "id": "api-reference", "title": "Projects API", "path": "api-reference.md" }] },
+    { "id": "sdks", "label": "SDKs", "items": [{ "id": "sdks", "title": "SDKs", "path": "sdks.md" }] },
+    { "id": "webhooks", "label": "Webhooks", "items": [{ "id": "webhooks", "title": "Webhooks", "path": "webhooks.md" }] },
+    { "id": "error-handling", "label": "Error Handling", "items": [{ "id": "error-handling", "title": "Error Handling", "path": "error-handling.md" }] },
+    { "id": "rate-limits", "label": "Rate Limits", "items": [{ "id": "rate-limits", "title": "Rate Limits", "path": "rate-limits.md" }] },
+    { "id": "best-practices", "label": "Best Practices", "items": [{ "id": "best-practices", "title": "Best Practices", "path": "best-practices.md" }] },
+    { "id": "tutorials", "label": "Tutorials", "items": [{ "id": "tutorials", "title": "Upload Project Tutorial", "path": "tutorials.md" }] },
+    { "id": "changelog", "label": "Changelog", "items": [{ "id": "changelog", "title": "Changelog", "path": "changelog.md" }] },
+    { "id": "faq", "label": "FAQ", "items": [{ "id": "faq", "title": "FAQ", "path": "faq.md" }] }
+  ]
+}
