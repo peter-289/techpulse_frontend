@@ -1,4 +1,4 @@
-import api from './API_Wrapper';
+import { authApi as api } from './API_Wrapper';
 
 const CONSENT_COOKIE = 'tp_cookie_consent';
 const CLIENT_ID_COOKIE = 'tp_client_id';

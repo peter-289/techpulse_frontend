@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from './API_Wrapper';
+import { authApi as api } from './API_Wrapper';
 
 export default function KnowledgeBase({ onOpenResource }){
   const [entries, setEntries] = useState([]);

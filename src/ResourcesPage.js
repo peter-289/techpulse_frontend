@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import api from './API_Wrapper';
+import { authApi as api } from './API_Wrapper';
 import DashboardLayout from './dashboard/DashboardLayout';
 import './ResourcesPage.css';
 import FeedbackMessage from './components/FeedbackMessage';

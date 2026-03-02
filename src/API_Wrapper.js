@@ -12,13 +12,18 @@ export const API_BASE_URL = (envBaseUrl || fallbackBaseUrl).replace(/\/$/, "");
 
 const api = axios.create({
   baseURL: API_BASE_URL || undefined,
-  withCredentials: true, // always send cookies!
+  withCredentials: false,
+});
+
+export const authApi = axios.create({
+  baseURL: API_BASE_URL || undefined,
+  withCredentials: true,
 });
 
 let isRefreshing = false;
 let refreshPromise = null;
 
-api.interceptors.response.use(
+authApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error?.config || {};
@@ -35,7 +40,7 @@ api.interceptors.response.use(
 
       if (!isRefreshing) {
         isRefreshing = true;
-        refreshPromise = api
+        refreshPromise = authApi
           .post("/api/v1/auth/refresh")
           .finally(() => {
             isRefreshing = false;
@@ -44,7 +49,7 @@ api.interceptors.response.use(
 
       try {
         await refreshPromise;
-        return api(originalRequest);
+        return authApi(originalRequest);
       } catch (refreshError) {
         return Promise.reject(refreshError);
       }

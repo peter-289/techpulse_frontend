@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import api, { API_BASE_URL } from './API_Wrapper';
+import { authApi as api, API_BASE_URL } from './API_Wrapper';
 import DashboardLayout from './dashboard/DashboardLayout';
 import './ProjectHubPage.css';
 import FeedbackMessage from './components/FeedbackMessage';

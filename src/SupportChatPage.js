@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import api from './API_Wrapper';
+import { authApi as api } from './API_Wrapper';
 import './SupportChatPage.css';
 import FeedbackMessage from './components/FeedbackMessage';
 

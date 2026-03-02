@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './AdminPage.css';
-import api from './API_Wrapper';
+import { authApi as api } from './API_Wrapper';
 import FeedbackMessage from './components/FeedbackMessage';
 
 const SECTIONS = [

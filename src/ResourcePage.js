@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from './API_Wrapper';
+import { authApi as api } from './API_Wrapper';
 import FeedbackMessage from './components/FeedbackMessage';
 
 export default function ResourcePage({ slug, onBack }){

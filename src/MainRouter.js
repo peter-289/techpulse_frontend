@@ -15,7 +15,7 @@ import SupportChatPage from './SupportChatPage';
 import ProjectHubPage from './ProjectHubPage';
 import UploadProjectPage from './UploadProjectPage';
 import Header from './components/Header';
-import api from './API_Wrapper';
+import { authApi } from './API_Wrapper';
 import { trackUserActivity } from './cookieTracking';
 
 function MainRouter() {
@@ -65,7 +65,7 @@ function MainRouter() {
     setIsLoggedIn(true);
     let profile = null;
     try {
-      const res = await api.get('/api/v1/users/me');
+      const res = await authApi.get('/api/v1/users/me');
       profile = res.data;
       setUser(profile);
     } catch {
@@ -82,7 +82,7 @@ function MainRouter() {
 
   const handleLogout = async () => {
     try {
-      await api.post('/api/v1/auth/logout');
+      await authApi.post('/api/v1/auth/logout');
     } catch {
       // ignore network/server errors on logout
     }

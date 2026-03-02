@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './LoginPage.css';
-import api from './API_Wrapper';
+import { authApi } from './API_Wrapper';
 import qs from 'qs';
 import FeedbackMessage from './components/FeedbackMessage';
 
@@ -29,7 +29,7 @@ export default function LoginPage({ onBack, onLogin, onForgot }) {
     setFeedback(null);
 
     try {
-      await api.post(
+      await authApi.post(
         '/api/v1/auth/login',
         qs.stringify({
           username: form.username,
