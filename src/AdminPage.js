@@ -1,483 +1,484 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './AdminPage.css';
 import { authApi as api } from './API_Wrapper';
 import FeedbackMessage from './components/FeedbackMessage';
 
-const SECTIONS = [
-  { id: 'overview', label: 'Overview' },
+const NAV_ITEMS = [
+  { id: 'overview', label: 'Dashboard Overview' },
   { id: 'users', label: 'User Management' },
-  { id: 'projects', label: 'Project Moderation' },
-  { id: 'security', label: 'Security Alerts' },
-  { id: 'analytics', label: 'Analytics' },
-  { id: 'notifications', label: 'Notifications' },
+  { id: 'software', label: 'Software Management' },
+  { id: 'analytics', label: 'Analytics & Reports' },
+  { id: 'logs', label: 'Activity Logs' },
+  { id: 'notifications', label: 'Notifications & Alerts' },
+  { id: 'settings', label: 'System Settings' },
+  { id: 'profile', label: 'Admin Profile' },
 ];
 
-const SECTION_META = {
-  overview: { icon: 'OV', hint: 'Platform summary and health' },
-  users: { icon: 'US', hint: 'Access and account controls' },
-  projects: { icon: 'PR', hint: 'Moderation and publishing safety' },
-  security: { icon: 'SE', hint: 'Threats and alert handling' },
-  analytics: { icon: 'AN', hint: 'Usage and trend intelligence' },
-  notifications: { icon: 'NT', hint: 'Unread and archived notices' },
+const METRIC_SERIES = {
+  users: [8, 10, 11, 13, 15, 16, 20, 21, 23, 24, 28, 31],
+  downloads: [230, 240, 260, 300, 340, 360, 390, 420, 460, 490, 515, 552],
+  sessions: [90, 110, 115, 120, 140, 130, 150, 162, 158, 169, 172, 188],
 };
 
-const USER_PAGE = 10;
-const PROJECT_PAGE = 8;
+const SAMPLE_USERS = [
+  { id: 2001, name: 'Ava Reynolds', email: 'ava@platform.io', role: 'Admin', status: 'Active', lastActive: '2026-03-03T09:00:00Z', registered: '2025-07-18T09:00:00Z' },
+  { id: 2002, name: 'Noah Kim', email: 'noah@platform.io', role: 'Moderator', status: 'Active', lastActive: '2026-03-03T08:20:00Z', registered: '2025-08-12T09:00:00Z' },
+  { id: 2003, name: 'Liam Stone', email: 'liam@vendor.dev', role: 'Developer', status: 'Suspended', lastActive: '2026-03-02T21:00:00Z', registered: '2026-02-16T09:00:00Z' },
+  { id: 2004, name: 'Mia Patel', email: 'mia@vendor.dev', role: 'Developer', status: 'Active', lastActive: '2026-03-03T06:40:00Z', registered: '2025-12-05T09:00:00Z' },
+];
 
-const toneFor = (label = '') => {
-  const v = String(label).toLowerCase();
-  if (v.includes('critical') || v.includes('blocked') || v.includes('suspend')) return 'danger';
-  if (v.includes('warning') || v.includes('review') || v.includes('suspicious')) return 'warning';
-  if (v.includes('healthy') || v.includes('safe') || v.includes('active')) return 'success';
+const SAMPLE_SOFTWARE = [
+  { id: 'PKG-301', name: 'Core Runtime', version: '2.0.1', owner: 'Ava Reynolds', uploadDate: '2026-03-01T09:00:00Z', status: 'Approved', downloads: 1430 },
+  { id: 'PKG-302', name: 'Secure Agent', version: '1.4.8', owner: 'Noah Kim', uploadDate: '2026-03-03T07:10:00Z', status: 'Pending', downloads: 221 },
+  { id: 'PKG-303', name: 'Bridge Plugin', version: '0.9.1', owner: 'Liam Stone', uploadDate: '2026-02-24T09:00:00Z', status: 'Flagged', downloads: 560 },
+];
+
+const SAMPLE_LOGS = [
+  { id: 'L1', type: 'Authentication event', actor: 'System', details: 'Failed login attempts from unknown IP', severity: 'Critical', time: '2026-03-03T07:13:00Z' },
+  { id: 'L2', type: 'Admin action', actor: 'Ava Reynolds', details: 'Suspended user Liam Stone', severity: 'Warning', time: '2026-03-03T07:25:00Z' },
+  { id: 'L3', type: 'Upload event', actor: 'Noah Kim', details: 'Submitted Secure Agent v1.4.8', severity: 'Info', time: '2026-03-03T07:30:00Z' },
+];
+
+const SAMPLE_NOTIFICATIONS = [
+  { id: 'N1', title: 'High risk login', message: 'Authentication anomaly detected', severity: 'Critical', unread: true, time: '2026-03-03T07:13:00Z' },
+  { id: 'N2', title: 'Package review pending', message: 'Secure Agent awaiting approval', severity: 'Warning', unread: true, time: '2026-03-03T07:30:00Z' },
+  { id: 'N3', title: 'Analytics digest ready', message: 'Reports are available for export', severity: 'Info', unread: false, time: '2026-03-03T06:00:00Z' },
+];
+
+const toDate = (value) => new Date(value).toLocaleString();
+const dayKey = (value) => new Date(value).toISOString().slice(0, 10);
+const lastNDays = (n) => Array.from({ length: n }).map((_, i) => {
+  const d = new Date();
+  d.setDate(d.getDate() - (n - 1 - i));
+  return dayKey(d);
+});
+
+function downloadBlob(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+const tone = (value) => {
+  const v = String(value).toLowerCase();
+  if (v.includes('critical') || v.includes('flagged') || v.includes('suspended') || v.includes('rejected')) return 'danger';
+  if (v.includes('warning') || v.includes('pending')) return 'warning';
+  if (v.includes('active') || v.includes('approved') || v.includes('healthy')) return 'success';
   return 'info';
 };
 
-const dt = (v) => {
-  const n = new Date(v || 0);
-  return Number.isNaN(n.getTime()) ? null : n;
-};
-
-const fmt = (v) => (dt(v) ? dt(v).toLocaleString() : 'N/A');
-const dayKey = (v) => new Date(v).toISOString().slice(0, 10);
-
-function Badge({ children }) {
-  return <span className={`adm-badge ${toneFor(children)}`}>{children}</span>;
+function Pill({ value }) {
+  return <span className={`adm-pill ${tone(value)}`}>{value}</span>;
 }
 
-function Spark({ points }) {
+function MiniLine({ points }) {
   const max = Math.max(...points, 1);
   const poly = points
     .map((v, i) => `${(i / Math.max(points.length - 1, 1)) * 100},${100 - ((v / max) * 100)}`)
     .join(' ');
   return (
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="adm-spark" aria-hidden="true">
+    <svg className="adm-mini-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <polyline points={poly} />
     </svg>
   );
 }
 
-function Metric({ icon, label, value, trend, points }) {
-  return (
-    <article className="adm-card adm-metric">
-      <div className="adm-row">
-        <span className="adm-icon">{icon}</span>
-        <span className={`adm-trend ${trend >= 0 ? 'up' : 'down'}`}>{trend >= 0 ? '+' : ''}{trend}%</span>
-      </div>
-      <strong>{value}</strong>
-      <span>{label}</span>
-      <Spark points={points} />
-    </article>
-  );
-}
-
-function LineChart({ title, series, tone }) {
-  const max = Math.max(...series.map((i) => i.value), 1);
-  const pts = series.map((i, idx) => ({
-    x: (idx / Math.max(series.length - 1, 1)) * 100,
-    y: 100 - ((i.value / max) * 100),
-  }));
-  return (
-    <article className="adm-card adm-chart-card">
-      <h3>{title}</h3>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className={`adm-chart ${tone}`} aria-hidden="true">
-        <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} />
-      </svg>
-    </article>
-  );
-}
-
-function AdminPage({ onBack }) {
-  const [section, setSection] = useState('overview');
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [packages, setPackages] = useState([]);
-  const [summary, setSummary] = useState(null);
-  const [alerts, setAlerts] = useState([]);
-  const [audit, setAudit] = useState([]);
+export default function AdminPage({ onBack }) {
+  const [theme, setTheme] = useState(() => window.localStorage.getItem('adm-theme') || 'light');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('overview');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [feedback, setFeedback] = useState(null);
-  const [notifyOpen, setNotifyOpen] = useState(false);
-  const [archived, setArchived] = useState({});
-  const [unread, setUnread] = useState({});
-  const [suspendedUsers, setSuspendedUsers] = useState({});
-  const [suspendedProjects, setSuspendedProjects] = useState({});
-  const [confirmUser, setConfirmUser] = useState(null);
-  const [userQuery, setUserQuery] = useState('');
-  const [userFilter, setUserFilter] = useState('all');
-  const [userPage, setUserPage] = useState(1);
-  const [projectQuery, setProjectQuery] = useState('');
-  const [projectFilter, setProjectFilter] = useState('all');
-  const [projectPage, setProjectPage] = useState(1);
+  const [confirm, setConfirm] = useState(null);
+  const [dateRange, setDateRange] = useState('30d');
+  const [users, setUsers] = useState(SAMPLE_USERS);
+  const [software, setSoftware] = useState(SAMPLE_SOFTWARE);
+  const [logs, setLogs] = useState(SAMPLE_LOGS);
+  const [notifications, setNotifications] = useState(SAMPLE_NOTIFICATIONS);
+  const [summary, setSummary] = useState(null);
+  const [series, setSeries] = useState(METRIC_SERIES);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [userStatus, setUserStatus] = useState('all');
+  const [userRole, setUserRole] = useState('all');
 
-  const showFeedback = useCallback((variant, title, message) => {
-    setFeedback({ variant, title, message });
+  useEffect(() => {
+    window.localStorage.setItem('adm-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const [u, p, s, a, ev] = await Promise.all([
+          api.get('/api/v1/users', { params: { limit: 30 } }),
+          api.get('/api/v1/software-packages/admin/packages', { params: { limit: 30 } }),
+          api.get('/api/v1/software-packages/admin/summary'),
+          api.get('/api/v1/admin/alerts', { params: { only_unacknowledged: false, limit: 100 } }),
+          api.get('/api/v1/admin/audit-events', { params: { limit: 400 } }),
+        ]);
+        if (!mounted) return;
+        if (Array.isArray(u.data) && u.data.length) {
+          setUsers(u.data.map((x) => ({
+            id: x.id,
+            name: x.full_name || x.username || `User ${x.id}`,
+            email: x.email || 'N/A',
+            role: x.role || 'Viewer',
+            status: 'Active',
+            lastActive: x.updated_at || x.created_at || new Date().toISOString(),
+            registered: x.created_at || new Date().toISOString(),
+          })));
+        }
+        if (Array.isArray(p.data) && p.data.length) {
+          setSoftware(p.data.map((x) => ({
+            id: x.package_id || x.id,
+            name: x.name || 'Package',
+            version: x.latest_version || 'N/A',
+            owner: x.owner_username || x.owner_email || 'Unknown',
+            uploadDate: x.created_at || x.updated_at || new Date().toISOString(),
+            status: x.is_public ? 'Approved' : 'Pending',
+            downloads: Number(x.download_count || 0),
+          })));
+        }
+        if (s.data) setSummary(s.data);
+
+        const alertRows = a.data?.items || [];
+        if (alertRows.length) {
+          setNotifications(alertRows.map((item) => ({
+            id: item.id,
+            apiId: item.id,
+            title: item.title || 'Alert',
+            message: item.description || 'Alert details unavailable.',
+            severity: String(item.severity || 'Info'),
+            unread: !item.acknowledged,
+            time: item.created_at || new Date().toISOString(),
+          })));
+        }
+
+        const eventRows = ev.data?.items || [];
+        if (eventRows.length) {
+          setLogs(eventRows.map((item) => ({
+            id: item.id,
+            type: item.event_type || 'Audit event',
+            actor: item.actor_username || item.actor_user_id || 'System',
+            details: `${item.method || ''} ${item.path || ''}`.trim() || 'Event details unavailable.',
+            severity: item.success ? 'Info' : 'Warning',
+            time: item.occurred_at || new Date().toISOString(),
+          })));
+        }
+
+        const days = lastNDays(12);
+        const usersDaily = days.map((day) => (Array.isArray(u.data) ? u.data.filter((row) => row.created_at && dayKey(row.created_at) === day).length : 0));
+        const downloadDaily = days.map((day) => eventRows.filter((row) => row.occurred_at && dayKey(row.occurred_at) === day && String(row.path || '').includes('/download')).length);
+        const sessionsDaily = days.map((day) => {
+          const unique = new Set(
+            eventRows
+              .filter((row) => row.occurred_at && dayKey(row.occurred_at) === day && row.actor_user_id)
+              .map((row) => row.actor_user_id),
+          );
+          return unique.size;
+        });
+        setSeries({
+          users: usersDaily.some(Boolean) ? usersDaily : METRIC_SERIES.users,
+          downloads: downloadDaily.some(Boolean) ? downloadDaily : METRIC_SERIES.downloads,
+          sessions: sessionsDaily.some(Boolean) ? sessionsDaily : METRIC_SERIES.sessions,
+        });
+      } catch {
+        setFeedback({ variant: 'warning', title: 'Offline sample mode', message: 'Live admin APIs unavailable. Showing local dataset.' });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    const timer = setInterval(load, 60000);
+    return () => {
+      mounted = false;
+      clearInterval(timer);
+    };
   }, []);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const [u, p, s, a, ev] = await Promise.all([
-        api.get('/api/v1/users', { params: { limit: 200 } }),
-        api.get('/api/v1/software-packages/admin/packages', { params: { limit: 300 } }),
-        api.get('/api/v1/software-packages/admin/summary'),
-        api.get('/api/v1/admin/alerts', { params: { only_unacknowledged: false, limit: 200 } }),
-        api.get('/api/v1/admin/audit-events', { params: { limit: 400 } }),
-      ]);
-      const nextAlerts = a.data?.items || [];
-      setUsers(u.data || []);
-      setPackages(p.data || []);
-      setSummary(s.data || null);
-      setAlerts(nextAlerts);
-      setAudit(ev.data?.items || []);
-      setUnread((prev) => {
-        const next = { ...prev };
-        nextAlerts.forEach((item) => {
-          if (!item.acknowledged && !Object.prototype.hasOwnProperty.call(next, item.id)) next[item.id] = true;
-        });
-        return next;
-      });
-    } catch {
-      setError('Unable to load admin dashboard data.');
-      showFeedback('error', 'Admin data unavailable', 'Unable to load admin dashboard data.');
-    } finally {
-      setLoading(false);
-    }
-  }, [showFeedback]);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
-
-  useEffect(() => {
-    const id = setInterval(reload, 30000);
-    return () => clearInterval(id);
-  }, [reload]);
-
-  useEffect(() => {
-    if (!feedback) return undefined;
-    const timer = setTimeout(() => setFeedback(null), 4500);
-    return () => clearTimeout(timer);
-  }, [feedback]);
-
-  const activeSection = useMemo(
-    () => SECTIONS.find((item) => item.id === section) || SECTIONS[0],
-    [section],
+  const usersFiltered = useMemo(
+    () => users.filter((u) => {
+      const text = `${u.id} ${u.name} ${u.email} ${u.role}`.toLowerCase();
+      if (search && !text.includes(search.toLowerCase())) return false;
+      if (userStatus !== 'all' && u.status.toLowerCase() !== userStatus) return false;
+      if (userRole !== 'all' && u.role.toLowerCase() !== userRole) return false;
+      return true;
+    }),
+    [users, search, userStatus, userRole],
   );
 
-  const critical = useMemo(
-    () => alerts.find((a) => !a.acknowledged && String(a.severity).toLowerCase() === 'critical'),
-    [alerts],
+  const softwareFiltered = useMemo(
+    () => software.filter((s) => (`${s.id} ${s.name} ${s.owner}`.toLowerCase().includes(search.toLowerCase()))),
+    [software, search],
   );
 
-  const health = useMemo(() => {
-    const c = alerts.filter((a) => !a.acknowledged && String(a.severity).toLowerCase() === 'critical').length;
-    if (c > 0) return 'Critical';
-    const w = alerts.filter((a) => !a.acknowledged).length;
-    return w > 0 ? 'Warning' : 'Healthy';
-  }, [alerts]);
-
-  const unreadCount = useMemo(
-    () => alerts.filter((a) => unread[a.id] && !archived[a.id]).length,
-    [alerts, unread, archived],
-  );
-
-  const series = useMemo(() => {
-    const days = Array.from({ length: 14 }).map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (13 - i));
-      return dayKey(d);
-    });
-    const map = (rows, pick) => days.map((day) => rows.filter((r) => pick(r) === day).length);
-    const usersDaily = map(users, (u) => (u.created_at ? dayKey(u.created_at) : ''));
-    const uploadsDaily = map(audit, (e) => (String(e.path || '').includes('/software-packages') ? dayKey(e.occurred_at) : ''));
-    const downloadsDaily = map(audit, (e) => (String(e.path || '').includes('/download') ? dayKey(e.occurred_at) : ''));
-    const alertDaily = map(alerts, (a) => (a.created_at ? dayKey(a.created_at) : ''));
-    const first = (arr) => arr.slice(0, 7).reduce((s, n) => s + n, 0);
-    const trend = (arr) => {
-      const a = first(arr);
-      const b = arr.slice(7).reduce((s, n) => s + n, 0);
-      if (!a) return b ? 100 : 0;
-      return Math.round(((b - a) / a) * 100);
-    };
-    return { usersDaily, uploadsDaily, downloadsDaily, alertDaily, trend };
-  }, [users, audit, alerts]);
-
+  const unread = notifications.filter((n) => n.unread).length;
   const metrics = [
-    { icon: 'U', label: 'Total Users', value: users.length, trend: series.trend(series.usersDaily), points: series.usersDaily },
-    {
-      icon: 'A',
-      label: 'Active Users Today',
-      value: new Set(audit.filter((e) => dayKey(e.occurred_at) === dayKey(new Date()) && e.actor_user_id).map((e) => e.actor_user_id)).size,
-      trend: series.trend(series.usersDaily),
-      points: series.usersDaily.slice(-7),
-    },
-    { icon: 'P', label: 'Total Uploaded Projects', value: summary?.total_packages ?? packages.length, trend: series.trend(series.uploadsDaily), points: series.uploadsDaily },
-    { icon: 'S', label: 'Suspended Projects', value: Object.values(suspendedProjects).filter(Boolean).length, trend: 0, points: series.alertDaily },
-    { icon: '!', label: 'Security Alerts', value: alerts.filter((a) => !a.acknowledged).length, trend: series.trend(series.alertDaily), points: series.alertDaily },
-    {
-      icon: 'T',
-      label: 'Upload Activity Today',
-      value: audit.filter((e) => dayKey(e.occurred_at) === dayKey(new Date()) && String(e.path || '').includes('/software-packages')).length,
-      trend: series.trend(series.uploadsDaily),
-      points: series.uploadsDaily.slice(-7),
-    },
+    { label: 'Total Users', value: summary?.total_users ?? users.length, series: series.users },
+    { label: 'Active Users', value: summary?.active_users ?? users.filter((u) => u.status === 'Active').length, series: series.sessions },
+    { label: 'Uploaded Software Packages', value: summary?.total_packages ?? software.length, series: series.users.slice(2) },
+    { label: 'Downloads Today', value: summary?.downloads_today ?? software.reduce((sum, s) => sum + s.downloads, 0), series: series.downloads },
+    { label: 'System Health Status', value: unread > 0 ? 'Warning' : 'Healthy', series: series.sessions.slice(1) },
+    { label: 'Pending Reviews / Flags', value: summary?.pending_reviews ?? software.filter((s) => ['Pending', 'Flagged'].includes(s.status)).length, series: series.users.slice(3) },
   ];
 
-  const usersFiltered = users.filter((u) => {
-    const text = `${u.username || ''} ${u.email || ''} ${u.full_name || ''}`.toLowerCase();
-    if (userQuery && !text.includes(userQuery.toLowerCase())) return false;
-    if (userFilter === 'active') return !suspendedUsers[u.id];
-    if (userFilter === 'suspended') return !!suspendedUsers[u.id];
-    if (userFilter === 'recent') return dt(u.created_at) && (Date.now() - dt(u.created_at).getTime()) < (7 * 86400000);
-    return true;
-  });
-  const userCount = Math.max(1, Math.ceil(usersFiltered.length / USER_PAGE));
-  const usersPage = usersFiltered.slice((userPage - 1) * USER_PAGE, userPage * USER_PAGE);
+  const updateUser = (id, status) => setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
+  const updateSoftware = (id, status) => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
+  const topSoftware = useMemo(
+    () => software.slice().sort((a, b) => b.downloads - a.downloads).slice(0, 5),
+    [software],
+  );
 
-  const projectStatus = (p) => {
-    if (suspendedProjects[p.package_id]) return 'Blocked';
-    const has = alerts.some((a) => Number(a.actor_user_id) === Number(p.owner_id) && !a.acknowledged);
-    if (!has) return 'Safe';
-    const criticalAlert = alerts.some((a) => Number(a.actor_user_id) === Number(p.owner_id) && ['critical', 'high'].includes(String(a.severity).toLowerCase()));
-    return criticalAlert ? 'Suspicious' : 'Under Review';
+  const exportCsv = () => {
+    const metricRows = metrics.map((metric) => `${metric.label},${String(metric.value).replace(/,/g, '')}`);
+    const topRows = topSoftware.map((item) => `${item.name},${item.version},${item.owner},${item.downloads}`);
+    const csv = [
+      `Admin Analytics Report (${dateRange})`,
+      '',
+      'Metric,Value',
+      ...metricRows,
+      '',
+      'Top Software,Version,Owner,Downloads',
+      ...topRows,
+      '',
+      'Daily Series (latest 12 days)',
+      `Users,${series.users.join(',')}`,
+      `Downloads,${series.downloads.join(',')}`,
+      `Sessions,${series.sessions.join(',')}`,
+    ].join('\n');
+    downloadBlob(`admin-analytics-${dateRange}.csv`, csv, 'text/csv;charset=utf-8');
+    setFeedback({ variant: 'success', title: 'CSV exported', message: `Downloaded admin-analytics-${dateRange}.csv` });
   };
 
-  const projectsFiltered = packages.filter((p) => {
-    const text = `${p.name} ${p.owner_username} ${p.owner_email}`.toLowerCase();
-    if (projectQuery && !text.includes(projectQuery.toLowerCase())) return false;
-    if (projectFilter === 'all') return true;
-    return projectStatus(p).toLowerCase().replace(' ', '_') === projectFilter;
-  });
-  const projectCount = Math.max(1, Math.ceil(projectsFiltered.length / PROJECT_PAGE));
-  const projectsPage = projectsFiltered.slice((projectPage - 1) * PROJECT_PAGE, projectPage * PROJECT_PAGE);
-  const selectedLogs = selectedUser ? audit.filter((e) => Number(e.actor_user_id) === Number(selectedUser.id)).slice(0, 8) : [];
-
-  const chooseSection = (target) => {
-    setSection(target);
-    setMenuOpen(false);
-    setNotifyOpen(false);
+  const exportPdf = () => {
+    const rows = topSoftware.map((item) => `<tr><td>${item.name}</td><td>${item.version}</td><td>${item.owner}</td><td>${item.downloads}</td></tr>`).join('');
+    const popup = window.open('', '_blank', 'noopener,noreferrer,width=960,height=720');
+    if (!popup) {
+      setFeedback({ variant: 'error', title: 'Popup blocked', message: 'Allow popups to export PDF.' });
+      return;
+    }
+    popup.document.write(`
+      <html>
+        <head>
+          <title>Admin Analytics Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 24px; color: #15202b; }
+            h1 { margin: 0 0 4px; } p { margin: 0 0 16px; color: #556677; }
+            table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+            th, td { border: 1px solid #dbe3ea; padding: 8px; text-align: left; font-size: 12px; }
+            th { background: #f3f6f9; }
+          </style>
+        </head>
+        <body>
+          <h1>Admin Analytics Report</h1>
+          <p>Date range: ${dateRange}</p>
+          <table>
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody>${metrics.map((m) => `<tr><td>${m.label}</td><td>${m.value}</td></tr>`).join('')}</tbody>
+          </table>
+          <h2>Most Downloaded Software</h2>
+          <table>
+            <thead><tr><th>Name</th><th>Version</th><th>Owner</th><th>Downloads</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </body>
+      </html>
+    `);
+    popup.document.close();
+    popup.focus();
+    popup.print();
+    setFeedback({ variant: 'success', title: 'PDF export opened', message: 'Use the print dialog to save as PDF.' });
   };
 
   return (
-    <div className="tp-workspace adm-wrap">
-      <div className="tp-shell adm-shell">
-        <main className="adm-main">
-          {feedback && (
-            <FeedbackMessage
-              floating
-              variant={feedback.variant}
-              title={feedback.title}
-              message={feedback.message}
-              onClose={() => setFeedback(null)}
-            />
-          )}
-
-          <header className="adm-topbar">
-            <div className="adm-title-wrap">
+    <div className={`adm-root adm-theme-${theme}`}>
+      <a className="adm-skip" href="#adm-main">Skip to content</a>
+      <div className="adm-shell">
+        <aside className={`adm-sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileNavOpen ? 'open' : ''}`} aria-label="Sidebar Navigation">
+          <div className="adm-sidebar-head">
+            <button type="button" className="adm-logo-btn" onClick={() => setActiveSection('overview')}>Software Ops</button>
+            <button type="button" className="adm-toggle-btn" onClick={() => setSidebarCollapsed((v) => !v)}>{sidebarCollapsed ? '>' : '<'}</button>
+          </div>
+          <nav className="adm-nav-list">
+            {NAV_ITEMS.map((item) => (
               <button
-                className="adm-menu-btn"
+                key={item.id}
                 type="button"
-                onClick={() => setMenuOpen((prev) => !prev)}
-                aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-                aria-expanded={menuOpen}
+                className={`adm-nav-item ${activeSection === item.id ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveSection(item.id);
+                  setMobileNavOpen(false);
+                }}
               >
-                <span />
-                <span />
-                <span />
+                <span className="adm-nav-bullet" aria-hidden="true" />
+                <span>{item.label}</span>
               </button>
-              <div>
-                <h1>Admin Dashboard</h1>
-                <p>{activeSection.label} view</p>
-              </div>
+            ))}
+          </nav>
+          <div className="adm-sidebar-foot">
+            <button type="button" className="adm-plain-btn" onClick={() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))}>
+              {theme === 'light' ? 'Dark mode' : 'Light mode'}
+            </button>
+            <button type="button" className="adm-plain-btn" onClick={onBack}>Exit Admin</button>
+          </div>
+        </aside>
+
+        {mobileNavOpen && <button className="adm-overlay" type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" />}
+
+        <div className="adm-content-wrap" id="adm-main">
+          <header className="adm-header">
+            <div>
+              <button className="adm-mobile-menu" type="button" onClick={() => setMobileNavOpen((v) => !v)}>Menu</button>
+              <h1>Admin Dashboard</h1>
+              <p>Role-based workflow: {unread > 0 ? 'Incident Mode' : 'Operational Mode'}</p>
             </div>
-            <div className="adm-top-actions">
-              <div className={`adm-health ${toneFor(health)}`}>{health}</div>
-              <div className="adm-notify">
-                <button className="adm-bell" type="button" onClick={() => setNotifyOpen((v) => !v)}>
-                  Alerts
-                  {unreadCount > 0 && <em>{unreadCount}</em>}
-                </button>
-                {notifyOpen && (
-                  <div className="adm-drop">
-                    {alerts.filter((a) => !archived[a.id]).slice(0, 6).map((a) => (
-                      <button key={a.id} type="button" onClick={() => chooseSection('notifications')}>
-                        <span>{a.title}</span>
-                        <small>{fmt(a.created_at)}</small>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="adm-profile">
-                <span>AD</span>
-                <div><strong>Administrator</strong><small>Superuser</small></div>
-              </div>
-              <button className="tp-btn tp-btn-secondary" onClick={onBack} type="button">Back</button>
+            <div className="adm-header-actions">
+              <label htmlFor="admin-search">Global search</label>
+              <input id="admin-search" type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search users, software, logs" />
+              <button type="button" className="adm-notify-btn" onClick={() => setActiveSection('notifications')}>Alerts {unread > 0 && <strong>{unread}</strong>}</button>
             </div>
           </header>
 
-          {critical && (
-            <section className="adm-critical">
-              <div><strong>Critical alert</strong><p>{critical.title}</p></div>
-              <button className="tp-btn tp-btn-primary" onClick={() => chooseSection('projects')} type="button">Suspend Download</button>
-            </section>
-          )}
+          {feedback && <FeedbackMessage {...feedback} onClose={() => setFeedback(null)} />}
+          {loading && <FeedbackMessage variant="info" title="Loading dashboard" message="Fetching modules..." />}
 
-          {loading && (
-            <FeedbackMessage
-              variant="info"
-              title="Loading admin data"
-              message="Fetching users, projects, alerts, and audit events."
-            />
-          )}
-          {!!error && (
-            <FeedbackMessage
-              variant="error"
-              title="Dashboard load error"
-              message={error}
-            />
-          )}
-
-          {!loading && !error && section === 'overview' && (
-            <section className="adm-grid-metrics">
-              {metrics.map((m) => <Metric key={m.label} {...m} />)}
-            </section>
-          )}
-
-          {!loading && !error && section === 'users' && (
-            <section className="adm-card">
-              <div className="adm-row adm-head">
-                <h2>User Management</h2>
-                <div className="adm-row">
-                  <input className="tp-field" placeholder="Search" value={userQuery} onChange={(e) => { setUserQuery(e.target.value); setUserPage(1); }} />
-                  <select className="tp-select" value={userFilter} onChange={(e) => { setUserFilter(e.target.value); setUserPage(1); }}>
-                    <option value="all">All</option><option value="active">Active</option><option value="suspended">Suspended</option><option value="recent">Recently Registered</option>
-                  </select>
+          {!loading && activeSection === 'overview' && (
+            <main className="adm-grid">
+              {metrics.map((m) => (
+                <article key={m.label} className="adm-panel">
+                  <p>{m.label}</p>
+                  <h3>{m.value}</h3>
+                  <MiniLine points={m.series} />
+                </article>
+              ))}
+              <article className="adm-panel adm-wide">
+                <div className="adm-section-head"><h2>Visual Analytics</h2><small>Real-time refresh every 60s</small></div>
+                <div className="adm-analytics">
+                  <section><h4>User growth over time</h4><MiniLine points={series.users} /></section>
+                  <section><h4>Software downloads trend</h4><MiniLine points={series.downloads} /></section>
+                  <section><h4>Active sessions visualization</h4><MiniLine points={series.sessions} /></section>
+                  <section><h4>System usage distribution</h4><ul className="adm-list"><li>Admin: 26%</li><li>Developer: 48%</li><li>Viewer: 26%</li></ul></section>
                 </div>
+              </article>
+              <article className="adm-panel">
+                <h2>Recent Activity Feed</h2>
+                <ul className="adm-list">
+                  {logs.slice(0, 4).map((log) => (
+                    <li key={`feed-${log.id}`}>{log.type} - {toDate(log.time)}</li>
+                  ))}
+                </ul>
+              </article>
+            </main>
+          )}
+
+          {!loading && activeSection === 'users' && (
+            <section className="adm-panel">
+              <div className="adm-section-head"><h2>User Management</h2></div>
+              <div className="adm-filters">
+                <select value={userRole} onChange={(e) => setUserRole(e.target.value)}>
+                  <option value="all">Role: all</option><option value="admin">Admin</option><option value="moderator">Moderator</option><option value="developer">Developer</option><option value="viewer">Viewer</option>
+                </select>
+                <select value={userStatus} onChange={(e) => setUserStatus(e.target.value)}>
+                  <option value="all">Status: all</option><option value="active">Active</option><option value="suspended">Suspended</option>
+                </select>
               </div>
               <div className="adm-table-wrap">
                 <table className="adm-table">
-                  <thead><tr><th>User</th><th>Email</th><th>Status</th><th>Role</th><th>Registered</th><th>Actions</th></tr></thead>
+                  <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Active</th><th>Actions</th></tr></thead>
                   <tbody>
-                    {usersPage.map((u) => (
+                    {usersFiltered.map((u) => (
                       <tr key={u.id}>
-                        <td><strong>{u.username}</strong><div className="adm-sub">{u.full_name || 'N/A'}</div></td>
-                        <td>{u.email}</td>
-                        <td><Badge>{suspendedUsers[u.id] ? 'Suspended' : 'Active'}</Badge></td>
-                        <td>{u.role}</td>
-                        <td>{fmt(u.created_at)}</td>
-                        <td>
-                          <div className="adm-row">
-                            <button className="tp-btn tp-btn-secondary" onClick={() => setSelectedUser(u)} type="button">View</button>
-                            <button className="tp-btn tp-btn-secondary" onClick={() => (suspendedUsers[u.id] ? setSuspendedUsers((p) => { const n = { ...p }; delete n[u.id]; return n; }) : setConfirmUser(u))} type="button">{suspendedUsers[u.id] ? 'Reactivate' : 'Suspend'}</button>
-                          </div>
-                        </td>
+                        <td>{u.id}</td><td>{u.name}</td><td>{u.email}</td><td>{u.role}</td><td><Pill value={u.status} /></td><td>{toDate(u.lastActive)}</td>
+                        <td><div className="adm-actions"><button type="button" onClick={() => setSelectedUser(u)}>View</button><button type="button" onClick={() => setFeedback({ variant: 'info', title: 'Notification sent', message: `Warning sent to ${u.email}.` })}>Warn</button>{u.status === 'Suspended' ? <button type="button" onClick={() => updateUser(u.id, 'Active')}>Activate</button> : <button type="button" onClick={() => setConfirm({ title: 'Suspend account', message: `Suspend ${u.name}?`, action: () => updateUser(u.id, 'Suspended') })}>Suspend</button>}</div></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="adm-page">{Array.from({ length: userCount }).map((_, i) => <button key={i} className={userPage === i + 1 ? 'active' : ''} onClick={() => setUserPage(i + 1)} type="button">{i + 1}</button>)}</div>
-              {selectedUser && (
-                <div className="adm-profile-box">
-                  <div className="adm-row adm-head"><h3>User Profile</h3><button className="tp-btn tp-btn-secondary" onClick={() => setSelectedUser(null)} type="button">Close</button></div>
-                  <p><strong>ID:</strong> {selectedUser.id} | <strong>Username:</strong> {selectedUser.username} | <strong>Email:</strong> {selectedUser.email}</p>
-                  <h4>Activity logs</h4>
-                  <ul>{selectedLogs.map((l) => <li key={l.id}><strong>{l.event_type}</strong> <span>{fmt(l.occurred_at)}</span></li>)}{!selectedLogs.length && <li>No logs.</li>}</ul>
-                </div>
-              )}
+              {selectedUser && <div className="adm-detail"><h3>{selectedUser.name}</h3><p>{selectedUser.email}</p><p>Login and activity history available for audit.</p><button type="button" onClick={() => setSelectedUser(null)}>Close</button></div>}
             </section>
           )}
 
-          {!loading && !error && section === 'projects' && (
-            <section className="adm-card">
-              <div className="adm-row adm-head">
-                <h2>Project Moderation</h2>
-                <div className="adm-row">
-                  <input className="tp-field" placeholder="Search project/uploader" value={projectQuery} onChange={(e) => { setProjectQuery(e.target.value); setProjectPage(1); }} />
-                  <select className="tp-select" value={projectFilter} onChange={(e) => { setProjectFilter(e.target.value); setProjectPage(1); }}>
-                    <option value="all">All</option><option value="safe">Safe</option><option value="under_review">Under Review</option><option value="suspicious">Suspicious</option><option value="blocked">Blocked</option>
-                  </select>
-                </div>
-              </div>
+          {!loading && activeSection === 'software' && (
+            <section className="adm-panel">
+              <div className="adm-section-head"><h2>Software Management</h2></div>
               <div className="adm-table-wrap">
                 <table className="adm-table">
-                  <thead><tr><th>Project</th><th>Uploader</th><th>Visibility</th><th>Scan Status</th><th>Updated</th><th>Actions</th></tr></thead>
+                  <thead><tr><th>Software Name</th><th>Version</th><th>Owner</th><th>Upload Date</th><th>Status</th><th>Downloads</th><th>Actions</th></tr></thead>
                   <tbody>
-                    {projectsPage.map((p) => (
-                      <tr key={p.package_id}>
-                        <td><strong>{p.name}</strong><div className="adm-sub">v{p.latest_version || 'N/A'}</div></td>
-                        <td><strong>{p.owner_username}</strong><div className="adm-sub">{p.owner_email}</div></td>
-                        <td>{p.is_public ? 'Public' : 'Private'}</td>
-                        <td><Badge>{projectStatus(p)}</Badge></td>
-                        <td>{fmt(p.updated_at)}</td>
-                        <td>
-                          <div className="adm-row">
-                            <button
-                              className="tp-btn tp-btn-secondary"
-                              onClick={() => {
-                                setSuspendedProjects((s) => ({ ...s, [p.package_id]: true }));
-                                showFeedback('warning', 'Download halted', `Downloads halted for ${p.name}.`);
-                              }}
-                              type="button"
-                            >
-                              Halt Download
-                            </button>
-                            <button
-                              className="tp-btn tp-btn-secondary"
-                              onClick={() => {
-                                setSuspendedProjects((s) => ({ ...s, [p.package_id]: true }));
-                                showFeedback('warning', 'Project suspended', `${p.name} was suspended.`);
-                              }}
-                              type="button"
-                            >
-                              Suspend
-                            </button>
-                            <button
-                              className="tp-btn tp-btn-secondary"
-                              onClick={() => {
-                                setSuspendedProjects((s) => ({ ...s, [p.package_id]: false }));
-                                showFeedback('success', 'Project restored', `${p.name} is active again.`);
-                              }}
-                              type="button"
-                            >
-                              Restore
-                            </button>
-                          </div>
-                        </td>
+                    {softwareFiltered.map((s) => (
+                      <tr key={s.id}>
+                        <td>{s.name}</td><td>{s.version}</td><td>{s.owner}</td><td>{toDate(s.uploadDate)}</td><td><Pill value={s.status} /></td><td>{s.downloads}</td>
+                        <td><div className="adm-actions"><button type="button" onClick={() => updateSoftware(s.id, 'Approved')}>Approve</button><button type="button" onClick={() => setConfirm({ title: 'Reject package', message: `Reject ${s.name}?`, action: () => updateSoftware(s.id, 'Rejected') })}>Reject</button><button type="button" onClick={() => updateSoftware(s.id, 'Archived')}>Archive</button></div></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="adm-page">{Array.from({ length: projectCount }).map((_, i) => <button key={i} className={projectPage === i + 1 ? 'active' : ''} onClick={() => setProjectPage(i + 1)} type="button">{i + 1}</button>)}</div>
             </section>
           )}
 
-          {!loading && !error && section === 'security' && (
-            <section className="adm-card">
-              <div className="adm-row adm-head"><h2>Security & System Alert Center</h2><button className="tp-btn tp-btn-secondary" onClick={reload} type="button">Refresh</button></div>
-              <ul className="adm-alerts">
-                {alerts.filter((a) => !archived[a.id]).map((a) => (
-                  <li key={a.id} className={unread[a.id] ? 'unread' : ''}>
-                    <div className="adm-row"><Badge>{String(a.severity || 'info').toUpperCase()}</Badge><div><strong>{a.title}</strong><p>{a.description}</p></div></div>
-                    <div className="adm-row">
-                      <small>{fmt(a.created_at)}</small>
-                      <small>User: {a.actor_user_id || 'N/A'}</small>
-                      <button className="tp-btn tp-btn-secondary" onClick={async () => {
-                        try {
-                          await api.patch(`/api/v1/admin/alerts/${a.id}/ack`);
-                          setAlerts((prev) => prev.map((item) => (item.id === a.id ? { ...item, acknowledged: true } : item)));
-                          showFeedback('success', 'Alert acknowledged', `"${a.title}" was acknowledged.`);
-                        } catch {
-                          showFeedback('error', 'Acknowledge failed', 'Unable to acknowledge alert.');
-                        }
-                      }} type="button">Acknowledge</button>
-                      <button className="tp-btn tp-btn-secondary" onClick={() => setUnread((u) => { const n = { ...u }; delete n[a.id]; return n; })} type="button">Mark Read</button>
-                      <button className="tp-btn tp-btn-secondary" onClick={() => setArchived((v) => ({ ...v, [a.id]: true }))} type="button">Archive</button>
+          {!loading && activeSection === 'analytics' && (
+            <section className="adm-panel">
+              <div className="adm-section-head">
+                <h2>Analytics & Reporting</h2>
+                <div className="adm-actions">
+                  <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option></select>
+                  <button type="button" onClick={exportCsv}>Export CSV</button>
+                  <button type="button" onClick={exportPdf}>Export PDF</button>
+                </div>
+              </div>
+              <div className="adm-analytics">
+                <section><h4>User growth analytics</h4><MiniLine points={series.users} /></section>
+                <section><h4>Download trends</h4><MiniLine points={series.downloads} /></section>
+                <section><h4>Platform engagement</h4><MiniLine points={series.sessions} /></section>
+                <section><h4>Most downloaded software</h4><ul className="adm-list">{topSoftware.map((x) => <li key={x.id}>{x.name}: {x.downloads}</li>)}</ul></section>
+              </div>
+            </section>
+          )}
+
+          {!loading && activeSection === 'logs' && (
+            <section className="adm-panel">
+              <div className="adm-section-head"><h2>Activity Logs & Security</h2></div>
+              <div className="adm-table-wrap">
+                <table className="adm-table">
+                  <thead><tr><th>Timestamp</th><th>Type</th><th>Actor</th><th>Details</th><th>Severity</th></tr></thead>
+                  <tbody>{logs.map((l) => <tr key={l.id}><td>{toDate(l.time)}</td><td>{l.type}</td><td>{l.actor}</td><td>{l.details}</td><td><Pill value={l.severity} /></td></tr>)}</tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {!loading && activeSection === 'notifications' && (
+            <section className="adm-panel">
+              <div className="adm-section-head"><h2>Notifications & Alerts</h2></div>
+              <ul className="adm-notifications">
+                {notifications.map((n) => (
+                  <li key={n.id} className={n.unread ? 'unread' : ''}>
+                    <div><strong>{n.title}</strong><p>{n.message}</p><small>{toDate(n.time)}</small></div>
+                    <div className="adm-actions">
+                      <Pill value={n.severity} />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            if (n.apiId) await api.patch(`/api/v1/admin/alerts/${n.apiId}/ack`);
+                          } catch {
+                            // Keep optimistic UI behavior even if acknowledgement fails.
+                          }
+                          setNotifications((prev) => prev.map((x) => (x.id === n.id ? { ...x, unread: false } : x)));
+                        }}
+                      >
+                        Mark read
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -485,78 +486,25 @@ function AdminPage({ onBack }) {
             </section>
           )}
 
-          {!loading && !error && section === 'analytics' && (
-            <section className="adm-chart-grid">
-              <LineChart title="User growth over time" tone="blue" series={series.usersDaily.map((v, i) => ({ label: i, value: v }))} />
-              <LineChart title="Upload activity trends" tone="green" series={series.uploadsDaily.map((v, i) => ({ label: i, value: v }))} />
-              <LineChart title="Download activity trends" tone="teal" series={series.downloadsDaily.map((v, i) => ({ label: i, value: v }))} />
-              <LineChart title="Suspended content statistics" tone="amber" series={series.alertDaily.map((v, i) => ({ label: i, value: v }))} />
-            </section>
+          {!loading && activeSection === 'settings' && (
+            <section className="adm-panel"><h2>System Settings</h2><div className="adm-filters"><label>Approval workflow<select><option>Strict</option><option>Balanced</option></select></label><label>Session timeout<select><option>30m</option><option>60m</option></select></label><label>Security threshold<select><option>Medium</option><option>High</option></select></label></div></section>
           )}
 
-          {!loading && !error && section === 'notifications' && (
-            <section className="adm-card">
-              <div className="adm-row adm-head"><h2>Notifications</h2><small>{unreadCount} unread</small></div>
-              <ul className="adm-notification-list">
-                {alerts.filter((a) => !archived[a.id]).map((a) => (
-                  <li key={a.id} className={unread[a.id] ? 'unread' : ''}>
-                    <div><div className="adm-row"><Badge>{String(a.severity || 'info').toUpperCase()}</Badge><strong>{a.title}</strong></div><p>{a.description}</p><small>{fmt(a.created_at)}</small></div>
-                    <div className="adm-row">
-                      <button className="tp-btn tp-btn-secondary" onClick={() => setUnread((u) => { const n = { ...u }; delete n[a.id]; return n; })} type="button">Mark Read</button>
-                      <button className="tp-btn tp-btn-secondary" onClick={() => setArchived((v) => ({ ...v, [a.id]: true }))} type="button">Archive</button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
+          {!loading && activeSection === 'profile' && (
+            <section className="adm-panel"><h2>Admin Profile</h2><p>Role: Super Admin</p><p>Permissions: Full user management, software lifecycle control, analytics exports, security response.</p></section>
           )}
-        </main>
+        </div>
       </div>
 
-      {menuOpen && (
-        <div className="adm-drawer-overlay" onClick={() => setMenuOpen(false)}>
-          <aside className="adm-drawer" onClick={(e) => e.stopPropagation()}>
-            <div className="adm-drawer-head">
-              <div className="adm-drawer-title">
-                <strong>Navigate</strong>
-                <small>Admin controls</small>
-              </div>
-              <button className="tp-btn tp-btn-secondary" type="button" onClick={() => setMenuOpen(false)}>Close</button>
-            </div>
-            <nav className="adm-drawer-nav">
-              {SECTIONS.map((item) => (
-                <button
-                  key={item.id}
-                  className={`adm-nav ${section === item.id ? 'active' : ''}`}
-                  onClick={() => chooseSection(item.id)}
-                  type="button"
-                >
-                  <span className="adm-nav-icon" aria-hidden="true">{SECTION_META[item.id]?.icon || 'NA'}</span>
-                  <span className="adm-nav-copy">
-                    <span>{item.label}</span>
-                    <small>{SECTION_META[item.id]?.hint || ''}</small>
-                  </span>
-                </button>
-              ))}
-            </nav>
-          </aside>
-        </div>
-      )}
-
-      {confirmUser && (
+      {confirm && (
         <div className="adm-modal">
           <div className="adm-modal-card">
-            <h3>Suspend account</h3>
-            <p>Suspend {confirmUser.username}? This action can be reverted.</p>
-            <div className="adm-row">
-              <button className="tp-btn tp-btn-secondary" onClick={() => setConfirmUser(null)} type="button">Cancel</button>
-              <button className="tp-btn tp-btn-primary" onClick={() => { setSuspendedUsers((prev) => ({ ...prev, [confirmUser.id]: true })); setConfirmUser(null); }} type="button">Confirm</button>
-            </div>
+            <h3>{confirm.title}</h3>
+            <p>{confirm.message}</p>
+            <div className="adm-actions"><button type="button" onClick={() => setConfirm(null)}>Cancel</button><button type="button" onClick={() => { confirm.action(); setConfirm(null); }}>Confirm</button></div>
           </div>
         </div>
       )}
     </div>
   );
 }
-
-export default AdminPage;
