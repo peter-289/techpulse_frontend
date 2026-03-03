@@ -14,6 +14,10 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'Admin Profile' },
 ];
 
+const USER_PAGE_SIZE = 8;
+const SOFTWARE_PAGE_SIZE = 8;
+const LOG_PAGE_SIZE = 10;
+
 const METRIC_SERIES = {
   users: [8, 10, 11, 13, 15, 16, 20, 21, 23, 24, 28, 31],
   downloads: [230, 240, 260, 300, 340, 360, 390, 420, 460, 490, 515, 552],
@@ -89,7 +93,7 @@ function MiniLine({ points }) {
   );
 }
 
-export default function AdminPage({ onBack }) {
+export default function AdminPage({ user, onBack, onNavigate }) {
   const [theme, setTheme] = useState(() => window.localStorage.getItem('adm-theme') || 'light');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -108,6 +112,9 @@ export default function AdminPage({ onBack }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userStatus, setUserStatus] = useState('all');
   const [userRole, setUserRole] = useState('all');
+  const [userPage, setUserPage] = useState(1);
+  const [softwarePage, setSoftwarePage] = useState(1);
+  const [logPage, setLogPage] = useState(1);
 
   useEffect(() => {
     window.localStorage.setItem('adm-theme', theme);
@@ -220,6 +227,27 @@ export default function AdminPage({ onBack }) {
     [software, search],
   );
 
+  const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
+  const isSuperAdmin = String(user?.account_type || '').toLowerCase() === 'super_admin';
+  const permissions = useMemo(() => ({
+    manageUsers: isAdmin,
+    suspendAccounts: isAdmin,
+    assignRoles: isAdmin,
+    moderateSoftware: isAdmin,
+    exportReports: isAdmin,
+    viewAuditTrail: isAdmin,
+    manageAlerts: isAdmin,
+    manageSettings: isAdmin && isSuperAdmin,
+    destructiveActions: isSuperAdmin,
+  }), [isAdmin, isSuperAdmin]);
+
+  const userTotalPages = Math.max(1, Math.ceil(usersFiltered.length / USER_PAGE_SIZE));
+  const softwareTotalPages = Math.max(1, Math.ceil(softwareFiltered.length / SOFTWARE_PAGE_SIZE));
+  const logTotalPages = Math.max(1, Math.ceil(logs.length / LOG_PAGE_SIZE));
+  const usersPageRows = usersFiltered.slice((userPage - 1) * USER_PAGE_SIZE, userPage * USER_PAGE_SIZE);
+  const softwarePageRows = softwareFiltered.slice((softwarePage - 1) * SOFTWARE_PAGE_SIZE, softwarePage * SOFTWARE_PAGE_SIZE);
+  const logsPageRows = logs.slice((logPage - 1) * LOG_PAGE_SIZE, logPage * LOG_PAGE_SIZE);
+
   const unread = notifications.filter((n) => n.unread).length;
   const metrics = [
     { label: 'Total Users', value: summary?.total_users ?? users.length, series: series.users },
@@ -230,14 +258,45 @@ export default function AdminPage({ onBack }) {
     { label: 'Pending Reviews / Flags', value: summary?.pending_reviews ?? software.filter((s) => ['Pending', 'Flagged'].includes(s.status)).length, series: series.users.slice(3) },
   ];
 
-  const updateUser = (id, status) => setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
-  const updateSoftware = (id, status) => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
+  const updateUser = (id, status) => {
+    if (!permissions.suspendAccounts) {
+      setFeedback({ variant: 'error', title: 'Access denied', message: 'You do not have permission to update account status.' });
+      return;
+    }
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
+  };
+
+  const assignUserRole = (id, role) => {
+    if (!permissions.assignRoles) {
+      setFeedback({ variant: 'error', title: 'Access denied', message: 'You do not have permission to assign roles.' });
+      return;
+    }
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
+  };
+
+  const updateSoftware = (id, status) => {
+    if (!permissions.moderateSoftware) {
+      setFeedback({ variant: 'error', title: 'Access denied', message: 'You do not have permission to moderate software.' });
+      return;
+    }
+    setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
+  };
   const topSoftware = useMemo(
     () => software.slice().sort((a, b) => b.downloads - a.downloads).slice(0, 5),
     [software],
   );
 
+  useEffect(() => {
+    setUserPage(1);
+    setSoftwarePage(1);
+    setLogPage(1);
+  }, [search, userStatus, userRole]);
+
   const exportCsv = () => {
+    if (!permissions.exportReports) {
+      setFeedback({ variant: 'error', title: 'Access denied', message: 'You do not have permission to export reports.' });
+      return;
+    }
     const metricRows = metrics.map((metric) => `${metric.label},${String(metric.value).replace(/,/g, '')}`);
     const topRows = topSoftware.map((item) => `${item.name},${item.version},${item.owner},${item.downloads}`);
     const csv = [
@@ -259,6 +318,10 @@ export default function AdminPage({ onBack }) {
   };
 
   const exportPdf = () => {
+    if (!permissions.exportReports) {
+      setFeedback({ variant: 'error', title: 'Access denied', message: 'You do not have permission to export reports.' });
+      return;
+    }
     const rows = topSoftware.map((item) => `<tr><td>${item.name}</td><td>${item.version}</td><td>${item.owner}</td><td>${item.downloads}</td></tr>`).join('');
     const popup = window.open('', '_blank', 'noopener,noreferrer,width=960,height=720');
     if (!popup) {
@@ -297,6 +360,22 @@ export default function AdminPage({ onBack }) {
     popup.print();
     setFeedback({ variant: 'success', title: 'PDF export opened', message: 'Use the print dialog to save as PDF.' });
   };
+
+  if (!isAdmin) {
+    return (
+      <div className={`adm-root adm-theme-${theme}`}>
+        <div className="adm-content-wrap">
+          <section className="adm-panel">
+            <h2>Admin Access Required</h2>
+            <p>This dashboard is restricted to administrator accounts.</p>
+            <div className="adm-actions">
+              <button type="button" onClick={() => (onNavigate ? onNavigate('resources') : onBack())}>Back to Workspace</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`adm-root adm-theme-${theme}`}>
@@ -338,7 +417,9 @@ export default function AdminPage({ onBack }) {
             <div>
               <button className="adm-mobile-menu" type="button" onClick={() => setMobileNavOpen((v) => !v)}>Menu</button>
               <h1>Admin Dashboard</h1>
-              <p>Role-based workflow: {unread > 0 ? 'Incident Mode' : 'Operational Mode'}</p>
+              <p>
+                {isSuperAdmin ? 'Super Admin privileges' : 'Admin privileges'} | Workflow: {unread > 0 ? 'Incident Mode' : 'Operational Mode'}
+              </p>
             </div>
             <div className="adm-header-actions">
               <label htmlFor="admin-search">Global search</label>
@@ -359,6 +440,16 @@ export default function AdminPage({ onBack }) {
                   <MiniLine points={m.series} />
                 </article>
               ))}
+              <article className="adm-panel">
+                <h2>Admin Privileges</h2>
+                <ul className="adm-list">
+                  <li>User lifecycle management: {permissions.manageUsers ? 'Enabled' : 'Disabled'}</li>
+                  <li>Role assignment: {permissions.assignRoles ? 'Enabled' : 'Disabled'}</li>
+                  <li>Software moderation: {permissions.moderateSoftware ? 'Enabled' : 'Disabled'}</li>
+                  <li>Audit and security logs: {permissions.viewAuditTrail ? 'Enabled' : 'Disabled'}</li>
+                  <li>System settings: {permissions.manageSettings ? 'Enabled' : 'Limited'}</li>
+                </ul>
+              </article>
               <article className="adm-panel adm-wide">
                 <div className="adm-section-head"><h2>Visual Analytics</h2><small>Real-time refresh every 60s</small></div>
                 <div className="adm-analytics">
@@ -394,14 +485,44 @@ export default function AdminPage({ onBack }) {
                 <table className="adm-table">
                   <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Active</th><th>Actions</th></tr></thead>
                   <tbody>
-                    {usersFiltered.map((u) => (
+                    {usersPageRows.map((u) => (
                       <tr key={u.id}>
                         <td>{u.id}</td><td>{u.name}</td><td>{u.email}</td><td>{u.role}</td><td><Pill value={u.status} /></td><td>{toDate(u.lastActive)}</td>
-                        <td><div className="adm-actions"><button type="button" onClick={() => setSelectedUser(u)}>View</button><button type="button" onClick={() => setFeedback({ variant: 'info', title: 'Notification sent', message: `Warning sent to ${u.email}.` })}>Warn</button>{u.status === 'Suspended' ? <button type="button" onClick={() => updateUser(u.id, 'Active')}>Activate</button> : <button type="button" onClick={() => setConfirm({ title: 'Suspend account', message: `Suspend ${u.name}?`, action: () => updateUser(u.id, 'Suspended') })}>Suspend</button>}</div></td>
+                        <td>
+                          <div className="adm-actions">
+                            <button type="button" onClick={() => setSelectedUser(u)}>View</button>
+                            <button type="button" onClick={() => setFeedback({ variant: 'info', title: 'Notification sent', message: `Warning sent to ${u.email}.` })}>Warn</button>
+                            <select
+                              value={u.role}
+                              aria-label={`Assign role for ${u.name}`}
+                              onChange={(e) => assignUserRole(u.id, e.target.value)}
+                            >
+                              <option value="Admin">Admin</option>
+                              <option value="Moderator">Moderator</option>
+                              <option value="Developer">Developer</option>
+                              <option value="Viewer">Viewer</option>
+                            </select>
+                            {u.status === 'Suspended'
+                              ? <button type="button" onClick={() => updateUser(u.id, 'Active')}>Activate</button>
+                              : <button type="button" onClick={() => setConfirm({ title: 'Suspend account', message: `Suspend ${u.name}?`, action: () => updateUser(u.id, 'Suspended') })}>Suspend</button>}
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+              <div className="adm-pagination">
+                {Array.from({ length: userTotalPages }).map((_, index) => (
+                  <button
+                    key={`u-page-${index + 1}`}
+                    type="button"
+                    className={userPage === index + 1 ? 'active' : ''}
+                    onClick={() => setUserPage(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
               </div>
               {selectedUser && <div className="adm-detail"><h3>{selectedUser.name}</h3><p>{selectedUser.email}</p><p>Login and activity history available for audit.</p><button type="button" onClick={() => setSelectedUser(null)}>Close</button></div>}
             </section>
@@ -414,14 +535,54 @@ export default function AdminPage({ onBack }) {
                 <table className="adm-table">
                   <thead><tr><th>Software Name</th><th>Version</th><th>Owner</th><th>Upload Date</th><th>Status</th><th>Downloads</th><th>Actions</th></tr></thead>
                   <tbody>
-                    {softwareFiltered.map((s) => (
+                    {softwarePageRows.map((s) => (
                       <tr key={s.id}>
                         <td>{s.name}</td><td>{s.version}</td><td>{s.owner}</td><td>{toDate(s.uploadDate)}</td><td><Pill value={s.status} /></td><td>{s.downloads}</td>
-                        <td><div className="adm-actions"><button type="button" onClick={() => updateSoftware(s.id, 'Approved')}>Approve</button><button type="button" onClick={() => setConfirm({ title: 'Reject package', message: `Reject ${s.name}?`, action: () => updateSoftware(s.id, 'Rejected') })}>Reject</button><button type="button" onClick={() => updateSoftware(s.id, 'Archived')}>Archive</button></div></td>
+                        <td>
+                          <div className="adm-actions">
+                            <button type="button" onClick={() => updateSoftware(s.id, 'Approved')}>Approve</button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!permissions.destructiveActions) {
+                                  setFeedback({ variant: 'warning', title: 'Limited privilege', message: 'Reject/Archive actions require super admin privilege.' });
+                                  return;
+                                }
+                                setConfirm({ title: 'Reject package', message: `Reject ${s.name}?`, action: () => updateSoftware(s.id, 'Rejected') });
+                              }}
+                            >
+                              Reject
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!permissions.destructiveActions) {
+                                  setFeedback({ variant: 'warning', title: 'Limited privilege', message: 'Reject/Archive actions require super admin privilege.' });
+                                  return;
+                                }
+                                updateSoftware(s.id, 'Archived');
+                              }}
+                            >
+                              Archive
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+              <div className="adm-pagination">
+                {Array.from({ length: softwareTotalPages }).map((_, index) => (
+                  <button
+                    key={`s-page-${index + 1}`}
+                    type="button"
+                    className={softwarePage === index + 1 ? 'active' : ''}
+                    onClick={() => setSoftwarePage(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
               </div>
             </section>
           )}
@@ -451,8 +612,20 @@ export default function AdminPage({ onBack }) {
               <div className="adm-table-wrap">
                 <table className="adm-table">
                   <thead><tr><th>Timestamp</th><th>Type</th><th>Actor</th><th>Details</th><th>Severity</th></tr></thead>
-                  <tbody>{logs.map((l) => <tr key={l.id}><td>{toDate(l.time)}</td><td>{l.type}</td><td>{l.actor}</td><td>{l.details}</td><td><Pill value={l.severity} /></td></tr>)}</tbody>
+                  <tbody>{logsPageRows.map((l) => <tr key={l.id}><td>{toDate(l.time)}</td><td>{l.type}</td><td>{l.actor}</td><td>{l.details}</td><td><Pill value={l.severity} /></td></tr>)}</tbody>
                 </table>
+              </div>
+              <div className="adm-pagination">
+                {Array.from({ length: logTotalPages }).map((_, index) => (
+                  <button
+                    key={`l-page-${index + 1}`}
+                    type="button"
+                    className={logPage === index + 1 ? 'active' : ''}
+                    onClick={() => setLogPage(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
               </div>
             </section>
           )}
@@ -469,6 +642,10 @@ export default function AdminPage({ onBack }) {
                       <button
                         type="button"
                         onClick={async () => {
+                          if (!permissions.manageAlerts) {
+                            setFeedback({ variant: 'error', title: 'Access denied', message: 'You do not have permission to manage alerts.' });
+                            return;
+                          }
                           try {
                             if (n.apiId) await api.patch(`/api/v1/admin/alerts/${n.apiId}/ack`);
                           } catch {
@@ -487,11 +664,49 @@ export default function AdminPage({ onBack }) {
           )}
 
           {!loading && activeSection === 'settings' && (
-            <section className="adm-panel"><h2>System Settings</h2><div className="adm-filters"><label>Approval workflow<select><option>Strict</option><option>Balanced</option></select></label><label>Session timeout<select><option>30m</option><option>60m</option></select></label><label>Security threshold<select><option>Medium</option><option>High</option></select></label></div></section>
+            <section className="adm-panel">
+              <h2>System Settings</h2>
+              {!permissions.manageSettings && (
+                <FeedbackMessage
+                  variant="warning"
+                  title="Limited settings access"
+                  message="Only super admins can modify global system settings."
+                  compact
+                />
+              )}
+              <div className="adm-filters">
+                <label>
+                  Approval workflow
+                  <select disabled={!permissions.manageSettings}>
+                    <option>Strict</option>
+                    <option>Balanced</option>
+                  </select>
+                </label>
+                <label>
+                  Session timeout
+                  <select disabled={!permissions.manageSettings}>
+                    <option>30m</option>
+                    <option>60m</option>
+                  </select>
+                </label>
+                <label>
+                  Security threshold
+                  <select disabled={!permissions.manageSettings}>
+                    <option>Medium</option>
+                    <option>High</option>
+                  </select>
+                </label>
+              </div>
+            </section>
           )}
 
           {!loading && activeSection === 'profile' && (
-            <section className="adm-panel"><h2>Admin Profile</h2><p>Role: Super Admin</p><p>Permissions: Full user management, software lifecycle control, analytics exports, security response.</p></section>
+            <section className="adm-panel">
+              <h2>Admin Profile</h2>
+              <p>Name: {user?.full_name || user?.username || 'Administrator'}</p>
+              <p>Role: {isSuperAdmin ? 'Super Admin' : 'Admin'}</p>
+              <p>Permissions: User management, software lifecycle control, analytics exports, security response.</p>
+            </section>
           )}
         </div>
       </div>

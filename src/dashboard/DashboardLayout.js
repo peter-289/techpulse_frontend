@@ -46,6 +46,17 @@ export default function DashboardLayout({
 
   const userName = useMemo(() => user?.full_name || user?.username || 'User', [user]);
   const userInitial = useMemo(() => userName.trim().charAt(0).toUpperCase() || 'U', [userName]);
+  const adminNav = useMemo(() => {
+    if (!user || String(user.role || '').toLowerCase() !== 'admin') return [];
+    return [{ id: 'admin', label: 'Admin Console', icon: 'AD' }];
+  }, [user]);
+  const sidebarSections = useMemo(() => {
+    if (!adminNav.length) return SIDEBAR_SECTIONS;
+    return [
+      ...SIDEBAR_SECTIONS,
+      { title: 'Administration', items: adminNav },
+    ];
+  }, [adminNav]);
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -139,7 +150,7 @@ export default function DashboardLayout({
           </header>
 
           <div className="tp-sidebar-nav-wrap">
-            {SIDEBAR_SECTIONS.map((section) => (
+            {sidebarSections.map((section) => (
               <nav key={section.title} className="tp-sidebar-nav" aria-label={section.title}>
                 <h3>{section.title}</h3>
                 {section.items.map((item) => (

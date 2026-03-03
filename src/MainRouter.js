@@ -19,6 +19,7 @@ import { authApi } from './API_Wrapper';
 import { trackUserActivity } from './cookieTracking';
 
 function MainRouter() {
+  const isAdmin = (candidate) => !!candidate && String(candidate.role || '').toLowerCase() === 'admin';
   const resolveInitialPage = () => {
     const search = new URLSearchParams(window.location.search);
     const fromQuery = search.get('page');
@@ -36,6 +37,11 @@ function MainRouter() {
   const navigate = (target) => {
     if (isLoggedIn) {
       trackUserActivity('navigate', page, { target }).catch(() => {});
+    }
+
+    if (target === 'admin' && !isAdmin(user)) {
+      setPage('resources');
+      return;
     }
 
     if (target === 'support_ai' && isLoggedIn) {
@@ -73,8 +79,8 @@ function MainRouter() {
       setUser(null);
     }
 
-    if (profile && profile.role && String(profile.role).toLowerCase() === 'admin') {
-      setPage('resources');
+    if (isAdmin(profile)) {
+      setPage('admin');
     } else {
       setPage('resources');
     }
@@ -146,8 +152,8 @@ function MainRouter() {
         <ResourcePage slug={selectedResourceSlug} onBack={goTo('resources')} />
       )}
 
-      {page === 'admin' && isLoggedIn && user && String(user.role).toLowerCase() === 'admin' && (
-        <AdminPage onBack={goTo('resources')} />
+      {page === 'admin' && isLoggedIn && isAdmin(user) && (
+        <AdminPage user={user} onBack={goTo('resources')} onNavigate={navigate} />
       )}
 
       {isLoggedIn && (
