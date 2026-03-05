@@ -109,6 +109,7 @@ export default function AdminPage({ user, onBack, onNavigate }) {
   const [notifications, setNotifications] = useState(SAMPLE_NOTIFICATIONS);
   const [summary, setSummary] = useState(null);
   const [series, setSeries] = useState(METRIC_SERIES);
+  const [lastSyncAt, setLastSyncAt] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userStatus, setUserStatus] = useState('all');
   const [userRole, setUserRole] = useState('all');
@@ -200,7 +201,10 @@ export default function AdminPage({ user, onBack, onNavigate }) {
       } catch {
         setFeedback({ variant: 'warning', title: 'Offline sample mode', message: 'Live admin APIs unavailable. Showing local dataset.' });
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          setLastSyncAt(new Date().toISOString());
+        }
       }
     }
     load();
@@ -249,6 +253,18 @@ export default function AdminPage({ user, onBack, onNavigate }) {
   const logsPageRows = logs.slice((logPage - 1) * LOG_PAGE_SIZE, logPage * LOG_PAGE_SIZE);
 
   const unread = notifications.filter((n) => n.unread).length;
+  const formatMetricValue = (value) => (typeof value === 'number' ? value.toLocaleString() : value);
+  const trendFromSeries = (arr) => {
+    if (!Array.isArray(arr) || arr.length < 2) return null;
+    const first = Number(arr[0] || 0);
+    const last = Number(arr[arr.length - 1] || 0);
+    if (!first && !last) return null;
+    const delta = last - first;
+    const pct = first === 0 ? null : Math.round((delta / first) * 100);
+    if (delta === 0) return { dir: 'flat', text: 'No change' };
+    if (pct == null) return { dir: delta > 0 ? 'up' : 'down', text: `${delta > 0 ? '+' : ''}${delta}` };
+    return { dir: delta > 0 ? 'up' : 'down', text: `${delta > 0 ? '+' : ''}${pct}%` };
+  };
   const metrics = [
     { label: 'Total Users', value: summary?.total_users ?? users.length, series: series.users },
     { label: 'Active Users', value: summary?.active_users ?? users.filter((u) => u.status === 'Active').length, series: series.sessions },
@@ -417,9 +433,11 @@ export default function AdminPage({ user, onBack, onNavigate }) {
             <div>
               <button className="adm-mobile-menu" type="button" onClick={() => setMobileNavOpen((v) => !v)}>Menu</button>
               <h1>Admin Dashboard</h1>
-              <p>
-                {isSuperAdmin ? 'Super Admin privileges' : 'Admin privileges'} | Workflow: {unread > 0 ? 'Incident Mode' : 'Operational Mode'}
-              </p>
+              <div className="adm-header-meta">
+                <p>{isSuperAdmin ? 'Super Admin privileges' : 'Admin privileges'}</p>
+                <span className={`adm-health ${unread > 0 ? 'warning' : 'healthy'}`}>Workflow: {unread > 0 ? 'Incident Mode' : 'Operational Mode'}</span>
+                <small>Last sync: {lastSyncAt ? toDate(lastSyncAt) : 'syncing...'}</small>
+              </div>
             </div>
             <div className="adm-header-actions">
               <label htmlFor="admin-search">Global search</label>
@@ -433,13 +451,21 @@ export default function AdminPage({ user, onBack, onNavigate }) {
 
           {!loading && activeSection === 'overview' && (
             <main className="adm-grid">
-              {metrics.map((m) => (
-                <article key={m.label} className="adm-panel">
-                  <p>{m.label}</p>
-                  <h3>{m.value}</h3>
-                  <MiniLine points={m.series} />
-                </article>
-              ))}
+              {metrics.map((m) => {
+                const trend = trendFromSeries(m.series);
+                return (
+                  <article key={m.label} className="adm-panel">
+                    <p className="adm-kpi-label">{m.label}</p>
+                    <h3 className="adm-kpi-value">{formatMetricValue(m.value)}</h3>
+                    {trend && (
+                      <small className={`adm-kpi-trend ${trend.dir}`}>
+                        {trend.dir === 'up' ? 'Up' : trend.dir === 'down' ? 'Down' : 'Flat'} {trend.text} vs baseline
+                      </small>
+                    )}
+                    <MiniLine points={m.series} />
+                  </article>
+                );
+              })}
               <article className="adm-panel">
                 <h2>Admin Privileges</h2>
                 <ul className="adm-list">
