@@ -46,7 +46,9 @@ function inferLicense(pkg) {
 }
 
 function ratingFromId(id) {
-  const seeded = (Number(id) % 13) + 37;
+  const seeded = String(id || '')
+    .split('')
+    .reduce((acc, ch) => acc + ch.charCodeAt(0), 0) % 13 + 37;
   return (seeded / 10).toFixed(1);
 }
 
@@ -67,14 +69,14 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
       setLoading(true);
       setError('');
       try {
-        const response = await api.get('/api/v1/software-packages', { params: { limit: 120 } });
+        const response = await api.get('/api/v1/software-management', { params: { limit: 120 } });
         const items = response.data || [];
         setProjects(items);
 
         const versionEntries = await Promise.all(
           items.map(async (pkg) => {
             try {
-              const versionRes = await api.get(`/api/v1/software-packages/${pkg.id}/versions`, {
+              const versionRes = await api.get(`/api/v1/software-management/${pkg.id}/versions`, {
                 params: { limit: 1 },
               });
               return [pkg.id, (versionRes.data || [])[0] || null];
@@ -102,8 +104,8 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
         const license = inferLicense(pkg);
         const downloads = Number(latestVersion?.download_count || 0);
         const createdAt = pkg.created_at ? new Date(pkg.created_at).getTime() : 0;
-        const ownerLabel = Number(pkg.owner_id) === Number(user?.id) ? 'You' : `Developer ${pkg.owner_id}`;
-        const restrictedByPlan = !pkg.is_public && subscriptionTier === 'free' && Number(pkg.owner_id) !== Number(user?.id);
+        const ownerLabel = String(pkg.owner_id) === String(user?.id) ? 'You' : `Developer ${pkg.owner_id}`;
+        const restrictedByPlan = !pkg.is_public && subscriptionTier === 'free' && String(pkg.owner_id) !== String(user?.id);
 
         return {
           ...pkg,
@@ -241,7 +243,7 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
             const latestVersion = project.latestVersion;
             const canDownload = !!latestVersion && !project.restrictedByPlan && project.is_public;
             const downloadHref = latestVersion
-              ? `${API_BASE_URL || ''}/api/v1/software-packages/${project.id}/versions/${latestVersion.id}/download`
+              ? `${API_BASE_URL || ''}/api/v1/software-management/${project.id}/versions/${latestVersion.version}/download`
               : '#';
 
             return (

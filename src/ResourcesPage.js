@@ -56,18 +56,18 @@ export default function ResourcesPage({ user, onNavigate, onLogout, activePage =
       setError('');
       try {
         const [packagesRes, chatRes] = await Promise.all([
-          api.get('/api/v1/software-packages', { params: { limit: 100 } }),
+          api.get('/api/v1/software-management', { params: { limit: 100 } }),
           api.get('/api/v1/support-chat/messages', { params: { limit: 100 } }),
         ]);
         const packageItems = packagesRes.data || [];
         setProjects(packageItems);
         setMessages(chatRes.data || []);
 
-        const owned = packageItems.filter((pkg) => Number(pkg.owner_id) === Number(user?.id));
+        const owned = packageItems.filter((pkg) => String(pkg.owner_id) === String(user?.id));
         const versionRows = await Promise.all(
           owned.map(async (pkg) => {
             try {
-              const versionRes = await api.get(`/api/v1/software-packages/${pkg.id}/versions`, {
+              const versionRes = await api.get(`/api/v1/software-management/${pkg.id}/versions`, {
                 params: { limit: 1 },
               });
               return versionRes.data || [];
@@ -90,7 +90,7 @@ export default function ResourcesPage({ user, onNavigate, onLogout, activePage =
     loadDashboard();
   }, [user?.id]);
 
-  const myProjects = projects.filter((pkg) => Number(pkg.owner_id) === Number(user?.id));
+  const myProjects = projects.filter((pkg) => String(pkg.owner_id) === String(user?.id));
   const privateProjects = myProjects.filter((pkg) => !pkg.is_public);
 
   const stats = [

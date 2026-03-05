@@ -40,7 +40,7 @@ export default function UploadProjectPage({ user, onNavigate, onLogout, activePa
     description: '',
     category: CATEGORIES[0],
     isPublic: true,
-    version: 'v1.0.0',
+    version: '1.0.0',
     changelog: '',
     screenshot: null,
     file: null,
@@ -76,11 +76,9 @@ export default function UploadProjectPage({ user, onNavigate, onLogout, activePa
     }
 
     const payload = new FormData();
-    payload.append('name', form.name);
-    payload.append('description', form.description);
-    payload.append('category', form.category);
-    payload.append('language', 'Unknown');
-    payload.append('version', form.version || 'v1.0.0');
+    payload.append('software_name', form.name);
+    payload.append('software_description', `${form.description}\n\nCategory: ${form.category}`);
+    payload.append('version', form.version || '1.0.0');
     payload.append('is_public', String(form.isPublic));
     payload.append('file', form.file);
 
@@ -90,7 +88,7 @@ export default function UploadProjectPage({ user, onNavigate, onLogout, activePa
     setSuccess('');
 
     try {
-      await api.post('/api/v1/software-packages', payload, {
+      await api.post('/api/v1/software-management/upload', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (evt) => {
           if (!evt.total) return;
@@ -104,7 +102,7 @@ export default function UploadProjectPage({ user, onNavigate, onLogout, activePa
         description: '',
         category: CATEGORIES[0],
         isPublic: true,
-        version: 'v1.0.0',
+        version: '1.0.0',
         changelog: '',
         screenshot: null,
         file: null,
@@ -178,7 +176,7 @@ export default function UploadProjectPage({ user, onNavigate, onLogout, activePa
                   className="up-input"
                   value={form.version}
                   onChange={(event) => setForm((prev) => ({ ...prev, version: event.target.value }))}
-                  placeholder="v1.0.0"
+                  placeholder="1.0.0"
                 />
               </label>
             </div>

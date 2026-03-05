@@ -126,8 +126,8 @@ export default function AdminPage({ user, onBack, onNavigate }) {
       try {
         const [u, p, s, a, ev] = await Promise.all([
           api.get('/api/v1/users', { params: { limit: 30 } }),
-          api.get('/api/v1/software-packages/admin/packages', { params: { limit: 30 } }),
-          api.get('/api/v1/software-packages/admin/summary'),
+          api.get('/api/v1/software-management/admin/packages', { params: { limit: 30 } }),
+          api.get('/api/v1/software-management/admin/summary'),
           api.get('/api/v1/admin/alerts', { params: { only_unacknowledged: false, limit: 100 } }),
           api.get('/api/v1/admin/audit-events', { params: { limit: 400 } }),
         ]);
@@ -148,7 +148,7 @@ export default function AdminPage({ user, onBack, onNavigate }) {
             id: x.package_id || x.id,
             name: x.name || 'Package',
             version: x.latest_version || 'N/A',
-            owner: x.owner_username || x.owner_email || 'Unknown',
+            owner: x.owner_id || 'Unknown',
             uploadDate: x.created_at || x.updated_at || new Date().toISOString(),
             status: x.is_public ? 'Approved' : 'Pending',
             downloads: Number(x.download_count || 0),
