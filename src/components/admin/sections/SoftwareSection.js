@@ -61,10 +61,18 @@ export default function SoftwareSection({
                     aria-label={`Select ${s.name}`}
                   />
                 </td>
-                <td>{s.name}</td><td>{s.version}</td><td>{s.owner}</td><td>{toDate(s.uploadDate)}</td><td><Pill value={s.status} /></td><td>{s.downloads}</td>
+                <td>{s.name}</td><td>{s.version}</td><td>{s.owner}</td><td>{toDate(s.uploadDate)}</td>
+                <td>
+                  <div className="adm-status-stack">
+                    <Pill value={s.status} />
+                    {s.virusFlagged && <span className="adm-virus-badge">Virus flagged</span>}
+                  </div>
+                </td>
+                <td>{s.downloads}</td>
                 <td>
                   <div className="adm-actions">
                     <button type="button" onClick={() => updateSoftware(s.id, 'Approved')}>Approve</button>
+                    <button type="button" onClick={() => updateSoftware(s.id, 'Suspended')}>Suspend</button>
                     <button
                       type="button"
                       onClick={() => {

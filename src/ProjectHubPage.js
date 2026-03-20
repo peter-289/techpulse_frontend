@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { authApi as api, API_BASE_URL } from './API_Wrapper';
+import { API_BASE_URL } from './API_Wrapper';
 import DashboardLayout from './dashboard/DashboardLayout';
 import './ProjectHubPage.css';
 import FeedbackMessage from './components/FeedbackMessage';
+import useSoftwareRegistry from './hooks/useSoftwareRegistry';
+import { SubscriptionTier, TIER_LABELS, TIER_RANK, VersionStatus } from './constants/registryEnums';
 
 const CATEGORY_ORDER = [
   'networking software',
@@ -52,7 +54,14 @@ function ratingFromId(id) {
   return (seeded / 10).toFixed(1);
 }
 
-export default function ProjectHubPage({ user, onNavigate, onLogout, activePage = 'projects' }) {
+export default function ProjectHubPage({
+  user,
+  onNavigate,
+  onLogout,
+  activePage = 'projects',
+  onOpenSoftware,
+  onNavigatePlans,
+}) {
   const [projects, setProjects] = useState([]);
   const [versionsById, setVersionsById] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
@@ -62,24 +71,30 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const subscriptionTier = String(user?.role || '').toLowerCase() === 'admin' ? 'enterprise' : 'free';
+  const { fetchSoftwareList, fetchSoftwareVersions } = useSoftwareRegistry();
+
+  const subscriptionTier = useMemo(() => {
+    const tier = String(user?.subscription_tier || user?.plan || user?.tier || '').toLowerCase();
+    if (Object.values(SubscriptionTier).includes(tier)) return tier;
+    const role = String(user?.role || '').toLowerCase();
+    if (role === 'admin') return SubscriptionTier.ENTERPRISE;
+    if (role === 'subscriber') return SubscriptionTier.PRO;
+    return SubscriptionTier.FREE;
+  }, [user]);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError('');
       try {
-        const response = await api.get('/api/v1/software-management', { params: { limit: 120 } });
-        const items = response.data || [];
+        const items = await fetchSoftwareList(120);
         setProjects(items);
 
         const versionEntries = await Promise.all(
           items.map(async (pkg) => {
             try {
-              const versionRes = await api.get(`/api/v1/software-management/${pkg.id}/versions`, {
-                params: { limit: 1 },
-              });
-              return [pkg.id, (versionRes.data || [])[0] || null];
+              const versions = await fetchSoftwareVersions(pkg.id, 1);
+              return [pkg.id, versions[0] || null];
             } catch {
               return [pkg.id, null];
             }
@@ -94,7 +109,7 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
     }
 
     load();
-  }, []);
+  }, [fetchSoftwareList, fetchSoftwareVersions]);
 
   const normalizedProjects = useMemo(
     () =>
@@ -105,7 +120,13 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
         const downloads = Number(latestVersion?.download_count || 0);
         const createdAt = pkg.created_at ? new Date(pkg.created_at).getTime() : 0;
         const ownerLabel = String(pkg.owner_id) === String(user?.id) ? 'You' : `Developer ${pkg.owner_id}`;
-        const restrictedByPlan = !pkg.is_public && subscriptionTier === 'free' && String(pkg.owner_id) !== String(user?.id);
+        const requiredTier = String(pkg.required_tier || pkg.visibility_tier || '').toLowerCase()
+          || (pkg.is_public ? SubscriptionTier.FREE : SubscriptionTier.STARTER);
+        const isOwner = String(pkg.owner_id) === String(user?.id);
+        const restrictedByPlan = !pkg.is_public
+          && !isOwner
+          && TIER_RANK[subscriptionTier] < (TIER_RANK[requiredTier] ?? TIER_RANK[SubscriptionTier.STARTER]);
+        const status = latestVersion?.is_published ? VersionStatus.PUBLISHED : VersionStatus.DRAFT;
 
         return {
           ...pkg,
@@ -117,6 +138,9 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
           ownerLabel,
           restrictedByPlan,
           rating: ratingFromId(pkg.id),
+          requiredTier,
+          isOwner,
+          status,
         };
       }),
     [projects, versionsById, subscriptionTier, user?.id]
@@ -147,6 +171,15 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
     return counts;
   }, [visibleProjects.length, normalizedProjects]);
 
+  const groupedByCategory = useMemo(() => {
+    const groups = {};
+    visibleProjects.forEach((project) => {
+      if (!groups[project.category]) groups[project.category] = [];
+      groups[project.category].push(project);
+    });
+    return groups;
+  }, [visibleProjects]);
+
   return (
     <DashboardLayout
       user={user}
@@ -163,6 +196,9 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
             <p>Browse all shared software, enforce visibility logic, and monitor package engagement.</p>
           </div>
           <div className="ph-header-actions">
+            <span className="ph-tier-pill">
+              Plan: {TIER_LABELS[subscriptionTier] || 'Free'}
+            </span>
             <button className="tp-btn tp-btn-primary" type="button" onClick={() => onNavigate('upload_project')}>
               Upload Project
             </button>
@@ -239,60 +275,87 @@ export default function ProjectHubPage({ user, onNavigate, onLogout, activePage 
 
         {!loading &&
           !error &&
-          visibleProjects.map((project) => {
-            const latestVersion = project.latestVersion;
-            const canDownload = !!latestVersion && !project.restrictedByPlan && project.is_public;
-            const downloadHref = latestVersion
-              ? `${API_BASE_URL || ''}/api/v1/software-management/${project.id}/versions/${latestVersion.version}/download`
-              : '#';
-
-            return (
-              <article key={project.id} className="tp-panel tp-span-4 ph-card">
-                <header className="ph-card-top">
-                  <span className="ph-thumb" aria-hidden="true">
-                    {String(project.name || 'P').charAt(0).toUpperCase()}
-                  </span>
-                  <div>
-                    <h3>{project.name}</h3>
-                    <p className="ph-meta">by {project.ownerLabel}</p>
-                  </div>
-                </header>
-
-                <div className="ph-tags">
-                  <span className="ph-tag">{asTitle(project.category)}</span>
-                  <span className={`ph-tag ${project.is_public ? 'is-public' : 'is-private'}`}>
-                    {project.is_public ? 'Public' : 'Private'}
-                  </span>
-                  {!project.is_public && <span className="ph-lock">??</span>}
+          CATEGORY_ORDER.filter((category) => groupedByCategory[category]?.length).map((category) => (
+            <section key={category} className="tp-span-12 ph-category-block">
+              <div className="ph-category-head">
+                <div>
+                  <h2>{asTitle(category)}</h2>
+                  <p>{groupedByCategory[category].length} package(s) available</p>
                 </div>
+                <span className="ph-category-pill">{category === 'others' ? 'General' : 'Curated'}</span>
+              </div>
 
-                <p className="ph-description">{project.description || 'No description provided.'}</p>
+              <div className="ph-card-grid">
+                {groupedByCategory[category].map((project) => {
+                  const latestVersion = project.latestVersion;
+                  const canDownload = !!latestVersion && !project.restrictedByPlan && project.is_public;
+                  const downloadHref = latestVersion
+                    ? `${API_BASE_URL || ''}/api/v1/software-management/${project.id}/versions/${latestVersion.version}/download`
+                    : '#';
+                  const tierLabel = TIER_LABELS[project.requiredTier] || 'Starter';
 
-                <div className="ph-stats">
-                  <span>Downloads: {project.downloads}</span>
-                  <span>Rating: {project.rating}</span>
-                  <span>License: {project.license}</span>
-                </div>
+                  return (
+                    <article key={project.id} className="tp-panel ph-card">
+                      <header className="ph-card-top">
+                        <span className="ph-thumb" aria-hidden="true">
+                          {String(project.name || 'P').charAt(0).toUpperCase()}
+                        </span>
+                        <div>
+                          <h3>{project.name}</h3>
+                          <p className="ph-meta">by {project.ownerLabel}</p>
+                        </div>
+                      </header>
 
-                <div className="ph-actions">
-                  <a
-                    href={canDownload ? downloadHref : undefined}
-                    className={`tp-btn ${canDownload ? 'tp-btn-primary' : 'tp-btn-secondary'} ${!canDownload ? 'disabled' : ''}`}
-                    aria-disabled={!canDownload}
-                    title={!canDownload ? 'Requires subscription' : 'Download latest version'}
-                    onClick={(event) => {
-                      if (!canDownload) event.preventDefault();
-                    }}
-                    target={canDownload ? '_blank' : undefined}
-                    rel={canDownload ? 'noreferrer' : undefined}
-                  >
-                    {canDownload ? 'Download' : 'Requires subscription'}
-                  </a>
-                </div>
-              </article>
-            );
-          })}
+                      <div className="ph-tags">
+                        <span className="ph-tag">{asTitle(project.category)}</span>
+                        <span className={`ph-tag ${project.is_public ? 'is-public' : 'is-private'}`}>
+                          {project.is_public ? 'Public' : `Private - ${tierLabel}+`}
+                        </span>
+                        {!project.is_public && <span className="ph-lock">LOCK</span>}
+                        <span className="ph-tag ph-status">{project.status}</span>
+                      </div>
+
+                      <p className="ph-description">{project.description || 'No description provided.'}</p>
+
+                      <div className="ph-stats">
+                        <span>Downloads: {project.downloads}</span>
+                        <span>Rating: {project.rating}</span>
+                        <span>License: {project.license}</span>
+                      </div>
+
+                      <div className="ph-actions">
+                        <button
+                          type="button"
+                          className="tp-btn tp-btn-secondary"
+                          onClick={() => (onOpenSoftware ? onOpenSoftware(project) : onNavigate('projects'))}
+                        >
+                          {project.isOwner ? 'Manage' : 'View details'}
+                        </button>
+                        <button
+                          type="button"
+                          className={`tp-btn ${canDownload ? 'tp-btn-primary' : 'tp-btn-secondary'} ${!canDownload ? 'disabled' : ''}`}
+                          aria-disabled={!canDownload}
+                          title={!canDownload ? `Requires ${tierLabel}+` : 'Download latest version'}
+                          onClick={() => {
+                            if (canDownload) {
+                              window.open(downloadHref, '_blank', 'noreferrer');
+                            } else if (onNavigatePlans) {
+                              onNavigatePlans();
+                            }
+                          }}
+                        >
+                          {canDownload ? 'Download' : `Upgrade to ${tierLabel}+`}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
       </section>
     </DashboardLayout>
   );
 }
+
+

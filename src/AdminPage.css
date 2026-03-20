@@ -431,6 +431,24 @@
   border-color: #c5ddf2;
 }
 
+.adm-status-stack {
+  display: grid;
+  gap: 6px;
+}
+
+.adm-virus-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #7c2d12;
+  background: #ffedd5;
+  border: 1px solid #fdba74;
+}
+
 .adm-detail {
   margin-top: 10px;
   border: 1px dashed var(--adm-border);

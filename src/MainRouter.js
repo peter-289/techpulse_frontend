@@ -14,6 +14,10 @@ import ProductUpdates from './ProductUpdates';
 import SupportChatPage from './SupportChatPage';
 import ProjectHubPage from './ProjectHubPage';
 import UploadProjectPage from './UploadProjectPage';
+import SoftwareDetailsPage from './SoftwareDetailsPage';
+import VersionDetailPage from './VersionDetailPage';
+import PlansPage from './PlansPage';
+import CheckoutPage from './CheckoutPage';
 import Header from './components/Header';
 import { authApi } from './API_Wrapper';
 import { trackUserActivity } from './cookieTracking';
@@ -32,6 +36,9 @@ function MainRouter() {
   const [user, setUser] = useState(null);
   const [selectedResourceSlug, setSelectedResourceSlug] = useState(null);
   const [isSupportChatOpen, setIsSupportChatOpen] = useState(false);
+  const [selectedSoftware, setSelectedSoftware] = useState(null);
+  const [selectedVersion, setSelectedVersion] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   const goTo = (target) => () => setPage(target);
   const navigate = (target) => {
@@ -67,6 +74,27 @@ function MainRouter() {
     setPage(target);
   };
 
+  const openSoftware = (software) => {
+    setSelectedSoftware(software);
+    setSelectedVersion(null);
+    setPage('software_details');
+  };
+
+  const openVersion = (software, version) => {
+    setSelectedSoftware(software);
+    setSelectedVersion(version);
+    setPage('version_details');
+  };
+
+  const openPlans = () => {
+    setPage('plans');
+  };
+
+  const openCheckout = (plan) => {
+    setSelectedPlan(plan);
+    setPage('checkout');
+  };
+
   const handleLogin = async () => {
     setIsLoggedIn(true);
     let profile = null;
@@ -95,6 +123,9 @@ function MainRouter() {
     setIsLoggedIn(false);
     setUser(null);
     setIsSupportChatOpen(false);
+    setSelectedSoftware(null);
+    setSelectedVersion(null);
+    setSelectedPlan(null);
     setPage('landing');
   };
 
@@ -129,11 +160,60 @@ function MainRouter() {
       )}
 
       {page === 'projects' && isLoggedIn && (
-        <ProjectHubPage user={user} onNavigate={navigate} onLogout={handleLogout} activePage="projects" />
+        <ProjectHubPage
+          user={user}
+          onNavigate={navigate}
+          onLogout={handleLogout}
+          activePage="projects"
+          onOpenSoftware={openSoftware}
+          onNavigatePlans={openPlans}
+        />
       )}
 
       {page === 'upload_project' && isLoggedIn && (
         <UploadProjectPage user={user} onNavigate={navigate} onLogout={handleLogout} activePage="upload_project" />
+      )}
+
+      {page === 'software_details' && isLoggedIn && (
+        <SoftwareDetailsPage
+          user={user}
+          software={selectedSoftware}
+          onNavigate={navigate}
+          onLogout={handleLogout}
+          onBack={() => setPage('projects')}
+          onOpenVersion={openVersion}
+        />
+      )}
+
+      {page === 'version_details' && isLoggedIn && (
+        <VersionDetailPage
+          user={user}
+          software={selectedSoftware}
+          version={selectedVersion}
+          onNavigate={navigate}
+          onLogout={handleLogout}
+          onBack={() => setPage('software_details')}
+        />
+      )}
+
+      {page === 'plans' && isLoggedIn && (
+        <PlansPage
+          user={user}
+          onNavigate={navigate}
+          onLogout={handleLogout}
+          onSelectPlan={openCheckout}
+          onBack={() => setPage('projects')}
+        />
+      )}
+
+      {page === 'checkout' && isLoggedIn && (
+        <CheckoutPage
+          user={user}
+          onNavigate={navigate}
+          onLogout={handleLogout}
+          selectedPlan={selectedPlan}
+          onBack={() => setPage('plans')}
+        />
       )}
 
       {page === 'developers' && isLoggedIn && (

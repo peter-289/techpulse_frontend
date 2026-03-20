@@ -15,9 +15,9 @@ const SAMPLE_USERS = [
 ];
 
 const SAMPLE_SOFTWARE = [
-  { id: 'PKG-301', name: 'Core Runtime', version: '2.0.1', owner: 'Ava Reynolds', uploadDate: '2026-03-01T09:00:00Z', status: 'Approved', downloads: 1430 },
-  { id: 'PKG-302', name: 'Secure Agent', version: '1.4.8', owner: 'Noah Kim', uploadDate: '2026-03-03T07:10:00Z', status: 'Pending', downloads: 221 },
-  { id: 'PKG-303', name: 'Bridge Plugin', version: '0.9.1', owner: 'Liam Stone', uploadDate: '2026-02-24T09:00:00Z', status: 'Flagged', downloads: 560 },
+  { id: 'PKG-301', name: 'Core Runtime', version: '2.0.1', owner: 'Ava Reynolds', uploadDate: '2026-03-01T09:00:00Z', status: 'Approved', downloads: 1430, virusFlagged: false },
+  { id: 'PKG-302', name: 'Secure Agent', version: '1.4.8', owner: 'Noah Kim', uploadDate: '2026-03-03T07:10:00Z', status: 'Pending', downloads: 221, virusFlagged: false },
+  { id: 'PKG-303', name: 'Bridge Plugin', version: '0.9.1', owner: 'Liam Stone', uploadDate: '2026-02-24T09:00:00Z', status: 'Flagged', downloads: 560, virusFlagged: true },
 ];
 
 const SAMPLE_LOGS = [
@@ -120,15 +120,20 @@ export default function useAdminData() {
         : SAMPLE_USERS;
 
       const software = Array.isArray(p.data) && p.data.length
-        ? p.data.map((x) => ({
-          id: x.package_id || x.id,
-          name: x.name || 'Package',
-          version: x.latest_version || 'N/A',
-          owner: x.owner_id || 'Unknown',
-          uploadDate: x.created_at || x.updated_at || new Date().toISOString(),
-          status: x.is_public ? 'Approved' : 'Pending',
-          downloads: Number(x.download_count || 0),
-        }))
+        ? p.data.map((x) => {
+          const rawStatus = x.status || (x.is_public ? 'Approved' : 'Pending');
+          const virusFlagged = Boolean(x.virus_flagged || x.is_flagged || String(rawStatus).toLowerCase().includes('flagged'));
+          return {
+            id: x.package_id || x.id,
+            name: x.name || 'Package',
+            version: x.latest_version || 'N/A',
+            owner: x.owner_id || 'Unknown',
+            uploadDate: x.created_at || x.updated_at || new Date().toISOString(),
+            status: rawStatus,
+            downloads: Number(x.download_count || 0),
+            virusFlagged,
+          };
+        })
         : SAMPLE_SOFTWARE;
 
       const summary = s.data || null;
