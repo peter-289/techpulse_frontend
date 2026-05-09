@@ -1,5 +1,6 @@
 // src/api.js
 import axios from "axios";
+import { notifyToast } from "./toastBus";
 
 const envBaseUrl = (process.env.REACT_APP_API_URL || "").trim();
 const isLocalFrontend =
@@ -12,7 +13,7 @@ export const API_BASE_URL = (envBaseUrl || fallbackBaseUrl).replace(/\/$/, "");
 
 const api = axios.create({
   baseURL: API_BASE_URL || undefined,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 export const authApi = axios.create({
@@ -53,6 +54,20 @@ authApi.interceptors.response.use(
       } catch (refreshError) {
         return Promise.reject(refreshError);
       }
+    }
+
+    if (!status) {
+      notifyToast({
+        variant: "error",
+        title: "Network unavailable",
+        message: "We could not reach the server. Check your connection and try again.",
+      });
+    } else if (status >= 500) {
+      notifyToast({
+        variant: "error",
+        title: "Server error",
+        message: error?.response?.data?.detail || "The server could not complete that request.",
+      });
     }
 
     return Promise.reject(error);

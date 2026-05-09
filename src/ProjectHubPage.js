@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { API_BASE_URL } from './API_Wrapper';
 import DashboardLayout from './dashboard/DashboardLayout';
 import './ProjectHubPage.css';
 import FeedbackMessage from './components/FeedbackMessage';
 import useSoftwareRegistry from './hooks/useSoftwareRegistry';
 import { SubscriptionTier, TIER_LABELS, TIER_RANK, VersionStatus } from './constants/registryEnums';
+import { errorMessageFrom, notifyToast } from './toastBus';
 
 const CATEGORY_ORDER = [
   'networking software',
@@ -54,6 +54,19 @@ function ratingFromId(id) {
   return (seeded / 10).toFixed(1);
 }
 
+function formatMoney(cents, currency = 'USD') {
+  const amount = Number(cents || 0) / 100;
+  if (amount <= 0) return 'Free';
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: currency || 'USD',
+  }).format(amount);
+}
+
+function userIdOf(user) {
+  return user?.id ?? user?.user_id ?? user?.sub ?? null;
+}
+
 export default function ProjectHubPage({
   user,
   onNavigate,
@@ -61,6 +74,8 @@ export default function ProjectHubPage({
   activePage = 'projects',
   onOpenSoftware,
   onNavigatePlans,
+  onCheckoutProject,
+  purchasedProjectIds = [],
 }) {
   const [projects, setProjects] = useState([]);
   const [versionsById, setVersionsById] = useState({});
@@ -69,9 +84,12 @@ export default function ProjectHubPage({
   const [licenseFilter, setLicenseFilter] = useState('All licenses');
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState('');
   const [error, setError] = useState('');
 
-  const { fetchSoftwareList, fetchSoftwareVersions } = useSoftwareRegistry();
+  const { fetchSoftwareList, fetchSoftwareVersions, downloadVersion } = useSoftwareRegistry();
+  const currentUserId = userIdOf(user);
+  const purchasedSet = useMemo(() => new Set(purchasedProjectIds.map(String)), [purchasedProjectIds]);
 
   const subscriptionTier = useMemo(() => {
     const tier = String(user?.subscription_tier || user?.plan || user?.tier || '').toLowerCase();
@@ -119,10 +137,12 @@ export default function ProjectHubPage({
         const license = inferLicense(pkg);
         const downloads = Number(latestVersion?.download_count || 0);
         const createdAt = pkg.created_at ? new Date(pkg.created_at).getTime() : 0;
-        const ownerLabel = String(pkg.owner_id) === String(user?.id) ? 'You' : `Developer ${pkg.owner_id}`;
+        const ownerLabel = String(pkg.owner_id) === String(currentUserId) ? 'You' : `Developer ${pkg.owner_id}`;
         const requiredTier = String(pkg.required_tier || pkg.visibility_tier || '').toLowerCase()
           || (pkg.is_public ? SubscriptionTier.FREE : SubscriptionTier.STARTER);
-        const isOwner = String(pkg.owner_id) === String(user?.id);
+        const isOwner = String(pkg.owner_id) === String(currentUserId);
+        const isPaid = Number(pkg.price_cents || 0) > 0;
+        const hasAccess = isOwner || !isPaid || !!pkg.viewer_has_access || purchasedSet.has(String(pkg.id));
         const restrictedByPlan = !pkg.is_public
           && !isOwner
           && TIER_RANK[subscriptionTier] < (TIER_RANK[requiredTier] ?? TIER_RANK[SubscriptionTier.STARTER]);
@@ -140,10 +160,13 @@ export default function ProjectHubPage({
           rating: ratingFromId(pkg.id),
           requiredTier,
           isOwner,
+          isPaid,
+          hasAccess,
+          priceLabel: formatMoney(pkg.price_cents, pkg.currency),
           status,
         };
       }),
-    [projects, versionsById, subscriptionTier, user?.id]
+    [projects, versionsById, subscriptionTier, currentUserId, purchasedSet]
   );
 
   const visibleProjects = useMemo(() => {
@@ -179,6 +202,32 @@ export default function ProjectHubPage({
     });
     return groups;
   }, [visibleProjects]);
+
+  const handleDownload = async (project) => {
+    const latestVersion = project.latestVersion;
+    if (!latestVersion) return;
+    setDownloadingId(project.id);
+    try {
+      await downloadVersion({
+        softwareId: project.id,
+        version: latestVersion.version,
+        fileName: latestVersion.file_name,
+      });
+      notifyToast({
+        variant: 'success',
+        title: 'Download started',
+        message: `${project.name} is downloading.`,
+      });
+    } catch (err) {
+      notifyToast({
+        variant: 'error',
+        title: 'Download blocked',
+        message: errorMessageFrom(err, 'Unable to download this project.'),
+      });
+    } finally {
+      setDownloadingId('');
+    }
+  };
 
   return (
     <DashboardLayout
@@ -288,11 +337,10 @@ export default function ProjectHubPage({
               <div className="ph-card-grid">
                 {groupedByCategory[category].map((project) => {
                   const latestVersion = project.latestVersion;
-                  const canDownload = !!latestVersion && !project.restrictedByPlan && project.is_public;
-                  const downloadHref = latestVersion
-                    ? `${API_BASE_URL || ''}/api/v1/software-management/${project.id}/versions/${latestVersion.version}/download`
-                    : '#';
+                  const canDownload = !!latestVersion && !project.restrictedByPlan && project.is_public && project.hasAccess;
+                  const canPurchase = project.isPaid && project.is_public && !project.isOwner && !project.hasAccess && !project.restrictedByPlan;
                   const tierLabel = TIER_LABELS[project.requiredTier] || 'Starter';
+                  const isDownloading = downloadingId === project.id;
 
                   return (
                     <article key={project.id} className="tp-panel ph-card">
@@ -313,6 +361,7 @@ export default function ProjectHubPage({
                         </span>
                         {!project.is_public && <span className="ph-lock">LOCK</span>}
                         <span className="ph-tag ph-status">{project.status}</span>
+                        <span className="ph-tag">{project.priceLabel}</span>
                       </div>
 
                       <p className="ph-description">{project.description || 'No description provided.'}</p>
@@ -335,16 +384,19 @@ export default function ProjectHubPage({
                           type="button"
                           className={`tp-btn ${canDownload ? 'tp-btn-primary' : 'tp-btn-secondary'} ${!canDownload ? 'disabled' : ''}`}
                           aria-disabled={!canDownload}
-                          title={!canDownload ? `Requires ${tierLabel}+` : 'Download latest version'}
+                          disabled={isDownloading}
+                          title={!canDownload ? (canPurchase ? 'Purchase required' : `Requires ${tierLabel}+`) : 'Download latest version'}
                           onClick={() => {
                             if (canDownload) {
-                              window.open(downloadHref, '_blank', 'noreferrer');
+                              handleDownload(project);
+                            } else if (canPurchase && onCheckoutProject) {
+                              onCheckoutProject(project);
                             } else if (onNavigatePlans) {
                               onNavigatePlans();
                             }
                           }}
                         >
-                          {canDownload ? 'Download' : `Upgrade to ${tierLabel}+`}
+                          {isDownloading ? 'Downloading...' : canDownload ? 'Download' : canPurchase ? `Buy ${project.priceLabel}` : `Upgrade to ${tierLabel}+`}
                         </button>
                       </div>
                     </article>

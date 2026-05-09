@@ -19,6 +19,7 @@ import VersionDetailPage from './VersionDetailPage';
 import PlansPage from './PlansPage';
 import CheckoutPage from './CheckoutPage';
 import Header from './components/Header';
+import AppToasts from './components/AppToasts';
 import { authApi } from './API_Wrapper';
 import { trackUserActivity } from './cookieTracking';
 
@@ -39,6 +40,8 @@ function MainRouter() {
   const [selectedSoftware, setSelectedSoftware] = useState(null);
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedProjectCheckout, setSelectedProjectCheckout] = useState(null);
+  const [purchasedProjectIds, setPurchasedProjectIds] = useState([]);
 
   const goTo = (target) => () => setPage(target);
   const navigate = (target) => {
@@ -92,7 +95,27 @@ function MainRouter() {
 
   const openCheckout = (plan) => {
     setSelectedPlan(plan);
+    setSelectedProjectCheckout(null);
     setPage('checkout');
+  };
+
+  const openProjectCheckout = (project) => {
+    setSelectedProjectCheckout(project);
+    setSelectedPlan(null);
+    setPage('checkout');
+  };
+
+  const completeProjectCheckout = (project) => {
+    if (project?.id) {
+      setPurchasedProjectIds((prev) => Array.from(new Set([...prev, String(project.id)])));
+      setSelectedProjectCheckout((current) =>
+        current?.id === project.id ? { ...current, viewer_has_access: true } : current
+      );
+      setSelectedSoftware((current) =>
+        current?.id === project.id ? { ...current, viewer_has_access: true } : current
+      );
+    }
+    setPage('projects');
   };
 
   const handleLogin = async () => {
@@ -126,6 +149,8 @@ function MainRouter() {
     setSelectedSoftware(null);
     setSelectedVersion(null);
     setSelectedPlan(null);
+    setSelectedProjectCheckout(null);
+    setPurchasedProjectIds([]);
     setPage('landing');
   };
 
@@ -141,6 +166,7 @@ function MainRouter() {
 
   return (
     <div className="app-root">
+      <AppToasts />
       {!isLoggedIn && (
         <Header onNavigate={navigate} user={user} onLogout={handleLogout} activePage={page} />
       )}
@@ -167,6 +193,8 @@ function MainRouter() {
           activePage="projects"
           onOpenSoftware={openSoftware}
           onNavigatePlans={openPlans}
+          onCheckoutProject={openProjectCheckout}
+          purchasedProjectIds={purchasedProjectIds}
         />
       )}
 
@@ -182,6 +210,8 @@ function MainRouter() {
           onLogout={handleLogout}
           onBack={() => setPage('projects')}
           onOpenVersion={openVersion}
+          onCheckoutProject={openProjectCheckout}
+          purchasedProjectIds={purchasedProjectIds}
         />
       )}
 
@@ -212,7 +242,9 @@ function MainRouter() {
           onNavigate={navigate}
           onLogout={handleLogout}
           selectedPlan={selectedPlan}
-          onBack={() => setPage('plans')}
+          selectedProject={selectedProjectCheckout}
+          onBack={() => setPage(selectedProjectCheckout ? 'projects' : 'plans')}
+          onComplete={completeProjectCheckout}
         />
       )}
 

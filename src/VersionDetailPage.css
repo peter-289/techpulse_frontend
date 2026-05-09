@@ -109,6 +109,17 @@
   padding: 10px;
 }
 
+.vd-readonly-notes {
+  margin: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 12px;
+  color: #475569;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
 .vd-feedback {
   border-radius: 12px;
   padding: 10px;

@@ -21,6 +21,8 @@
 
 .up-input,
 .up-textarea {
+  width: 100%;
+  box-sizing: border-box;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   min-height: 40px;
@@ -170,6 +172,58 @@
   flex-wrap: wrap;
 }
 
+.up-result-card {
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  background: #f0fdf4;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.up-result-card div,
+.up-summary-list div {
+  display: grid;
+  grid-template-columns: minmax(0, 110px) minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.up-result-card span,
+.up-summary-list span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.up-result-card strong,
+.up-summary-list strong {
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.up-hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+}
+
+.up-side-card {
+  display: grid;
+  gap: 16px;
+}
+
+.up-side-card h2 {
+  margin: 0;
+}
+
+.up-summary-list {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
 .up-list {
   margin: 0;
   padding-left: 18px;
@@ -181,5 +235,11 @@
 @media (max-width: 700px) {
   .up-two-col {
     grid-template-columns: 1fr;
+  }
+
+  .up-result-card div,
+  .up-summary-list div {
+    grid-template-columns: 1fr;
+    gap: 2px;
   }
 }
