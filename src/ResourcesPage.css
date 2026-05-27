@@ -191,34 +191,9 @@
   grid-column: span 3;
 }
 
-.tp-btn {
-  border: 1px solid transparent;
-  border-radius: 10px;
-  min-height: 40px;
-  padding: 0 14px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.tp-btn-primary {
-  color: #fff;
-  background: #2563eb;
-}
-
-.tp-btn-primary:hover {
-  background: #1d4ed8;
-}
-
-.tp-btn-secondary {
-  background: #fff;
-  border-color: #cbd5e1;
-  color: inherit;
-}
-
-.tp-theme-dark .tp-btn-secondary {
-  background: #1e293b;
-  border-color: #334155;
-}
+.tp-btn { /* centralized in tokens.css */ }
+.tp-btn-primary { /* centralized in tokens.css */ }
+.tp-btn-secondary { /* centralized in tokens.css */ }
 
 @media (max-width: 1024px) {
   .tp-span-3 {

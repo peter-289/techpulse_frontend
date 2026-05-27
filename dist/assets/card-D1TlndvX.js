@@ -1,0 +1,1 @@
+import{j as s}from"./tanstack-Dr1d2fj6.js";import{c as a}from"./index-BiRTYJu2.js";function d({className:r,...o}){return s.jsx("div",{className:a("rounded-xl border border-slate-700 bg-slate-900/70 p-4 shadow-xl",r),...o})}export{d as C};

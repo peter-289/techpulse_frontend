@@ -3,30 +3,50 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
+    "@tanstack/react-query": "^5.100.10",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.11.0",
+    "cmdk": "^1.1.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
+    "msw": "^2.14.6",
     "qs": "^6.14.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.75.0",
     "react-icons": "^5.5.0",
-    "react-scripts": "^5.0.1",
-    "recharts": "^3.7.0",
-    "web-vitals": "^2.1.4"
+    "react-router-dom": "^7.15.0",
+    "recharts": "^3.8.1",
+    "web-vitals": "^2.1.4",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.13"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --watchAll=false --passWithNoTests",
-    "test:ci": "react-scripts test --watchAll=false --runInBand --passWithNoTests",
-    "eject": "react-scripts eject",
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "test": "vitest run",
     "e2e": "playwright test --project=chromium"
   },
   "devDependencies": {
     "@playwright/test": "^1.47.0",
-    "node-fetch": "^3.0.0"
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.0",
+    "autoprefixer": "^10.5.0",
+    "node-fetch": "^3.0.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^7.2.0",
+    "vitest": "^3.2.4"
   },
   "eslintConfig": {
     "extends": [
@@ -48,7 +68,6 @@
   },
   "overrides": {
     "nth-check": "^2.0.1",
-    "postcss": "^8.4.31",
     "jsonpath": "^1.2.1",
     "webpack-dev-server": "^4.0.0"
   }

@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 222 47% 11%;
+  --panel: 224 39% 15%;
+  --panel-2: 222 35% 20%;
+  --fg: 210 40% 98%;
+  --muted: 215 20% 65%;
+  --brand: 193 98% 43%;
+  --brand-2: 170 85% 39%;
+  --danger: 0 82% 58%;
+  --warning: 40 96% 54%;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-2: 0 12px 30px rgba(2, 6, 23, 0.35);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: hsl(var(--fg));
+  background:
+    radial-gradient(circle at 10% -10%, rgba(20, 184, 166, 0.2), transparent 40%),
+    radial-gradient(circle at 90% -20%, rgba(56, 189, 248, 0.25), transparent 35%),
+    hsl(var(--bg));
+  font-family: 'Inter', 'Geist', 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid hsl(var(--brand));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Centralized component primitives (buttons, inputs) */
+.tp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: calc(var(--space-2)) calc(var(--space-3));
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
+  box-shadow: var(--shadow-1);
+  background: hsl(var(--brand));
+  color: hsl(var(--fg));
+}
+
+.tp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tp-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+.tp-btn-primary {
+  background: linear-gradient(180deg, hsl(var(--brand)) 0%, hsl(var(--brand-2)) 100%);
+  color: hsl(var(--fg));
+}
+
+.tp-btn-secondary {
+  background: hsl(0 0% 100% / 0.04);
+  color: hsl(var(--fg));
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* Form inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  padding: calc(var(--space-2)) calc(var(--space-3));
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent;
+  color: hsl(var(--fg));
+  outline: none;
+  transition: box-shadow var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 0 0 4px hsl(var(--brand) / 0.12);
+  border-color: hsl(var(--brand));
+}
+
+/* Alias class used across the codebase */
+.tp-field {
+  padding: calc(var(--space-2)) calc(var(--space-3));
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent;
+  color: hsl(var(--fg));
+  outline: none;
+  transition: box-shadow var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+
+/* Utility: centralize small text styles */
+.tp-muted { color: hsl(var(--muted)); }
+

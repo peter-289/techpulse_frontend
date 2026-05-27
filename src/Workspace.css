@@ -91,36 +91,9 @@
   gap: 8px;
 }
 
-.tp-btn {
-  border: 1px solid transparent;
-  border-radius: 11px;
-  padding: 0.6rem 0.95rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.92rem;
-  text-decoration: none;
-  transition: all 0.18s ease;
-}
-
-.tp-btn-primary {
-  background: linear-gradient(180deg, #2096eb, #0f6ec3);
-  color: #fff;
-  box-shadow: 0 12px 26px -18px rgba(15, 110, 195, 0.95);
-}
-
-.tp-btn-primary:hover {
-  background: linear-gradient(180deg, #1889db, #0c61ac);
-}
-
-.tp-btn-secondary {
-  background: #f2f7fd;
-  border-color: #ccd9e8;
-  color: #0f172a;
-}
-
-.tp-btn-secondary:hover {
-  background: #e4edf8;
-}
+.tp-btn { /* centralized in tokens.css */ }
+.tp-btn-primary { /* centralized in tokens.css */ }
+.tp-btn-secondary { /* centralized in tokens.css */ }
 
 .tp-form-row {
   display: flex;

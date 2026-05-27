@@ -67,23 +67,8 @@
   align-items: center;
 }
 
-.tp-btn {
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 0.5rem 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.tp-btn-secondary {
-  background: #f2f7fd;
-  border-color: #cfdceb;
-  color: #0f172a;
-}
-
-.tp-btn-secondary:hover {
-  background: #e4edf8;
-}
+.tp-btn { /* centralized in tokens.css */ }
+.tp-btn-secondary { /* centralized in tokens.css */ }
 
 .tp-user {
   color: #1e293b;

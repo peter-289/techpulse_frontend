@@ -138,34 +138,9 @@
   color: #0f766e;
 }
 
-.tp-btn {
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 0.62rem 0.9rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.tp-btn-primary {
-  color: #fff;
-  background: linear-gradient(180deg, #0ea5e9, #0a6dbd);
-}
-
-.tp-btn-primary:hover {
-  background: linear-gradient(180deg, #0895d7, #095ea4);
-}
-
-.tp-btn-secondary {
-  color: #0f172a;
-  border-color: #ccdae7;
-  background: #f3f8fd;
-}
-
-.tp-btn-secondary:hover {
-  background: #e6f0f9;
-}
+.tp-btn { /* centralized in tokens.css */ }
+.tp-btn-primary { /* centralized in tokens.css */ }
+.tp-btn-secondary { /* centralized in tokens.css */ }
 
 @media (max-width: 920px) {
   .tp-auth-shell {
