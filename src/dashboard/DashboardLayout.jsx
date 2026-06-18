@@ -87,7 +87,7 @@ export default function DashboardLayout({
 
   return (
     <div className={`tp-dashboard tp-theme-${theme}`}>
-      <header className="tp-topbar">
+      <header className="tp-topbar tp-panel">
         <div className="tp-topbar-left">
           <button
             type="button"
@@ -103,7 +103,7 @@ export default function DashboardLayout({
             </span>
             <span className="tp-menu-text">{sidebarOpen ? 'Close' : 'Menu'}</span>
           </button>
-          <button type="button" className="tp-brand-btn" onClick={() => onNavigate('resources')}>
+          <button type="button" className="tp-brand-btn tp-btn tp-btn-primary" onClick={() => onNavigate('resources')}>
             Tech Pulse
           </button>
           <div className="tp-topbar-title" aria-live="polite">
@@ -140,8 +140,8 @@ export default function DashboardLayout({
           />
         )}
 
-        <aside className={`tp-sidebar ${sidebarOpen ? 'open' : 'closed'}`} aria-label="Main navigation">
-          <header className="tp-sidebar-head">
+        <aside className={`tp-sidebar ${sidebarOpen ? 'open' : 'closed'} tp-card`} aria-label="Main navigation">
+          <header className="tp-sidebar-head tp-card">
             <div className="tp-sidebar-avatar" aria-hidden="true">{userInitial}</div>
             <div className="tp-sidebar-user">
               <strong>{userName}</strong>
@@ -178,7 +178,7 @@ export default function DashboardLayout({
           </div>
         </aside>
 
-        <main className="tp-main-content" id="tp-main-content">
+        <main className="tp-main-content tp-panel" id="tp-main-content">
           {children}
         </main>
       </div>

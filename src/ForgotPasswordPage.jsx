@@ -5,8 +5,7 @@ import React, { useState } from 'react';
 import api from './API_Wrapper';
 import qs from 'qs';
 import FeedbackMessage from './components/FeedbackMessage';
-import Button from './shared/ui/button/Button';
-import Input from './shared/ui/input/Input';
+import { Button, Input } from './shared/ui';
 
 export default function ForgotPasswordPage({ onBack, onCheckEmail }){
   const [email, setEmail] = useState('');

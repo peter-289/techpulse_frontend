@@ -1,10 +1,5 @@
-import React from 'react';
+import { Button as Btn } from './button';
 
-export default function Button({ children, variant = 'primary', className = '', ...props }) {
-  const base = `tp-btn tp-btn-${variant}`;
-  return (
-    <button className={`${base} ${className}`} {...props}>
-      {children}
-    </button>
-  );
-}
+// Provide both named and default exports to satisfy mixed imports
+export const Button = Btn;
+export default Btn;

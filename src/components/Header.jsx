@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import './Header.css';
 import { FEATURES } from '../config';
 
@@ -12,19 +12,47 @@ const navItems = [
   { id: 'updates', label: 'Updates' }
 ];
 
-export default function Header({ onNavigate, user, onLogout, activePage }) {
+function Header({ onNavigate, user, onLogout, activePage }) {
+  const [open, setOpen] = useState(false);
+
+  const handleToggle = useCallback(() => setOpen((v) => !v), []);
+
+  const handleNavClick = useCallback((e) => {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    onNavigate(id);
+    setOpen(false);
+  }, [onNavigate]);
+
+  const handleLogo = useCallback(() => onNavigate(user ? 'resources' : 'landing'), [onNavigate, user]);
+
   return (
-    <header className="tp-header">
+    <header className="tp-header" role="banner">
       <div className="tp-header-left">
-        <button className="tp-logo" onClick={() => onNavigate(user ? 'resources' : 'landing')} type="button">
-          Tech Pulse
+        <button className="tp-logo" onClick={handleLogo} type="button" aria-label="Go to home">
+          <span className="tp-logo-mark" aria-hidden>⚡</span>
+          <span className="tp-logo-text">TechPulse</span>
         </button>
-        <nav className="tp-nav">
+
+        <button
+          className="tp-mobile-toggle"
+          aria-expanded={open}
+          aria-controls="tp-navigation"
+          onClick={handleToggle}
+          type="button"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        <nav id="tp-navigation" className={`tp-nav ${open ? 'open' : ''}`} aria-label="Main navigation">
           {FEATURES.resources && user && navItems.map((item) => (
             <button
               key={item.id}
+              data-id={item.id}
               className={`nav-btn ${activePage === item.id ? 'active' : ''}`}
-              onClick={() => onNavigate(item.id)}
+              onClick={handleNavClick}
               type="button"
             >
               {item.label}
@@ -53,3 +81,5 @@ export default function Header({ onNavigate, user, onLogout, activePage }) {
     </header>
   );
 }
+
+export default React.memo(Header);

@@ -1,11 +1,33 @@
+
+/* =========================
+   LP ROOT (Premium Upgrade)
+========================= */
+
 .lp-root {
-  color: #0f172a;
-  background:
-    radial-gradient(1000px 360px at 8% -10%, rgba(56, 189, 248, 0.18), rgba(56, 189, 248, 0)),
-    radial-gradient(860px 380px at 100% -15%, rgba(45, 212, 191, 0.2), rgba(45, 212, 191, 0)),
-    linear-gradient(180deg, #f8fcff 0%, #f4f8fc 45%, #eef4fb 100%);
+  --text: #0f172a;
+  --muted: #475569;
+
+  --card: rgba(255, 255, 255, 0.72);
+  --border: rgba(255, 255, 255, 0.6);
+
+  --shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 18px 38px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 30px 70px rgba(15, 23, 42, 0.12);
+
+  color: var(--text);
   min-height: 100vh;
+  overflow-x: hidden;
+
+  background:
+    radial-gradient(circle at top left, rgba(14,165,233,0.18), transparent 40%),
+    radial-gradient(circle at top right, rgba(45,212,191,0.16), transparent 38%),
+    radial-gradient(circle at bottom center, rgba(99,102,241,0.10), transparent 50%),
+    linear-gradient(180deg, #fbfdff 0%, #f5f9fd 40%, #eef4fb 100%);
 }
+
+/* =========================
+   HERO LAYOUT
+========================= */
 
 .lp-hero {
   max-width: 1120px;
@@ -13,96 +35,167 @@
   padding: clamp(2.2rem, 2.4vw + 1.5rem, 4rem) 1rem 1.4rem;
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-  gap: 16px;
+  gap: 18px;
   align-items: stretch;
 }
 
+/* HERO CONTENT CARD */
+
 .lp-hero-content {
-  border: 1px solid #d5e2ef;
-  border-radius: 18px;
-  padding: clamp(1.25rem, 1.5vw + 0.9rem, 2rem);
-  background: linear-gradient(155deg, rgba(255, 255, 255, 0.97), rgba(242, 248, 255, 0.95));
-  box-shadow: 0 28px 54px -44px rgba(2, 6, 23, 0.65);
+  position: relative;
+  overflow: hidden;
+
+  border-radius: 28px;
+  padding: clamp(1.8rem, 2vw + 1rem, 3rem);
+
+  background: var(--card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+
+  border: 1px solid var(--border);
+
+  box-shadow: var(--shadow-lg);
 }
+
+.lp-hero-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255,255,255,0.5), transparent 35%);
+  pointer-events: none;
+}
+
+/* =========================
+   BADGE
+========================= */
 
 .lp-badge {
   display: inline-block;
   border-radius: 999px;
   padding: 0.34rem 0.74rem;
+
   font-size: 0.73rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 800;
+
   color: #075985;
-  background: rgba(14, 165, 233, 0.12);
-  border: 1px solid rgba(14, 165, 233, 0.3);
+  background: rgba(14,165,233,0.12);
+  border: 1px solid rgba(14,165,233,0.25);
 }
 
+/* =========================
+   TYPOGRAPHY
+========================= */
+
 .lp-hero h1 {
-  margin: 0.68rem 0 0.66rem;
-  font-size: clamp(1.9rem, 2.6vw + 0.95rem, 3.25rem);
-  line-height: 1.06;
-  letter-spacing: -0.03em;
+  margin: 1rem 0 0.8rem;
+
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  font-weight: 800;
 }
 
 .lp-hero p {
   margin: 0;
-  color: #3d5368;
+  color: var(--muted);
   max-width: 62ch;
-  line-height: 1.55;
+  line-height: 1.75;
+  font-size: 1.05rem;
 }
 
+/* =========================
+   ACTION BUTTONS
+========================= */
+
 .lp-actions {
-  margin-top: 1.1rem;
+  margin-top: 1.2rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
 .lp-btn {
   border: 1px solid transparent;
-  border-radius: 11px;
-  padding: 0.66rem 1.02rem;
-  font-size: 0.92rem;
+  border-radius: 14px;
+
+  padding: 0.85rem 1.4rem;
+  font-size: 0.95rem;
   font-weight: 700;
+
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.25s ease;
+
+  position: relative;
+  overflow: hidden;
 }
+
+.lp-btn:hover {
+  transform: translateY(-2px);
+}
+
+.lp-btn:active {
+  transform: translateY(0);
+}
+
+/* PRIMARY BUTTON */
 
 .lp-btn-primary {
   color: #fff;
-  background: linear-gradient(180deg, #0ea5e9, #0a6dbd);
-  box-shadow: 0 14px 26px -18px rgba(14, 165, 233, 0.9);
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+
+  box-shadow:
+    0 12px 26px rgba(37, 99, 235, 0.25),
+    0 6px 12px rgba(14, 165, 233, 0.18);
 }
 
 .lp-btn-primary:hover {
-  background: linear-gradient(180deg, #0895d7, #095ea4);
+  box-shadow:
+    0 18px 38px rgba(37, 99, 235, 0.30),
+    0 10px 18px rgba(14, 165, 233, 0.22);
 }
 
+/* SECONDARY BUTTON */
+
 .lp-btn-secondary {
-  color: #0f172a;
-  border-color: #ccdae7;
-  background: #f3f8fd;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(203,213,225,0.7);
+  color: var(--text);
 }
 
 .lp-btn-secondary:hover {
-  background: #e7f0f9;
+  background: rgba(255,255,255,0.92);
 }
+
+/* =========================
+   METRICS
+========================= */
 
 .lp-metrics {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .lp-metric-card {
-  border: 1px solid #d6e3f0;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #fbfeff, #f4f9ff);
-  padding: 0.95rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
-  justify-content: center;
+  border-radius: 20px;
+
+  padding: 1.2rem;
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255,255,255,0.7);
+
+  box-shadow: var(--shadow-sm);
+
+  transition: all 0.3s ease;
+}
+
+.lp-metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .lp-metric-card span {
@@ -111,140 +204,228 @@
 }
 
 .lp-metric-card strong {
-  color: #0f172a;
-  font-size: 1.06rem;
+  font-size: 1.1rem;
 }
+
+/* =========================
+   SECTION WRAPPER
+========================= */
 
 .lp-section {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.2rem;
 }
 
 .lp-section-head h2 {
   margin: 0;
-  font-size: clamp(1.35rem, 1.2vw + 1rem, 2rem);
+  font-size: clamp(1.4rem, 1.2vw + 1rem, 2.2rem);
   letter-spacing: -0.02em;
 }
 
 .lp-section-head p {
-  margin: 0.28rem 0 0;
-  color: #4b6177;
+  margin-top: 0.3rem;
+  color: var(--muted);
 }
 
+/* =========================
+   CAPABILITIES
+========================= */
+
 .lp-capability-grid {
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
 .lp-capability-card {
-  border: 1px solid #d7e3ef;
-  border-radius: 14px;
-  background: #ffffff;
-  padding: 0.94rem;
+  border-radius: 20px;
+
+  padding: 1.4rem;
+
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255,255,255,0.75);
+
+  box-shadow: var(--shadow-sm);
+
+  transition: all 0.3s ease;
+}
+
+.lp-capability-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
 }
 
 .lp-capability-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: inline-flex;
+  width: 48px;
+  height: 48px;
+
+  border-radius: 14px;
+
+  display: flex;
   align-items: center;
   justify-content: center;
-  color: #0b69b7;
-  background: linear-gradient(180deg, #e6f3ff, #d7eaff);
+
+  background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(37,99,235,0.18));
+  color: #2563eb;
 }
 
 .lp-capability-card h3 {
-  margin: 0.56rem 0 0.26rem;
+  margin: 0.6rem 0 0.3rem;
   font-size: 1rem;
 }
 
 .lp-capability-card p {
   margin: 0;
   color: #4f657a;
-  line-height: 1.45;
+  line-height: 1.5;
   font-size: 0.92rem;
 }
 
+/* =========================
+   STEPS
+========================= */
+
 .lp-steps {
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
 .lp-step-card {
-  border: 1px solid #d5e2ef;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fcfeff, #f4f9ff);
-  padding: 0.94rem;
+  border-radius: 20px;
+
+  padding: 1.4rem;
+
+  background: #fff;
+
+  border: 1px solid rgba(226,232,240,0.9);
+
+  box-shadow: var(--shadow-sm);
 }
 
 .lp-step-index {
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
+
   border-radius: 999px;
-  display: inline-flex;
+
+  display: flex;
   align-items: center;
   justify-content: center;
+
   font-weight: 700;
-  color: #0f172a;
-  background: #dff0ff;
+
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1d4ed8;
 }
 
 .lp-step-card h3 {
-  margin: 0.56rem 0 0.24rem;
+  margin: 0.6rem 0 0.3rem;
 }
 
 .lp-step-card p {
   margin: 0;
   color: #4f657a;
-  line-height: 1.45;
+  line-height: 1.5;
 }
+
+/* =========================
+   CTA
+========================= */
 
 .lp-cta {
   max-width: 1120px;
-  margin: 0.8rem auto 1.2rem;
-  padding: 1.2rem;
-  border-radius: 18px;
-  border: 1px solid rgba(10, 109, 189, 0.28);
-  background: linear-gradient(140deg, #0b1828 0%, #0d4f87 52%, #0f766e 100%);
+  margin: 1.2rem auto;
+
+  padding: 2.5rem;
+  border-radius: 32px;
+
   color: #fff;
+
+  background: linear-gradient(135deg, #0f172a, #1d4ed8, #0891b2);
+
+  box-shadow: 0 30px 60px rgba(29,78,216,0.25);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.lp-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 40%);
 }
 
 .lp-cta h2 {
   margin: 0;
-  font-size: clamp(1.3rem, 1vw + 1.05rem, 1.75rem);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
 }
 
 .lp-cta p {
-  margin: 0.4rem 0 0;
-  color: rgba(255, 255, 255, 0.86);
+  margin-top: 0.5rem;
+  color: rgba(255,255,255,0.85);
 }
+
+/* CTA secondary button override */
 
 .lp-cta .lp-btn-secondary {
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.12);
 }
 
 .lp-cta .lp-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.2);
 }
+
+/* =========================
+   FOOTER
+========================= */
 
 .lp-footer {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 0.5rem 1rem 1.4rem;
-  color: #60798f;
-  font-size: 0.88rem;
+
+  padding: 1rem;
+
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
+
+  color: #60798f;
+  font-size: 0.88rem;
 }
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lp-capability-card,
+.lp-step-card,
+.lp-metric-card {
+  animation: fadeUp 0.6s ease both;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media (max-width: 980px) {
   .lp-hero {

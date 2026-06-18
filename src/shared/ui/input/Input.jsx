@@ -1,5 +1,7 @@
 import React from 'react';
 
-export default function Input({ className = '', ...props }) {
+export function Input({ className = '', ...props }) {
   return <input className={`tp-field ${className}`} {...props} />;
 }
+
+export default Input;

@@ -36,18 +36,24 @@ export function LoginRoutePage({ onBack, onLogin, onForgot }: Props) {
   });
 
   return (
-    <div className="mx-auto max-w-md py-10">
+    <div className="mx-auto max-w-md py-10 px-4">
       <Card>
         <h1 className="mb-3 text-xl font-semibold text-white">Sign In</h1>
+        <p className="mb-3 text-sm tp-muted">Sign in to continue to your workspace. Use your organization credentials or a personal account.</p>
+
         <form className="space-y-3" onSubmit={submit}>
           <Input placeholder="Username" autoComplete="username" {...form.register('username')} />
           <Input type="password" placeholder="Password" autoComplete="current-password" {...form.register('password')} />
-          <div className="flex gap-2">
-            <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Logging in...' : 'Login'}</Button>
-            <Button type="button" variant="secondary" onClick={onBack}>Back</Button>
-            <Button type="button" variant="ghost" onClick={onForgot}>Forgot password?</Button>
+
+          <div className="flex flex-col sm:flex-row gap-2 mt-2">
+            <Button className="w-full sm:w-auto" type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Logging in...' : 'Login'}</Button>
+            <div className="flex gap-2">
+              <Button className="w-full sm:w-auto" type="button" variant="secondary" onClick={onBack}>Back</Button>
+              <Button className="w-full sm:w-auto" type="button" variant="ghost" onClick={onForgot}>Forgot password?</Button>
+            </div>
           </div>
         </form>
+
         {feedback && <div className="mt-3"><FeedbackMessage {...feedback} onClose={() => setFeedback(null)} /></div>}
       </Card>
     </div>

@@ -17,3 +17,7 @@ ReactDOM.createRoot(rootElement).render(
     React.createElement(QueryProvider, null, React.createElement(AppRouter)),
   ),
 );
+
+// debug log to help verify client-side mounting
+// (visible in browser console)
+console.log('TechPulse: main.tsx mounted');

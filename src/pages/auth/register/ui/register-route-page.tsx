@@ -45,20 +45,24 @@ export function RegisterRoutePage({ onBack, onRegistered }: Props) {
   });
 
   return (
-    <div className="mx-auto max-w-md py-10">
+    <div className="mx-auto max-w-md py-10 px-4">
       <Card>
         <h1 className="mb-3 text-xl font-semibold text-white">Create Account</h1>
+        <p className="mb-4 text-sm tp-muted">Create an account to start publishing and managing software artifacts for your organization.</p>
+
         <form className="space-y-3" onSubmit={submit}>
           <Input placeholder="Full name" autoComplete="name" {...form.register('fullname')} />
           <Input placeholder="Username" autoComplete="username" {...form.register('username')} />
           <Input type="email" placeholder="Email" autoComplete="email" {...form.register('email')} />
           <Input type="password" placeholder="Password" autoComplete="new-password" {...form.register('password')} />
           <Input type="password" placeholder="Confirm Password" autoComplete="new-password" {...form.register('confirm_password')} />
-          <div className="flex gap-2">
-            <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Registering...' : 'Register'}</Button>
-            <Button type="button" variant="secondary" onClick={onBack}>Back</Button>
+
+          <div className="flex flex-col sm:flex-row gap-2 mt-2">
+            <Button className="w-full sm:w-auto" type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Registering...' : 'Register'}</Button>
+            <Button className="w-full sm:w-auto" type="button" variant="secondary" onClick={onBack}>Back</Button>
           </div>
         </form>
+
         {feedback && <div className="mt-3"><FeedbackMessage {...feedback} onClose={() => setFeedback(null)} /></div>}
       </Card>
     </div>

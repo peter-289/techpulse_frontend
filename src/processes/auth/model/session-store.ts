@@ -9,6 +9,7 @@ type SessionState = {
   clearSession: () => void;
 };
 
+// Zustand store for managing user session state
 export const useSessionStore = create<SessionState>((set) => ({
   isLoggedIn: false,
   user: null,

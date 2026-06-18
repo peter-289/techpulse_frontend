@@ -134,3 +134,17 @@ input:focus, textarea:focus, select:focus {
 /* Utility: centralize small text styles */
 .tp-muted { color: hsl(var(--muted)); }
 
+/* Panel / Card primitive used across layout */
+.tp-panel,
+.tp-card {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, hsl(var(--panel)) 0%, hsl(var(--panel-2)) 100%);
+  padding: calc(var(--space-4));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: var(--shadow-1);
+}
+
+.tp-panel h1, .tp-panel h2, .tp-panel h3, .tp-card h1, .tp-card h2 {
+  color: hsl(var(--fg));
+}
+
