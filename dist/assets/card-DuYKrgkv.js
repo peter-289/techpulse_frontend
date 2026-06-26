@@ -1,0 +1,1 @@
+import{j as s}from"./tanstack-Dr1d2fj6.js";import{c as a}from"./index-nq_FY9JS.js";function n({className:r,...o}){return s.jsx("div",{className:a("rounded-lg border border-stone-700/70 bg-neutral-900/80 p-4 shadow-[0_1px_1px_rgba(0,0,0,0.22)]",r),...o})}export{n as C};

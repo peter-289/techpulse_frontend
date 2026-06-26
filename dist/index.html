@@ -4,15 +4,52 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tech Pulse</title>
-    <script type="module" crossorigin src="/assets/index-BiRTYJu2.js"></script>
+    <script type="module" crossorigin src="/assets/index-nq_FY9JS.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/tanstack-Dr1d2fj6.js">
     <link rel="modulepreload" crossorigin href="/assets/react-Br_8nhxP.js">
     <link rel="modulepreload" crossorigin href="/assets/msw-BXl3LOEh.js">
-    <link rel="modulepreload" crossorigin href="/assets/icons-GekxlrQX.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-BMS0pBj4.css">
+    <link rel="modulepreload" crossorigin href="/assets/icons-DNf5OKlj.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-CVaLIi2g.css">
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Lightweight runtime error overlay to help debug blank page issues
+      (function () {
+        function showError(msg) {
+          try {
+            var el = document.getElementById('tp-error-overlay');
+            if (!el) {
+              el = document.createElement('div');
+              el.id = 'tp-error-overlay';
+              el.style.position = 'fixed';
+              el.style.left = '12px';
+              el.style.right = '12px';
+              el.style.bottom = '12px';
+              el.style.zIndex = 99999;
+              el.style.background = 'rgba(220,38,38,0.95)';
+              el.style.color = 'white';
+              el.style.padding = '12px';
+              el.style.borderRadius = '8px';
+              el.style.fontFamily = 'system-ui, Arial, sans-serif';
+              el.style.fontSize = '13px';
+              el.style.boxShadow = '0 6px 24px rgba(2,6,23,0.6)';
+              document.body.appendChild(el);
+            }
+            el.textContent = String(msg).slice(0, 1000);
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        window.addEventListener('error', function (ev) {
+          showError(ev.message || ev.error || 'Runtime error');
+        });
+        window.addEventListener('unhandledrejection', function (ev) {
+          showError(ev.reason || 'Unhandled promise rejection');
+        });
+      })();
+    </script>
   </body>
 </html>
 

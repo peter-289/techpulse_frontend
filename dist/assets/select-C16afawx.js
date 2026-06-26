@@ -1,0 +1,1 @@
+import{j as t}from"./tanstack-Dr1d2fj6.js";import{c as r}from"./index-nq_FY9JS.js";function c({className:e,...o}){return t.jsx("select",{className:r("h-10 rounded-lg border border-stone-700 bg-neutral-950/70 px-3 text-sm text-stone-100 focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/15",e),...o})}export{c as S};

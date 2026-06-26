@@ -7,5 +7,14 @@ export function Dialog({ open, children }: PropsWithChildren<{ open: boolean }>)
 }
 
 export function DialogContent({ children, className }: PropsWithChildren<{ className?: string }>) {
-  return <div className={cn('w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 p-4 shadow-2xl', className)}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        'w-full max-w-lg rounded-lg border border-stone-700 bg-neutral-900 p-4 shadow-[0_16px_44px_rgba(0,0,0,0.34)]',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }

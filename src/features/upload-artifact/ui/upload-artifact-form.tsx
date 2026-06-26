@@ -84,7 +84,7 @@ export function UploadArtifactForm({ onSuccessNavigate }: Props) {
     <div className="grid gap-4 lg:grid-cols-[2fr,1fr]">
       <Card>
         <form className="space-y-3" onSubmit={onSubmit}>
-          <h2 className="text-lg font-semibold text-white">Upload Artifact</h2>
+          <h2 className="text-lg font-semibold text-stone-50">Upload Artifact</h2>
           <Input placeholder="Project name" {...form.register('name')} />
           {form.formState.errors.name && <FeedbackMessage compact variant="warning" title="Validation" message={form.formState.errors.name.message || ''} />}
 
@@ -104,7 +104,7 @@ export function UploadArtifactForm({ onSuccessNavigate }: Props) {
             </Select>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-300">
+          <label className="flex items-center gap-2 text-sm text-stone-300">
             <input type="checkbox" {...form.register('isPublic')} /> Public visibility
           </label>
 
@@ -120,7 +120,7 @@ export function UploadArtifactForm({ onSuccessNavigate }: Props) {
           />
           {form.formState.errors.file && <FeedbackMessage compact variant="warning" title="Validation" message={form.formState.errors.file.message || ''} />}
 
-          <div className="h-2 rounded bg-slate-800"><div className="h-full rounded bg-cyan-500" style={{ width: `${progress}%` }} /></div>
+          <div className="h-2 rounded-lg bg-neutral-950"><div className="h-full rounded-lg bg-teal-400" style={{ width: `${progress}%` }} /></div>
 
           {mutation.isSuccess && <FeedbackMessage compact variant="success" title="Upload complete" message="Artifact published successfully." />}
           {mutation.isError && <FeedbackMessage compact variant="error" title="Upload failed" message="Please review fields and try again." />}
@@ -133,8 +133,8 @@ export function UploadArtifactForm({ onSuccessNavigate }: Props) {
       </Card>
 
       <Card>
-        <h3 className="text-base font-semibold text-white">Upload Summary</h3>
-        <div className="mt-3 space-y-2 text-sm text-slate-300">
+        <h3 className="text-base font-semibold text-stone-50">Upload Summary</h3>
+        <div className="mt-3 space-y-2 text-sm text-stone-300">
           <div>Visibility: <strong>{summary.visibility}</strong></div>
           <div>Price: <strong>{summary.price}</strong></div>
           <div>Version: <strong>{summary.version}</strong></div>
