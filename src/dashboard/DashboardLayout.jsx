@@ -6,9 +6,9 @@ const SIDEBAR_SECTIONS = [
     title: 'Workspace',
     items: [
       { id: 'resources', label: 'Dashboard', icon: 'DB' },
-      { id: 'projects', label: 'My Projects', icon: 'MP' },
-      { id: 'projects', label: 'Categories', icon: 'CT' },
-      { id: 'upload_project', label: 'Upload Project', icon: 'UP' },
+      { id: 'softwares', label: 'My Softwares', icon: 'MS' },
+      { id: 'softwares', label: 'Categories', icon: 'CT' },
+      { id: 'upload_software', label: 'Upload Software', icon: 'US' },
     ],
   },
   {

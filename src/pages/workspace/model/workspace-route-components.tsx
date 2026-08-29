@@ -25,8 +25,8 @@ function useWorkspaceRouteContext() {
   const onNavigate = (target: string) => {
     const map: Record<string, string> = {
       resources: '/workspace/resources',
-      projects: '/workspace/projects',
-      upload_project: '/workspace/upload-project',
+      softwares: '/workspace/softwares',
+      upload_software: '/workspace/upload-software',
       plans: '/workspace/plans',
       admin: '/workspace/admin',
     };
@@ -52,7 +52,7 @@ export function SoftwareDetailsWorkspaceRoute() {
     <SoftwareDetailsRoutePage
       user={user}
       software={software}
-      onBack={() => navigate('/workspace/projects')}
+      onBack={() => navigate('/workspace/softwares')}
       onLogout={onLogout}
       onNavigate={onNavigate}
       purchasedProjectIds={purchasedProjectIds}
@@ -87,7 +87,7 @@ export function PlansWorkspaceRoute() {
       user={user}
       onNavigate={onNavigate}
       onLogout={onLogout}
-      onBack={() => navigate('/workspace/projects')}
+      onBack={() => navigate('/workspace/softwares')}
       onSelectPlan={(plan: any) => navigate('/workspace/checkout', { state: { plan } })}
     />
   );
@@ -106,8 +106,8 @@ export function CheckoutWorkspaceRoute() {
       onLogout={onLogout}
       selectedPlan={selectedPlan}
       selectedProject={selectedProject}
-      onBack={() => navigate('/workspace/projects')}
-      onComplete={() => navigate('/workspace/projects')}
+      onBack={() => navigate('/workspace/softwares')}
+      onComplete={() => navigate('/workspace/softwares')}
     />
   );
 }

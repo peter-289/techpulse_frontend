@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&display=swap');
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -15,8 +17,6 @@ body {
   font-family: 'Inter', 'Geist', 'SF Pro Text', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f8fafc;
-  color: #0f172a;
 }
 
 code,

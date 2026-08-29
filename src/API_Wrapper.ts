@@ -7,19 +7,18 @@ const envBaseUrl = (
 const isLocalFrontend =
   typeof window !== 'undefined' &&
   (window.location.origin.includes('localhost:5173') || window.location.origin.includes('127.0.0.1:5173'));
-const fallbackBaseUrl = isLocalFrontend ? 'http://127.0.0.1:8000' : '';
+const fallbackBaseUrl = isLocalFrontend ? 'http://localhost:8000' : '';
 
 export const API_BASE_URL = (envBaseUrl || fallbackBaseUrl).replace(/\/$/, '');
 
-const api = axios.create({
-  baseURL: API_BASE_URL || undefined,
-  withCredentials: true,
-});
-
+// Single authenticated client instance
 export const authApi = axios.create({
   baseURL: API_BASE_URL || undefined,
   withCredentials: true,
 });
+
+// Use same instance for api exports
+const api = authApi;
 
 let isRefreshing = false;
 let refreshPromise: Promise<any> | null = null;
@@ -31,12 +30,21 @@ authApi.interceptors.response.use(
     const status = error?.response?.status;
     const url = String(originalRequest?.url || '');
 
+    console.log('API Error:', {
+      url,
+      status,
+      statusText: error?.response?.statusText,
+      detail: error?.response?.data?.detail,
+      isRetry: originalRequest._retry,
+    });
+
     if (
       status === 401 &&
       !originalRequest._retry &&
       !url.includes('/api/v1/auth/login') &&
       !url.includes('/api/v1/auth/refresh')
     ) {
+      console.log('Attempting token refresh for 401 on:', url);
       originalRequest._retry = true;
 
       if (!isRefreshing) {
@@ -48,8 +56,10 @@ authApi.interceptors.response.use(
 
       try {
         await refreshPromise;
+        console.log('Token refresh successful, retrying:', url);
         return authApi(originalRequest);
       } catch (refreshError) {
+        console.log('Token refresh failed:', refreshError);
         return Promise.reject(refreshError);
       }
     }

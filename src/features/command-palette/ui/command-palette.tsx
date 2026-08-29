@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useUiStore } from '../../../shared/store/ui-store';
 
 const entries = [
-  { label: 'Workspace Overview', path: '/workspace/overview' },
-  { label: 'Software Registry', path: '/workspace/software-registry' },
-  { label: 'Project Library', path: '/workspace/project-library' },
-  { label: 'Legacy Resources', path: '/workspace/resources' },
-  { label: 'Legacy Projects', path: '/workspace/projects' },
+  { label: 'Dashboard', path: '/workspace/overview' },
+  { label: 'My Software', path: '/workspace/software' },
+  { label: 'Discover', path: '/workspace/discover' },
+  { label: 'Upload Software', path: '/workspace/upload-project' },
 ];
 
 export function CommandPalette() {

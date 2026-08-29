@@ -14,7 +14,7 @@ export function LandingRoute() {
 
 export function RegisterRoute() {
   const navigate = useNavigate();
-  return <RegisterRoutePage onBack={() => navigate('/')} onRegistered={() => navigate('/login')} />;
+  return <RegisterRoutePage onBack={() => navigate('/')} onLogin={() => navigate('/login')} />;
 }
 
 export function ForgotPasswordRoute() {
@@ -43,5 +43,12 @@ export function LoginRoute() {
     }
   };
 
-  return <LoginRoutePage onBack={() => navigate('/')} onLogin={onLogin} onForgot={() => navigate('/forgot-password')} />;
+  return (
+    <LoginRoutePage
+      onBack={() => navigate('/')}
+      onLogin={onLogin}
+      onForgot={() => navigate('/forgot-password')}
+      onRegister={() => navigate('/register')}
+    />
+  );
 }

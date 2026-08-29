@@ -18,6 +18,4 @@ ReactDOM.createRoot(rootElement).render(
   ),
 );
 
-// debug log to help verify client-side mounting
-// (visible in browser console)
-console.log('TechPulse: main.tsx mounted');
+

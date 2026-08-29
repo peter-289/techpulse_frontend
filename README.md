@@ -1,6 +1,6 @@
 # Tech Pulse Frontend
 
-React frontend for Tech Pulse, built with Create React App.
+React frontend for Tech Pulse, built with Vite.
 
 ## Getting Started
 
@@ -8,30 +8,27 @@ React frontend for Tech Pulse, built with Create React App.
 ```bash
 npm install
 ```
-2. Start development server:
+2. Start the dev server:
 ```bash
-npm start
+npm run dev
 ```
 
 ## Scripts
 
-- `npm start`: run local development server.
-- `npm run build`: build optimized production assets into `build/`.
-- `npm test`: run tests once and pass when no tests are present.
-- `npm run test:ci`: CI-safe test command (single process).
+- `npm run dev`: start the Vite development server.
+- `npm start`: alias for `npm run dev`.
+- `npm run build`: build production assets into `dist/`.
+- `npm test`: run Vitest.
 - `npm run e2e`: run Playwright tests in Chromium.
 
-## Production Deployment Checklist
+## Environment
 
-1. Set production environment variables in `.env.production`:
+Copy or adjust the env file for local development:
+
 ```env
-REACT_APP_API_URL=https://api.your-domain.com
-REACT_APP_ENV=production
+REACT_APP_API_URL=http://127.0.0.1:8000
+REACT_APP_ENV=development
 REACT_APP_WEBSITE_NAME=Tech Pulse
 ```
-2. Validate before release:
-```bash
-npm run build
-npm run test:ci
-```
-3. Deploy static `build/` output (or build and run via Docker).
+
+For production, update `REACT_APP_API_URL` to the deployed backend endpoint.

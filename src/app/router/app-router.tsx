@@ -7,7 +7,6 @@ import { useSessionStore } from '../../processes/auth/model/session-store';
 
 const SoftwareRegistryPage = lazy(() => import('../../pages/software-registry/ui/software-registry-page').then((m) => ({ default: m.SoftwareRegistryPage })));
 const WorkspaceOverviewPage = lazy(() => import('../../pages/workspace-overview/ui/workspace-overview-page').then((m) => ({ default: m.WorkspaceOverviewPage })));
-const ProjectLibraryPage = lazy(() => import('../../pages/project-library/ui/project-library-page').then((m) => ({ default: m.ProjectLibraryPage })));
 const LandingRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.LandingRoute })));
 const RegisterRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.RegisterRoute })));
 const LoginRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.LoginRoute })));
@@ -55,7 +54,7 @@ export function AppRouter() {
         <Route path="/check-email" element={<Suspense fallback={fallback}><CheckEmailRoute /></Suspense>} />
 
         <Route element={<RequireAuth />}>
-          <Route path="/workspace/upload-project" element={<Suspense fallback={fallback}><UploadWorkspaceRoute /></Suspense>} />
+          <Route path="/workspace/upload-software" element={<Suspense fallback={fallback}><UploadWorkspaceRoute /></Suspense>} />
           <Route path="/workspace/software-details" element={<Suspense fallback={fallback}><SoftwareDetailsWorkspaceRoute /></Suspense>} />
           <Route path="/workspace/version-details" element={<Suspense fallback={fallback}><VersionDetailsWorkspaceRoute /></Suspense>} />
           <Route path="/workspace/plans" element={<Suspense fallback={fallback}><PlansWorkspaceRoute /></Suspense>} />
@@ -64,46 +63,11 @@ export function AppRouter() {
         </Route>
 
         <Route path="/workspace" element={<Navigate to="/workspace/overview" replace />} />
-        <Route
-          path="/workspace/resources"
-          element={(
-            <AppShell>
-              <Suspense fallback={fallback}><WorkspaceOverviewPage /></Suspense>
-            </AppShell>
-          )}
-        />
-        <Route
-          path="/workspace/projects"
-          element={(
-            <AppShell>
-              <Suspense fallback={fallback}><ProjectLibraryPage /></Suspense>
-            </AppShell>
-          )}
-        />
-        <Route
-          path="/workspace/overview"
-          element={(
-            <AppShell>
-              <Suspense fallback={fallback}><WorkspaceOverviewPage /></Suspense>
-            </AppShell>
-          )}
-        />
-        <Route
-          path="/workspace/software-registry"
-          element={(
-            <AppShell>
-              <Suspense fallback={fallback}><SoftwareRegistryPage /></Suspense>
-            </AppShell>
-          )}
-        />
-        <Route
-          path="/workspace/project-library"
-          element={(
-            <AppShell>
-              <Suspense fallback={fallback}><ProjectLibraryPage /></Suspense>
-            </AppShell>
-          )}
-        />
+        <Route path="/workspace/overview" element={<AppShell><Suspense fallback={fallback}><WorkspaceOverviewPage /></Suspense></AppShell>} />
+        <Route path="/workspace/softwares" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="my-software" /></Suspense></AppShell>} />
+        <Route path="/workspace/discover" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="discover" /></Suspense></AppShell>} />
+        <Route path="/workspace/software-registry" element={<Navigate to="/workspace/software" replace />} />
+        <Route path="/workspace/software-library" element={<Navigate to="/workspace/discover" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

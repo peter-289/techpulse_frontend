@@ -1,23 +1,23 @@
 import DashboardLayout from '../../../dashboard/DashboardLayout';
-import { UploadArtifactForm } from '../../../features/upload-artifact/ui/upload-artifact-form';
+import { SoftwareUploadPage } from '../../../features/upload-software/ui/upload-software-page';
 
 type Props = {
   user: any;
   onNavigate: (target: string) => void;
-  onLogout: () => void;
+  onLogout: () => void;     
 };
 
 export function UploadWorkspacePage({ user, onNavigate, onLogout }: Props) {
   return (
     <DashboardLayout
       user={user}
-      activePage="upload_project"
+      activePage="upload_software"
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title="Upload Project"
+      title="Upload Software"
       subtitle="Create and publish new software packages"
     >
-      <UploadArtifactForm onSuccessNavigate={() => onNavigate('projects')} />
+      <SoftwareUploadPage onSuccessNavigate={() => onNavigate('softwares')} />
     </DashboardLayout>
   );
 }

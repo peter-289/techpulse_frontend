@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { httpClient } from '../../../shared/api/http-client';
+import api from '../../../API_Wrapper';
 import { queryKeys } from '../../../shared/lib/query/query-keys';
 import {
   softwareSchema,
@@ -10,10 +10,19 @@ import {
   type SoftwareVersion,
 } from '../model/software.schema';
 
+export function normalizeSoftwareResponse(responseData: unknown): Software[] {
+  const rows = Array.isArray(responseData)
+    ? responseData
+    : [];
+
+  const unwrappedRows = Array.isArray(rows[0]) && rows.length === 2 ? rows[0] : rows;
+
+  return (Array.isArray(unwrappedRows) ? unwrappedRows : []).map((row) => softwareSchema.parse(row));
+}
+
 async function fetchSoftware(limit: number): Promise<Software[]> {
-  const response = await httpClient.get('/api/v1/software-management', { params: { limit } });
-  const rows = Array.isArray(response.data) ? response.data : [];
-  return rows.map((row) => softwareSchema.parse(row));
+  const response = await api.get('/api/v1/software-management', { params: { limit } });
+  return normalizeSoftwareResponse(response.data);
 }
 
 export function useSoftwareList(limit = 100) {
@@ -24,7 +33,7 @@ export function useSoftwareList(limit = 100) {
 }
 
 async function fetchSoftwareVersions(softwareId: string, limit: number): Promise<SoftwareVersion[]> {
-  const response = await httpClient.get(`/api/v1/software-management/${softwareId}/versions`, { params: { limit } });
+  const response = await api.get(`/api/v1/software-management/${softwareId}/versions`, { params: { limit } });
   const rows = Array.isArray(response.data) ? response.data : [];
   return rows.map((row) => softwareVersionSchema.parse(row));
 }
@@ -38,8 +47,14 @@ export function useSoftwareVersions(softwareId: string | null | undefined, limit
 }
 
 async function fetchAdminSummary(): Promise<SoftwareSummary> {
-  const response = await httpClient.get('/api/v1/software-management/admin/summary');
-  return softwareSummarySchema.parse(response.data || {});
+  const response = await api.get('/api/v1/software-management/admin/summary');
+
+  //console.log("SUMMARY RESPONSE:", response.data);
+  const parsed = softwareSummarySchema.parse(response.data || {});
+
+  //console.log("SUMMARY PARSED:", parsed)
+
+  return parsed
 }
 
 export function useSoftwareAdminSummary() {

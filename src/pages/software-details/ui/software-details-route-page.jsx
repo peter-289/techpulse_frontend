@@ -42,7 +42,7 @@ export default function SoftwareDetailsPage({
   onNavigate,
   onOpenVersion,
   onCheckoutProject,
-  purchasedProjectIds = [],
+  purchasedProjectIds = [], //NOTE: supposed to be softwareid
 }) {
   const { fetchSoftwareVersions, uploadSoftwareVersion, updateVersionState, updatePricing } = useSoftwareRegistry();
   const [versions, setVersions] = useState([]);
@@ -114,18 +114,18 @@ export default function SoftwareDetailsPage({
     return (
       <DashboardLayout
         user={user}
-        activePage="projects"
+        activePage="softwares"
         onNavigate={onNavigate}
         onLogout={onLogout}
         title="Project Details"
-        subtitle="Select a project to manage it"
+        subtitle="Select a software to manage it"
       >
         <section className="tp-dashboard-grid">
           <article className="tp-panel tp-span-8">
-            <h1>No project selected</h1>
-            <p>Please return to the project library and choose a project to manage.</p>
+            <h1>No software selected</h1>
+            <p>Please return to the software library and choose a software to manage.</p>
             <button className="tp-btn tp-btn-primary" type="button" onClick={onBack}>
-              Back to Project Library
+              Back to Software Library
             </button>
           </article>
         </section>
@@ -225,7 +225,7 @@ export default function SoftwareDetailsPage({
         priceCents: Math.max(0, Math.round(Number(pricing.price || 0) * 100)),
         currency: pricing.currency,
       });
-      setFeedback({ variant: 'success', title: 'Pricing saved', message: 'Project pricing is now updated.' });
+      setFeedback({ variant: 'success', title: 'Pricing saved', message: 'Software pricing is now updated.' });
     } catch (err) {
       setFeedback({
         variant: 'error',
@@ -247,17 +247,17 @@ export default function SoftwareDetailsPage({
     return (
       <DashboardLayout
         user={user}
-        activePage="projects"
+        activePage="softwares"
         onNavigate={onNavigate}
         onLogout={onLogout}
-        title={software.name || 'Project Details'}
-        subtitle="Project information"
+        title={software.name || 'Software Details'}
+        subtitle="Software information"
       >
         <section className="tp-dashboard-grid sd-grid">
           <article className="tp-panel tp-span-8 sd-main">
             <header className="sd-header">
               <div>
-                <h1>{software.name || 'Untitled project'}</h1>
+                <h1>{software.name || 'Untitled software'}</h1>
                 <p>{software.description || 'No description provided.'}</p>
               </div>
               <div className="sd-header-actions">
@@ -308,11 +308,11 @@ export default function SoftwareDetailsPage({
           </article>
 
           <aside className="tp-panel tp-span-4 sd-side">
-            <h2>Project access</h2>
+            <h2>Software access</h2>
             <p className="sd-muted">
               {viewerHasAccess
-                ? 'Use the project library to download available releases.'
-                : 'Purchase access to unlock downloads for this project.'}
+                ? 'Use the software library to download available releases.'
+                : 'Purchase access to unlock downloads for this software.'}
             </p>
             {canPurchase && (
               <button className="tp-btn tp-btn-primary" type="button" onClick={() => onCheckoutProject?.(software)}>
@@ -320,7 +320,7 @@ export default function SoftwareDetailsPage({
               </button>
             )}
             <button className="tp-btn tp-btn-secondary" type="button" onClick={onBack}>
-              Return to Project Library
+              Return to Software Library
             </button>
           </aside>
         </section>
@@ -331,17 +331,17 @@ export default function SoftwareDetailsPage({
   return (
     <DashboardLayout
       user={user}
-      activePage="projects"
+      activePage="softwares"
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title={software.name || 'Project Details'}
+      title={software.name || 'Software Details'}
       subtitle="Manage versions, metadata, and lifecycle"
     >
       <section className="tp-dashboard-grid sd-grid">
         <article className="tp-panel tp-span-8 sd-main">
           <header className="sd-header">
             <div>
-              <h1>{software.name || 'Untitled project'}</h1>
+              <h1>{software.name || 'Untitled software'}</h1>
               <p>{software.description || 'No description provided.'}</p>
             </div>
             <div className="sd-header-actions">
@@ -352,10 +352,10 @@ export default function SoftwareDetailsPage({
           {feedback && <FeedbackMessage {...feedback} onClose={() => setFeedback(null)} />}
 
           <section className="sd-section">
-            <h2>Project metadata</h2>
+            <h2>Software metadata</h2>
             <div className="sd-form-grid">
               <label>
-                Project name
+                Software name
                 <input
                   className="sd-input"
                   value={metadata.name}
@@ -391,7 +391,7 @@ export default function SoftwareDetailsPage({
             <h2>Pricing</h2>
             <div className="sd-form-grid">
               <label>
-                Project price
+                Software price
                 <input
                   className="sd-input"
                   type="number"
@@ -537,13 +537,13 @@ export default function SoftwareDetailsPage({
           </ul>
 
           <div className="sd-danger-zone">
-            <h3>Delete project</h3>
-            <p>Type the project name to confirm deletion.</p>
+            <h3>Delete software</h3>
+            <p>Type the software name to confirm deletion.</p>
             <input
               className="sd-input"
               value={confirmText}
               onChange={(event) => setConfirmText(event.target.value)}
-              placeholder={software.name || 'Project name'}
+              placeholder={software.name || 'Software name'}
             />
             <button className="tp-btn sd-danger-btn" type="button" disabled={!canDelete}>
               Permanently delete
