@@ -2,7 +2,7 @@ import { Bell, ChevronLeft, ChevronRight, Command as CommandIcon, Download, Fold
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 import { useState } from 'react';
-import { authApi } from '../../../API_Wrapper';
+import { httpClient as api } from '@/shared/api/http-client';
 import { CommandPalette } from '../../../features/command-palette/ui/command-palette';
 import { useSessionStore } from '../../../processes/auth/model/session-store';
 import { cn } from '../../../shared/lib/cn';
@@ -29,7 +29,7 @@ export function AppShell({ children }: PropsWithChildren) {
 
   const logout = async () => {
     try {
-      await authApi.post('/api/v1/auth/logout');
+      await api.post('/api/v1/auth/logout');
     } catch {}
     clearSession();
     navigate('/login');
@@ -38,19 +38,19 @@ export function AppShell({ children }: PropsWithChildren) {
   const isActive = (to: string) => location.pathname === to || (to === '/workspace/softwares' && /^\/workspace\//.test(location.pathname));
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-stone-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white text-slate-900">
       <div className="lg:grid lg:grid-cols-[260px_1fr]">
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-stone-800 bg-neutral-950/95 p-3 transition-transform duration-200 lg:static lg:translate-x-0',
+            'fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 p-4 transition-transform duration-200 lg:static lg:translate-x-0 shadow-sm',
             mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
             collapsed && 'lg:w-20',
           )}
         >
           <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-teal-300">
+            <div className="flex items-center gap-2 text-blue-600">
               <Layers3 size={18} />
-              {!collapsed && <span className="text-sm font-semibold tracking-[0.16em] text-stone-100">{appConfig.appName}</span>}
+              {!collapsed && <span className="text-sm font-semibold tracking-tight text-slate-900">{appConfig.appName}</span>}
             </div>
             <Button variant="ghost" className="hidden lg:inline-flex" onClick={toggleSidebar} aria-label="Toggle sidebar">
               {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -67,8 +67,10 @@ export function AppShell({ children }: PropsWithChildren) {
                   to={item.to}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors',
-                    active ? 'border-teal-500/40 bg-teal-500/10 text-teal-100' : 'border-transparent text-stone-400 hover:border-stone-800 hover:bg-stone-900 hover:text-stone-100',
+                    'flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
+                    active
+                      ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
                     collapsed && 'lg:justify-center',
                   )}
                   title={item.label}
@@ -80,7 +82,7 @@ export function AppShell({ children }: PropsWithChildren) {
             })}
           </nav>
 
-          <div className="mt-auto space-y-3 border-t border-stone-800 pt-3">
+          <div className="mt-auto space-y-3 border-t border-slate-200 pt-3">
             <div className="flex items-center gap-3 rounded-xl border border-stone-800 bg-stone-900/60 px-3 py-2 text-sm text-stone-300">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/10 text-teal-300">
                 <Sparkles size={14} />

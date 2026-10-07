@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { authApi } from '../../../API_Wrapper';
+import { httpClient as authApi } from '@/shared/api/http-client';
 import { useSessionStore } from '../../../processes/auth/model/session-store';
 import { UploadWorkspacePage } from '../../upload-workspace/ui/upload-workspace-page';
 import SoftwareDetailsRoutePage from '../../software-details/ui/software-details-route-page';

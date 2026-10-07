@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Activity, ArrowRight, BadgeCheck, Download, Layers3, PackageOpen, RefreshCw, Search, ShieldAlert, Sparkles, Upload } from 'lucide-react';
+import { Activity, ArrowRight, BadgeCheck, Download, PackageOpen, RefreshCw, Search, ShieldAlert, Sparkles, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { buildSoftwareDownloadUrl, useSoftwareAdminSummary, useSoftwareList } from '../../../entities/software/api/software.queries';
 import type { Software } from '../../../entities/software/model/software.schema';
@@ -23,12 +23,12 @@ function formatRelativeTime(dateValue?: string | null) {
 
 function DashboardHeader() {
   return (
-    <header className="flex flex-col gap-4 rounded-2xl border border-stone-800 bg-stone-950/80 p-5 shadow-sm shadow-black/20 lg:flex-row lg:items-end lg:justify-between">
+    <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/90 backdrop-blur p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
       <div className="space-y-3">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-teal-300">TechPulse</p>
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-blue-600">TechPulse</p>
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-50">TechPulse Dashboard</h1>
-          <p className="max-w-2xl text-sm text-stone-400">Manage your software, verify release health, and discover what is available to download.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">TechPulse Dashboard</h1>
+          <p className="max-w-2xl text-sm text-slate-600">Manage your software, verify release health, and discover what is available to download.</p>
         </div>
       </div>
       <Button onClick={() => window.location.assign('/workspace/upload-project')}>
@@ -43,14 +43,14 @@ function QuickAction({ title, description, onClick }: { title: string; descripti
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-start gap-2 rounded-2xl border border-stone-800 bg-stone-900/60 p-4 text-left transition-colors hover:border-teal-500/40 hover:bg-stone-900"
+      className="flex flex-col items-start gap-2 rounded-2xl border border-slate-200 bg-white/95 backdrop-blur p-4 text-left transition-colors hover:border-blue-300 hover:bg-blue-50/40 shadow-sm"
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-300">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
         <Sparkles size={16} />
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-stone-50">{title}</h3>
-        <p className="mt-1 text-xs text-stone-400">{description}</p>
+        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <p className="mt-1 text-xs text-slate-600">{description}</p>
       </div>
     </button>
   );
@@ -61,7 +61,7 @@ function QuickActions() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-stone-50">Quick actions</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Quick actions</h2>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
         <QuickAction title="Upload software" description="Add a new package or version." onClick={() => navigate('/workspace/upload-software')} />
@@ -303,7 +303,7 @@ function ActivityFeed({ software }: { software: Software[] }) {
     <Card className="border-stone-800 bg-stone-950/30">
       <div className="flex items-center gap-2">
         <Activity size={16} className="text-teal-300" />
-        <h3 className="text-lg font-semibold text-stone-50">Recent activity</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Recent activity</h3>
       </div>
       <div className="mt-4 space-y-3">
         {items.map((item) => (
@@ -405,7 +405,7 @@ export function WorkspaceOverviewPage() {
   const isError = softwareQuery.isError || summaryQuery.isError;
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-6">
       <DashboardHeader />
       <QuickActions />
 

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { notifyToast } from '../../toastBus';
+import { notifyToast } from '@/shared/lib/toast/toast';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -16,10 +16,16 @@ export interface ToastOptions {
  */
 export function useToast() {
   return useCallback((options: ToastOptions) => {
+    const variantMap: Record<ToastVariant, 'default' | 'success' | 'warning' | 'destructive'> = {
+      success: 'success',
+      error: 'destructive',
+      warning: 'warning',
+      info: 'default',
+    };
     notifyToast({
-      variant: options.variant,
+      variant: variantMap[options.variant],
       title: options.title,
-      description: options.description,
+      ...(options.description !== undefined ? { description: options.description } : {}),
       duration: options.duration || 3000,
     });
   }, []);

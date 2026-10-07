@@ -3,7 +3,7 @@ import DashboardLayout from '../../../dashboard/DashboardLayout';
 import FeedbackMessage from '../../../components/FeedbackMessage';
 import useSoftwareRegistry from '../../../hooks/useSoftwareRegistry';
 import { VersionStatus } from '../../../constants/registryEnums';
-import { errorMessageFrom, notifyToast } from '../../../toastBus';
+import { errorMessageFrom, notifyToast } from '@/shared/lib/toast/toast';
 import './software-details-route-page.css';
 
 const EMPTY_NOTES = 'Add release notes or change log entries for this action.';

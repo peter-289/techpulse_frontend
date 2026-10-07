@@ -5,6 +5,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -16,11 +17,12 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
 
-    "types": ["vite/client", "vitest/globals"],
     "baseUrl": "./src",
-    "ignoreDeprecations": "6.0",
     "paths": {
+      "@/*": ["./*"],
       "@shared/*": ["shared/*"],
       "@features/*": ["features/*"],
       "@entities/*": ["entities/*"],

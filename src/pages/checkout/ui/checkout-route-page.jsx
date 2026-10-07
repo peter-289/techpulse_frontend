@@ -3,7 +3,7 @@ import DashboardLayout from '../../../dashboard/DashboardLayout';
 import { TIER_LABELS } from '../../../constants/registryEnums';
 import FeedbackMessage from '../../../components/FeedbackMessage';
 import useSoftwareRegistry from '../../../hooks/useSoftwareRegistry';
-import { errorMessageFrom, notifyToast } from '../../../toastBus';
+import { errorMessageFrom, notifyToast } from '@/shared/lib/toast/toast';
 import './checkout-route-page.css';
 
 function formatMoney(cents, currency = 'USD') {

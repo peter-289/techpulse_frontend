@@ -4,10 +4,11 @@ import type { ButtonHTMLAttributes } from 'react';
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const variants: Record<Variant, string> = {
-  primary: 'border border-teal-400/70 bg-teal-400 text-neutral-950 hover:bg-teal-300',
-  secondary: 'border border-stone-600 bg-stone-800 text-stone-100 hover:bg-stone-700',
-  ghost: 'border border-transparent bg-transparent text-stone-200 hover:border-stone-700 hover:bg-stone-900',
-  danger: 'border border-red-400/60 bg-red-500 text-white hover:bg-red-400',
+  primary:
+    'border border-transparent bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm hover:from-blue-700 hover:to-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+  secondary: 'border border-slate-200 bg-white text-slate-900 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+  ghost: 'border border-transparent bg-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+  danger: 'border border-transparent bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2',
 };
 
 export function Button({ className, variant = 'primary', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {

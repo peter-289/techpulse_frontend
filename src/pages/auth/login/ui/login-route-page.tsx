@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import qs from 'qs';
-import { authApi } from '../../../../API_Wrapper';
+import { httpClient as authApi } from '@/shared/api/http-client';
 import { Button, Card } from '../../../../shared/ui';
 import '../../../../LoginPage.css';
 
@@ -158,10 +158,19 @@ export function LoginRoutePage({ onBack, onLogin, onForgot, onRegister }: Props)
             </div>
 
             <div className="tp-auth-field">
-              <div className="tp-auth-field-row">
-                <label htmlFor="password">Password</label>
+              <label htmlFor="password">Password</label>
+              <div className="tp-input-with-toggle">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  aria-invalid={Boolean(passwordError)}
+                  aria-describedby={passwordError ? 'password-error' : 'password-help'}
+                  {...form.register('password')}
+                />
                 <button
-                  className="tp-auth-toggle"
+                  className="tp-toggle-password"
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}
                   aria-pressed={showPassword}
@@ -170,15 +179,6 @@ export function LoginRoutePage({ onBack, onLogin, onForgot, onRegister }: Props)
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                aria-invalid={Boolean(passwordError)}
-                aria-describedby={passwordError ? 'password-error' : 'password-help'}
-                {...form.register('password')}
-              />
               {passwordError ? (
                 <p className="tp-auth-field-error" id="password-error">
                   {passwordError}

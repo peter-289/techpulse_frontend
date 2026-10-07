@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { QueryProvider } from './app/providers/query-provider';
 import { AppRouter } from './app/router/app-router';
 import './app/styles/tokens.css';
+import { Toasts } from './shared/ui/toast/Toasts';
 
 const rootElement = document.getElementById('root');
 
@@ -14,7 +15,16 @@ ReactDOM.createRoot(rootElement).render(
   React.createElement(
     React.StrictMode,
     null,
-    React.createElement(QueryProvider, null, React.createElement(AppRouter)),
+    React.createElement(
+      QueryProvider,
+      null,
+      React.createElement(
+        React.Fragment,
+        null,
+        React.createElement(AppRouter),
+        React.createElement(Toasts)
+      )
+    ),
   ),
 );
 

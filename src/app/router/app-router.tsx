@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from '../../widgets/app-shell/ui/app-shell';
 import { RequireAuth } from './require-auth';
-import { authApi } from '../../API_Wrapper';
+import { httpClient } from '@/shared/api/http-client';
 import { useSessionStore } from '../../processes/auth/model/session-store';
 
 const SoftwareRegistryPage = lazy(() => import('../../pages/software-registry/ui/software-registry-page').then((m) => ({ default: m.SoftwareRegistryPage })));
@@ -25,13 +25,18 @@ function SessionBootstrap() {
 
   useEffect(() => {
     let mounted = true;
-    authApi
+    const { setHydrated } = useSessionStore.getState();
+    setHydrated(false);
+    httpClient
       .get('/api/v1/users/me')
       .then((res) => {
         if (mounted) setSession(res.data || null);
       })
       .catch(() => {
         if (mounted) clearSession();
+      })
+      .finally(() => {
+        if (mounted) setHydrated(true);
       });
     return () => {
       mounted = false;
@@ -60,12 +65,12 @@ export function AppRouter() {
           <Route path="/workspace/plans" element={<Suspense fallback={fallback}><PlansWorkspaceRoute /></Suspense>} />
           <Route path="/workspace/checkout" element={<Suspense fallback={fallback}><CheckoutWorkspaceRoute /></Suspense>} />
           <Route path="/workspace/admin" element={<Suspense fallback={fallback}><AdminWorkspaceRoute /></Suspense>} />
+          <Route path="/workspace/overview" element={<AppShell><Suspense fallback={fallback}><WorkspaceOverviewPage /></Suspense></AppShell>} />
+          <Route path="/workspace/softwares" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="my-software" /></Suspense></AppShell>} />
+          <Route path="/workspace/discover" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="discover" /></Suspense></AppShell>} />
         </Route>
 
         <Route path="/workspace" element={<Navigate to="/workspace/overview" replace />} />
-        <Route path="/workspace/overview" element={<AppShell><Suspense fallback={fallback}><WorkspaceOverviewPage /></Suspense></AppShell>} />
-        <Route path="/workspace/softwares" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="my-software" /></Suspense></AppShell>} />
-        <Route path="/workspace/discover" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="discover" /></Suspense></AppShell>} />
         <Route path="/workspace/software-registry" element={<Navigate to="/workspace/software" replace />} />
         <Route path="/workspace/software-library" element={<Navigate to="/workspace/discover" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />

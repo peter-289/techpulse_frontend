@@ -44,9 +44,9 @@ test('forgot password full flow (register, verify, reset, login)', async ({ page
   const verifyMsg = await waitForMailhog(email, 20000);
   expect(verifyMsg).not.toBeNull();
   const html = verifyMsg.Content?.Body || '';
-  const match = html.match(/href=\"(https?:\\/\\/[^\"]+\")/);
+  const match = html.match(/href="(https?:\/\/[^"]+)"/);
   // alternative: search for /email-verification\?token=...
-  const tokenMatch = html.match(/email-verification\?token=([^\"]+)/);
+  const tokenMatch = html.match(/email-verification\?token=([^"]+)/);
   expect(tokenMatch).not.toBeNull();
   const verifyLink = tokenMatch ? tokenMatch[0].replace(/&amp;/g, '&') : null;
   expect(verifyLink).not.toBeNull();
@@ -74,9 +74,9 @@ test('forgot password full flow (register, verify, reset, login)', async ({ page
   const resetMsg = await waitForMailhog(email, 20000);
   expect(resetMsg).not.toBeNull();
   const resetHtml = resetMsg.Content?.Body || '';
-  const resetTokenMatch = resetHtml.match(/password-reset\/(\S+)\"/);
+  const resetTokenMatch = resetHtml.match(/password-reset\/(\S+)"/);
   expect(resetTokenMatch).not.toBeNull();
-  const resetUrlMatch = resetHtml.match(/href=\"(https?:\\/\\/[^\"]+password-reset\/[^"]+)\"/);
+  const resetUrlMatch = resetHtml.match(/href="(https?:\/\/[^"]+password-reset\/[^"]+)"/);
   const resetLink = resetUrlMatch ? resetUrlMatch[1] : null;
   expect(resetLink).not.toBeNull();
 

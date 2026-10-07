@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { authApi as api } from '../API_Wrapper';
+import { httpClient as api } from '@/shared/api/http-client';
 
 export default function useSoftwareRegistry() {
   const fetchSoftwareList = useCallback(async (limit = 120) => {
@@ -53,15 +53,7 @@ export default function useSoftwareRegistry() {
     return response.data;
   }, []);
 
-  const createCheckout = useCallback(async (softwareId) => {
-    const response = await api.post(`/api/v1/software-management/${softwareId}/checkout`);
-    return response.data;
-  }, []);
-
-  const confirmCheckout = useCallback(async (paymentId) => {
-    const response = await api.post(`/api/v1/software-management/payments/${paymentId}/confirm`);
-    return response.data;
-  }, []);
+  // Billing endpoints removed from backend; deprecated stubs removed
 
   const downloadVersion = useCallback(async ({ softwareId, version, fileName }) => {
     if (!softwareId || !version) throw new Error('Missing download parameters');
@@ -91,8 +83,6 @@ export default function useSoftwareRegistry() {
     uploadSoftwareVersion,
     updateVersionState,
     updatePricing,
-    createCheckout,
-    confirmCheckout,
     downloadVersion,
   };
 }

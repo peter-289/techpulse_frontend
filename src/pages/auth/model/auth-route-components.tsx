@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { authApi } from '../../../API_Wrapper';
+import { httpClient as authApi } from '@/shared/api/http-client';
 import { useSessionStore } from '../../../processes/auth/model/session-store';
 import { LandingRoutePage } from '../../public/landing/ui/landing-route-page';
 import { RegisterRoutePage } from '../register/ui/register-route-page';

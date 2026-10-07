@@ -3,7 +3,12 @@ import { useSessionStore } from '../../processes/auth/model/session-store';
 
 export function RequireAuth() {
   const isLoggedIn = useSessionStore((s) => s.isLoggedIn);
+  const isHydrated = useSessionStore((s) => s.isHydrated ?? true);
   const location = useLocation();
+
+  if (!isHydrated) {
+    return null;
+  }
 
   if (!isLoggedIn) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;

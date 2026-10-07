@@ -44,6 +44,6 @@ describe('normalizeSoftwareResponse', () => {
     const result = normalizeSoftwareResponse(responseData);
 
     expect(result).toHaveLength(1);
-    expect(result[0].name).toBe('Beta');
+    expect(result[0]?.name).toBe('Beta');
   });
 });

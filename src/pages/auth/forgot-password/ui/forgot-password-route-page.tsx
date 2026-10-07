@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import qs from 'qs';
-import api from '../../../../API_Wrapper';
+import { httpClient as api } from '@/shared/api/http-client';
 import FeedbackMessage from '../../../../components/FeedbackMessage';
 import { Button, Card, Input } from '../../../../shared/ui';
 

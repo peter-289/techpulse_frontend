@@ -2,8 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import api from '../../../../API_Wrapper';
-import FeedbackMessage from '../../../../components/FeedbackMessage';
+import { httpClient as api } from '@/shared/api/http-client';
 import { Button, Card } from '../../../../shared/ui';
 import '../../../../LoginPage.css';
 

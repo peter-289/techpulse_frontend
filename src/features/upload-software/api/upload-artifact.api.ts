@@ -1,5 +1,5 @@
 import type { SoftwareUploadInput, SoftwareUploadResponse } from '../model/upload-software.schema';
-import api from '../../../API_Wrapper';
+import { httpClient } from '@/shared/api/http-client';
 
 /**
  * Upload software artifacts to the backend
@@ -13,15 +13,19 @@ export async function uploadArtifact(
 ): Promise<SoftwareUploadResponse> {
   const formData = new FormData();
 
-  // Add metadata fields
-  formData.append('name', input.name);
-  formData.append('description', input.description);
-  formData.append('categoryId', input.categoryId);
+  // Add metadata fields (map to backend snake_case)
+  formData.append('software_name', input.name);
+  formData.append('software_description', input.description);
+  formData.append('category_id', input.categoryId);
   formData.append('visibility', String(input.visibility));
-  formData.append('price', String(input.price));
+  if (input.price != null) {
+    formData.append('price_cents', String(Math.round(Number(input.price) * 100)));
+  }
   formData.append('currency', input.currency);
   formData.append('version', input.version);
-  formData.append('changelog', input.changelog || '');
+  if (input.changelog) {
+    formData.append('release_notes', input.changelog);
+  }
 
   // Add files
   if (input.files && input.files.length > 0) {
@@ -33,10 +37,7 @@ export async function uploadArtifact(
   }
 
   try {
-    const response = await api.post('/api/v1/software/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const response = await httpClient.post('/api/v1/software-management/upload', formData, {
       onUploadProgress: (progressEvent: any) => {
         if (onProgress && progressEvent.total) {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -47,7 +48,10 @@ export async function uploadArtifact(
 
     return response.data as SoftwareUploadResponse;
   } catch (error) {
-    console.error('Upload artifact error:', error);
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.error('Upload artifact error:', error);
+    }
     throw error;
   }
 }

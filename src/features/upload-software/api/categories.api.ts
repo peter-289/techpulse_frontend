@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import api from '../../../API_Wrapper';
+import { httpClient as api } from '@/shared/api/http-client';
 import { queryKeys } from '../../../shared/lib/query/query-keys';
 
 export interface Category {

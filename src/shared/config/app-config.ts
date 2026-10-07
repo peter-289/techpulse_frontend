@@ -1,6 +1,10 @@
+/**
+ * Application configuration
+ */
 export const appConfig = {
   appName: 'TechPulse Control Plane',
-  apiBaseUrl:
-    (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_API_URL || import.meta.env?.REACT_APP_API_URL)) ||
-    '',
-};
+  /**
+   * API base URL. Prefer VITE_API_URL (Vite). Falls back to empty string for relative paths (behind proxy).
+   */
+  apiBaseUrl: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || '',
+} as const;
