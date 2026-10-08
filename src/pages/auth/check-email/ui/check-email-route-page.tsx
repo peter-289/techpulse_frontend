@@ -1,4 +1,5 @@
 import { Button, Card } from '../../../../shared/ui';
+import '../../../../LoginPage.css';
 
 type Props = {
   onBack: () => void;
@@ -6,12 +7,20 @@ type Props = {
 
 export function CheckEmailRoutePage({ onBack }: Props) {
   return (
-    <div className="mx-auto max-w-md py-10">
-      <Card>
-        <h1 className="mb-2 text-xl font-semibold text-white">Check your inbox</h1>
-        <p className="mb-4 text-sm text-slate-300">We sent password reset instructions if an account with that email exists.</p>
-        <Button type="button" variant="secondary" onClick={onBack}>Back to login</Button>
-      </Card>
+    <div className="tp-auth-page">
+      <div className="tp-auth-shell tp-auth-shell-simple">
+        <Card className="tp-auth-card">
+          <div className="tp-auth-card-top">
+            <span className="tp-auth-lock">Encrypted connection</span>
+          </div>
+          <div className="tp-auth-heading">
+            <p className="tp-auth-kicker">Check your email</p>
+            <h1>Check your inbox</h1>
+            <p>We sent password reset instructions if an account with that email exists.</p>
+          </div>
+          <Button type="button" variant="secondary" onClick={onBack}>Back to login</Button>
+        </Card>
+      </div>
     </div>
   );
 }

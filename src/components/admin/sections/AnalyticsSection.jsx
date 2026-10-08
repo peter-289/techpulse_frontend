@@ -41,14 +41,14 @@ export default function AnalyticsSection({
       <div className="adm-chart-wrap">
         <ResponsiveContainer width="100%" height={320}>
           <LineChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.35)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(37,99,235,0.12)" />
             <XAxis dataKey="point" />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="users" stroke="#0f8a5f" strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="downloads" stroke="#1469b1" strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="sessions" stroke="#0f6a82" strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="users" stroke="#16a34a" strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="downloads" stroke="#2563eb" strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="sessions" stroke="#d97706" strokeWidth={2.5} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

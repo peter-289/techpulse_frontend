@@ -4,10 +4,10 @@
   place-items: center;
   padding: clamp(1rem, 2vw, 2rem);
   background:
-    radial-gradient(circle at 15% 12%, rgba(59, 130, 246, 0.16), transparent 30%),
-    radial-gradient(circle at 82% 18%, rgba(6, 182, 212, 0.12), transparent 26%),
-    linear-gradient(180deg, #070b14 0%, #0b1120 52%, #0f172a 100%);
-  color: #e2e8f0;
+    radial-gradient(circle at 18% 0%, rgba(37, 99, 235, 0.08), transparent 32%),
+    radial-gradient(circle at 84% 8%, rgba(6, 182, 212, 0.08), transparent 26%),
+    linear-gradient(180deg, #f8fbff 0%, #eef3fb 100%);
+  color: var(--lp-text);
   position: relative;
   overflow: hidden;
 }
@@ -22,18 +22,18 @@
 
 .tp-auth-page::before {
   background:
-    linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+    linear-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.06) 1px, transparent 1px);
   background-size: 36px 36px;
-  opacity: 0.55;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 82%);
+  opacity: 0.5;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 82%);
 }
 
 .tp-auth-page::after {
   background:
-    radial-gradient(circle at 25% 20%, rgba(37, 99, 235, 0.15), transparent 26%),
-    radial-gradient(circle at 78% 25%, rgba(6, 182, 212, 0.12), transparent 24%),
-    radial-gradient(circle at 50% 110%, rgba(29, 78, 216, 0.12), transparent 34%);
+    radial-gradient(circle at 25% 20%, rgba(37, 99, 235, 0.1), transparent 26%),
+    radial-gradient(circle at 78% 25%, rgba(37, 99, 235, 0.07), transparent 24%),
+    radial-gradient(circle at 50% 110%, rgba(29, 78, 216, 0.08), transparent 34%);
 }
 
 .tp-auth-shell {
@@ -48,15 +48,14 @@
 
 .tp-auth-panel {
   border-radius: 1.6rem;
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(37, 99, 235, 0.1);
   background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.84), rgba(15, 23, 42, 0.68)),
-    linear-gradient(160deg, rgba(37, 99, 235, 0.12), rgba(6, 182, 212, 0.04));
-  box-shadow:
-    0 26px 70px rgba(2, 6, 23, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.64)),
+    linear-gradient(160deg, rgba(37, 99, 235, 0.06), rgba(6, 182, 212, 0.03));
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.09);
   padding: clamp(1.25rem, 2vw, 2rem);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .tp-auth-card {
@@ -89,9 +88,9 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 800;
-  color: #bfdbfe;
-  border: 1px solid rgba(96, 165, 250, 0.2);
-  background: rgba(37, 99, 235, 0.12);
+  color: var(--lp-primary-strong);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .tp-auth-brand h2,
@@ -103,13 +102,13 @@
 .tp-auth-brand h2 {
   font-size: clamp(1.7rem, 2vw + 1rem, 2.7rem);
   line-height: 1.02;
-  color: #f8fbff;
+  color: var(--lp-text);
 }
 
 .tp-auth-brand p {
   margin: 0;
   max-width: 36ch;
-  color: #bfd0e4;
+  color: var(--lp-muted);
   line-height: 1.65;
 }
 
@@ -124,20 +123,21 @@
 .tp-auth-panel-list li {
   padding: 0.95rem 1rem;
   border-radius: 1rem;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  background: rgba(15, 23, 42, 0.42);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
 .tp-auth-panel-list strong {
   display: block;
   margin-bottom: 0.25rem;
-  color: #eff6ff;
+  color: var(--lp-text);
   font-size: 0.95rem;
 }
 
 .tp-auth-panel-list span {
   display: block;
-  color: #bfccdf;
+  color: var(--lp-muted);
   line-height: 1.55;
   font-size: 0.95rem;
 }
@@ -154,7 +154,7 @@
 
 .tp-auth-back {
   justify-self: start;
-  color: #bfdbfe;
+  color: var(--lp-primary-strong);
   font-size: 0.92rem;
   font-weight: 600;
   padding: 0;
@@ -169,7 +169,7 @@
 }
 
 .tp-auth-back:not(.tp-auth-back-inline):hover {
-  color: #e0f2fe;
+  color: var(--lp-primary);
 }
 
 .tp-auth-card-top {
@@ -394,7 +394,7 @@
 }
 
 .tp-password-rules li.ok {
-  color: #0f766e;
+  color: #16a34a;
   font-weight: 600;
 }
 
@@ -591,4 +591,13 @@
   .tp-auth-field input {
     transition: none;
   }
+}
+
+.tp-auth-shell-simple {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 560px;
+}
+
+.tp-auth-shell-simple .tp-auth-card {
+  width: 100%;
 }

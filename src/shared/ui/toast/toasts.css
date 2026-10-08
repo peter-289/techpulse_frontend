@@ -11,29 +11,57 @@
 }
 
 .toast {
-  background: hsl(var(--color-bg-surface));
-  color: hsl(var(--color-text-primary));
-  border: 1px solid hsl(var(--color-border));
-  border-radius: var(--radius-lg, 0.5rem);
-  padding: 0.875rem 1rem;
-  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--lp-text);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  border-radius: var(--radius-lg, 12px);
+  padding: 0.875rem 1rem 0.875rem 1.1rem;
+  box-shadow: var(--shadow-md, 0 18px 42px rgba(15, 23, 42, 0.09));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   pointer-events: auto;
+  animation: toast-in 220ms ease-out;
 }
 
-.toast--default {
-  background: hsl(var(--color-bg-surface));
+.toast::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--lp-primary);
 }
 
+.toast--default::before {
+  background: var(--lp-primary);
+}
+
+.toast--success::before,
 .toast--success {
-  border-color: hsl(var(--color-success, 142 71% 45%));
+  border-color: rgba(22, 163, 74, 0.35);
 }
 
+.toast--success::before {
+  background: var(--lp-success);
+}
+
+.toast--warning::before,
 .toast--warning {
-  border-color: hsl(var(--color-warning, 38 92% 50%));
+  border-color: rgba(217, 119, 6, 0.35);
 }
 
+.toast--warning::before {
+  background: var(--lp-warning);
+}
+
+.toast--destructive::before,
 .toast--destructive {
-  border-color: hsl(var(--color-danger, 0 84% 60%));
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+.toast--destructive::before {
+  background: var(--lp-danger);
 }
 
 .toast__title {
@@ -44,5 +72,22 @@
 .toast__description {
   margin-top: 0.25rem;
   font-size: 0.875rem;
-  color: hsl(var(--color-text-secondary));
+  color: var(--lp-muted);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
 }

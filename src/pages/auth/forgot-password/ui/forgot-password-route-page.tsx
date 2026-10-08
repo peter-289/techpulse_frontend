@@ -6,6 +6,7 @@ import qs from 'qs';
 import { httpClient as api } from '@/shared/api/http-client';
 import FeedbackMessage from '../../../../components/FeedbackMessage';
 import { Button, Card, Input } from '../../../../shared/ui';
+import '../../../../LoginPage.css';
 
 const forgotSchema = z.object({
   email: z.email('Enter a valid email address'),
@@ -34,19 +35,35 @@ export function ForgotPasswordRoutePage({ onBack, onCheckEmail }: Props) {
   });
 
   return (
-    <div className="mx-auto max-w-md py-10">
-      <Card>
-        <h1 className="mb-2 text-xl font-semibold text-white">Forgot your password?</h1>
-        <p className="mb-3 text-sm text-slate-300">Enter your account email and we will send a reset link.</p>
-        <form className="space-y-3" onSubmit={submit}>
-          <Input type="email" placeholder="you@company.com" autoComplete="email" {...form.register('email')} />
-          <div className="flex gap-2">
-            <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Sending...' : 'Send reset link'}</Button>
-            <Button type="button" variant="secondary" onClick={onBack}>Back</Button>
+    <div className="tp-auth-page">
+      <div className="tp-auth-shell tp-auth-shell-simple">
+        <Card className="tp-auth-card">
+          <div className="tp-auth-card-top">
+            <span className="tp-auth-lock">Encrypted connection</span>
+            <button className="tp-auth-back tp-auth-back-inline" type="button" onClick={onBack}>
+              Back to login
+            </button>
           </div>
-        </form>
-        {feedback && <div className="mt-3"><FeedbackMessage {...feedback} onClose={() => setFeedback(null)} /></div>}
-      </Card>
+          <div className="tp-auth-heading">
+            <p className="tp-auth-kicker">Account recovery</p>
+            <h1>Forgot your password?</h1>
+            <p>Enter your account email and we will send a reset link.</p>
+          </div>
+          <form className="tp-auth-form" onSubmit={submit} noValidate>
+            <div className="tp-auth-field">
+              <label htmlFor="forgot-email">Email address</label>
+              <Input id="forgot-email" type="email" placeholder="you@company.com" autoComplete="email" {...form.register('email')} />
+            </div>
+            <div className="flex gap-2">
+              <Button className="tp-auth-submit" type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Sending...' : 'Send reset link'}
+              </Button>
+              <Button type="button" variant="secondary" onClick={onBack}>Back</Button>
+            </div>
+          </form>
+          {feedback && <div className="mt-3"><FeedbackMessage {...feedback} onClose={() => setFeedback(null)} /></div>}
+        </Card>
+      </div>
     </div>
   );
 }
