@@ -45,7 +45,7 @@ Headline findings:
 `docs/frontend-modernization-report.md` defines the dependency rules; these break them:
 
 - `src/widgets/app-shell/ui/app-shell.tsx:7` → imports `processes/` (forbidden for widgets).
-- `src/pages/auth/model/auth-route-components.tsx:3`, `src/pages/workspace/model/workspace-route-components.tsx:4` → `pages` importing `processes`.
+- `src/pages/auth/model/.tsx:3`, `src/pages/workspace/model/workspace-route-components.tsx:4` → `pages` importing `processes`.
 - `src/shared/hooks/useToast.ts:2` → `shared` importing root-level legacy `toastBus.jsx` (`shared` must import only external libs).
 - **Page → page imports:** `auth-route-components.tsx:4` imports the landing page; `workspace-route-components.tsx:5-10` imports six sibling page slices. This defeats slice isolation and forces whole-group code splitting.
 - **Cross-boundary reach into legacy root:** `entities/software/api/software.queries.ts:2`, `entities/admin/api/admin-dashboard.queries.ts:3`, `features/upload-software/api/categories.api.ts:2`, `features/upload-software/api/upload-artifact.api.ts:2`, `app/router/app-router.tsx:5` all import `../../../API_Wrapper`.
