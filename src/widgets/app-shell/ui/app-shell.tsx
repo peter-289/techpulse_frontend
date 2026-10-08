@@ -1,7 +1,7 @@
 import { Bell, ChevronLeft, ChevronRight, Command as CommandIcon, Download, FolderKanban, Gauge, Layers3, LogOut, Search, Settings, Sparkles } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { httpClient as api } from '@/shared/api/http-client';
 import { CommandPalette } from '../../../features/command-palette/ui/command-palette';
 import { useSessionStore } from '../../../processes/auth/model/session-store';
@@ -37,20 +37,35 @@ export function AppShell({ children }: PropsWithChildren) {
 
   const isActive = (to: string) => location.pathname === to || (to === '/workspace/softwares' && /^\/workspace\//.test(location.pathname));
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setCommandPaletteOpen(!useUiStore.getState().commandPaletteOpen);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [setCommandPaletteOpen]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white text-slate-900">
+    <div className="min-h-screen text-slate-900">
       <div className="lg:grid lg:grid-cols-[260px_1fr]">
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 p-4 transition-transform duration-200 lg:static lg:translate-x-0 shadow-sm',
+            'fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-blue-600/10 bg-white/76 backdrop-blur-xl p-4 transition-transform duration-200 lg:static lg:translate-x-0 shadow-[0_18px_42px_rgba(15,23,42,0.06)]',
             mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
             collapsed && 'lg:w-20',
           )}
         >
           <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-blue-600">
-              <Layers3 size={18} />
-              {!collapsed && <span className="text-sm font-semibold tracking-tight text-slate-900">{appConfig.appName}</span>}
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_12px_24px_rgba(37,99,235,0.24)]">
+                <Layers3 size={16} />
+              </span>
+              {!collapsed && (
+                <span className="text-sm font-bold tracking-tight text-slate-900">{appConfig.appName}</span>
+              )}
             </div>
             <Button variant="ghost" className="hidden lg:inline-flex" onClick={toggleSidebar} aria-label="Toggle sidebar">
               {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -67,10 +82,10 @@ export function AppShell({ children }: PropsWithChildren) {
                   to={item.to}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     active
-                      ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                      ? 'bg-blue-600/10 text-blue-700 ring-1 ring-inset ring-blue-600/15'
+                      : 'text-slate-600 hover:bg-white/80 hover:text-slate-900',
                     collapsed && 'lg:justify-center',
                   )}
                   title={item.label}
@@ -83,18 +98,18 @@ export function AppShell({ children }: PropsWithChildren) {
           </nav>
 
           <div className="mt-auto space-y-3 border-t border-slate-200 pt-3">
-            <div className="flex items-center gap-3 rounded-xl border border-stone-800 bg-stone-900/60 px-3 py-2 text-sm text-stone-300">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/10 text-teal-300">
+            <div className="flex items-center gap-3 rounded-xl border border-blue-600/10 bg-white/80 px-3 py-2 shadow-sm">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 text-white">
                 <Sparkles size={14} />
               </div>
               {!collapsed && (
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-stone-100">{user?.name || user?.username || 'Workspace user'}</p>
-                  <p className="truncate text-xs text-stone-400">{user?.email || 'Authenticated session'}</p>
+                  <p className="truncate text-sm font-semibold text-slate-900">{user?.name || user?.username || 'Workspace user'}</p>
+                  <p className="truncate text-xs text-slate-500">{user?.email || 'Authenticated session'}</p>
                 </div>
               )}
             </div>
-            <button type="button" className="flex w-full items-center gap-3 rounded-xl border border-stone-800 bg-stone-900/40 px-3 py-2 text-sm text-stone-300 transition-colors hover:border-stone-700 hover:bg-stone-900" onClick={() => navigate('/workspace/overview')}>
+            <button type="button" className="flex w-full items-center gap-3 rounded-xl border border-blue-600/10 bg-white/70 px-3 py-2 text-sm text-slate-600 transition-all duration-200 hover:border-blue-600/20 hover:bg-white hover:text-slate-900" onClick={() => navigate('/workspace/overview')}>
               <Settings size={15} />
               {!collapsed && <span>Settings</span>}
             </button>
@@ -106,7 +121,7 @@ export function AppShell({ children }: PropsWithChildren) {
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 border-b border-stone-800 bg-neutral-950/90 px-4 py-3 backdrop-blur-sm lg:px-6">
+          <header className="sticky top-0 z-20 border-b border-blue-600/10 bg-[rgba(248,251,255,0.82)] px-4 py-3 backdrop-blur-xl lg:px-6">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <Button variant="ghost" className="inline-flex lg:hidden" onClick={() => setMobileOpen((value) => !value)} aria-label="Toggle mobile navigation">
@@ -114,11 +129,11 @@ export function AppShell({ children }: PropsWithChildren) {
                     <Layers3 size={15} /> Menu
                   </span>
                 </Button>
-                <div className="text-sm text-stone-400">{location.pathname.replace('/workspace/', '').replace(/\//g, ' / ') || 'overview'}</div>
+                <div className="text-sm font-medium capitalize text-slate-500">{location.pathname.replace('/workspace/', '').replace(/\//g, ' / ') || 'overview'}</div>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="hidden max-w-48 truncate text-xs text-stone-500 md:inline">{user?.email || user?.username || 'Workspace'}</span>
+                <span className="hidden max-w-48 truncate text-xs text-slate-500 md:inline">{user?.email || user?.username || 'Workspace'}</span>
                 <Button variant="secondary" onClick={() => setCommandPaletteOpen(true)}>
                   <CommandIcon size={14} /> CMD+K
                 </Button>
@@ -129,7 +144,7 @@ export function AppShell({ children }: PropsWithChildren) {
             </div>
           </header>
 
-          <main className="min-h-[calc(100vh-61px)] bg-[radial-gradient(circle_at_top,rgba(20,184,166,0.12),transparent_30%),linear-gradient(180deg,rgba(12,12,12,0.96),rgba(12,12,12,1))] p-4 md:p-6">
+          <main className="min-h-[calc(100vh-61px)] p-4 md:p-6">
             {children}
           </main>
         </div>

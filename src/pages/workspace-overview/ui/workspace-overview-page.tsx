@@ -23,7 +23,7 @@ function formatRelativeTime(dateValue?: string | null) {
 
 function DashboardHeader() {
   return (
-    <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/90 backdrop-blur p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
+    <header className="flex flex-col gap-4 rounded-2xl border border-blue-600/10 bg-white/76 backdrop-blur-xl p-6 shadow-[0_18px_42px_rgba(15,23,42,0.09)] lg:flex-row lg:items-end lg:justify-between">
       <div className="space-y-3">
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-blue-600">TechPulse</p>
         <div className="space-y-2">
@@ -31,7 +31,7 @@ function DashboardHeader() {
           <p className="max-w-2xl text-sm text-slate-600">Manage your software, verify release health, and discover what is available to download.</p>
         </div>
       </div>
-      <Button onClick={() => window.location.assign('/workspace/upload-project')}>
+      <Button onClick={() => window.location.assign('/workspace/upload-software')}>
         <Upload size={15} /> Upload software
       </Button>
     </header>
@@ -43,7 +43,7 @@ function QuickAction({ title, description, onClick }: { title: string; descripti
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-start gap-2 rounded-2xl border border-slate-200 bg-white/95 backdrop-blur p-4 text-left transition-colors hover:border-blue-300 hover:bg-blue-50/40 shadow-sm"
+      className="flex flex-col items-start gap-2 rounded-2xl border border-blue-600/10 bg-white/76 backdrop-blur-xl p-4 text-left transition-all duration-200 hover:border-blue-600/25 hover:bg-white hover:-translate-y-0.5 shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
     >
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
         <Sparkles size={16} />
@@ -72,21 +72,21 @@ function QuickActions() {
   );
 }
 
-type MetricTone = 'teal' | 'amber' | 'sky' | 'rose';
+type MetricTone = 'blue' | 'amber' | 'sky' | 'rose';
 
-function MetricCard({ label, value, helper, tone = 'teal' }: { label: string; value: string | number; helper: string; tone?: MetricTone }) {
+function MetricCard({ label, value, helper, tone = 'blue' }: { label: string; value: string | number; helper: string; tone?: MetricTone }) {
   const toneMap: Record<MetricTone, string> = {
-    teal: 'border-teal-500/40 bg-teal-500/5',
+    blue: 'border-blue-500/40 bg-blue-500/5',
     amber: 'border-amber-500/40 bg-amber-500/5',
-    sky: 'border-sky-500/40 bg-sky-500/5',
+    sky: 'border-cyan-500/40 bg-cyan-500/5',
     rose: 'border-rose-500/40 bg-rose-500/5',
   };
 
   return (
-    <Card className={`border-l-4 ${toneMap[tone ?? 'teal']} p-4`}>
-      <p className="text-xs uppercase tracking-[0.14em] text-stone-400">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-stone-50">{value}</p>
-      <p className="mt-1 text-xs text-stone-400">{helper}</p>
+    <Card className={`border-l-4 ${toneMap[tone ?? 'blue']} p-4`}>
+      <p className="text-xs uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+      <p className="mt-1 text-xs text-slate-500">{helper}</p>
     </Card>
   );
 }
@@ -95,7 +95,7 @@ function MetricGrid({ metrics }: { metrics: Array<{ label: string; value: number
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {metrics.map((metric) => (
-        <MetricCard key={metric.label} label={metric.label} value={formatNumber(metric.value)} helper={metric.helper} tone={metric.tone ?? 'teal'} />
+        <MetricCard key={metric.label} label={metric.label} value={formatNumber(metric.value)} helper={metric.helper} tone={metric.tone ?? 'blue'} />
       ))}
     </div>
   );
@@ -103,12 +103,12 @@ function MetricGrid({ metrics }: { metrics: Array<{ label: string; value: number
 
 function EmptyState({ icon, title, description, primaryAction, secondaryAction }: { icon: ReactNode; title: string; description: string; primaryAction?: { label: string; onClick: () => void }; secondaryAction?: { label: string; onClick: () => void } }) {
   return (
-    <Card className="border-dashed border-stone-700 bg-stone-950/30">
+    <Card className="border-dashed border-blue-600/15 bg-white/70">
       <div className="flex flex-col items-start gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-stone-700 bg-stone-900 text-stone-300">{icon}</div>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-600/15 bg-blue-600/10 text-blue-600">{icon}</div>
         <div className="space-y-1">
-          <h3 className="text-base font-semibold text-stone-50">{title}</h3>
-          <p className="text-sm text-stone-400">{description}</p>
+          <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+          <p className="text-sm text-slate-500">{description}</p>
         </div>
         {(primaryAction || secondaryAction) && (
           <div className="flex flex-wrap gap-2 pt-2">
@@ -123,11 +123,11 @@ function EmptyState({ icon, title, description, primaryAction, secondaryAction }
 
 function ErrorState({ title, description, onRetry }: { title: string; description: string; onRetry: () => void }) {
   return (
-    <Card className="border-rose-500/50 bg-rose-500/5">
+    <Card className="border-red-500/40 bg-red-500/5">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-base font-semibold text-rose-100">{title}</h3>
-          <p className="text-sm text-stone-300">{description}</p>
+          <h3 className="text-base font-semibold text-red-700">{title}</h3>
+          <p className="text-sm text-slate-600">{description}</p>
         </div>
         <Button variant="secondary" onClick={onRetry}><RefreshCw size={14} /> Retry</Button>
       </div>
@@ -137,36 +137,36 @@ function ErrorState({ title, description, onRetry }: { title: string; descriptio
 
 function SoftwareCard({ software, onOpen, onDownload }: { software: Software; onOpen: () => void; onDownload: () => void }) {
   return (
-    <div className="flex h-full flex-col gap-3 rounded-2xl border border-stone-800 bg-stone-950/40 p-4">
+    <div className="flex h-full flex-col gap-3 rounded-2xl border border-blue-600/10 bg-white/70 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-300">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600">
             <PackageOpen size={16} />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-stone-50">{software.name}</h3>
-            <p className="text-xs text-stone-400">{software.latest_version ? `v${software.latest_version}` : 'No version published'}</p>
+            <h3 className="text-base font-semibold text-slate-900">{software.name}</h3>
+            <p className="text-xs text-slate-500">{software.latest_version ? `v${software.latest_version}` : 'No version published'}</p>
           </div>
         </div>
-        <span className={`inline-flex rounded-full border px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${software.is_public ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-stone-700 bg-stone-800 text-stone-300'}`}>
+        <span className={`inline-flex rounded-full border px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${software.is_public ? 'border-green-600/25 bg-green-600/10 text-green-700' : 'border-blue-600/15 bg-slate-100 text-slate-600'}`}>
           {software.is_public ? 'Public' : 'Private'}
         </span>
       </div>
 
-      <p className="line-clamp-2 text-sm text-stone-400">{software.description || 'No description provided.'}</p>
+      <p className="line-clamp-2 text-sm text-slate-500">{software.description || 'No description provided.'}</p>
 
-      <div className="mt-auto grid grid-cols-3 gap-2 rounded-xl border border-stone-800 bg-stone-900/60 p-2 text-xs text-stone-400">
+      <div className="mt-auto grid grid-cols-3 gap-2 rounded-xl border border-blue-600/10 bg-slate-50/90 p-2 text-xs text-slate-500">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-stone-500">Downloads</p>
-          <p className="mt-1 font-semibold text-stone-50">{formatNumber(Number(software.download_count || 0))}</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-9000">Downloads</p>
+          <p className="mt-1 font-semibold text-slate-900">{formatNumber(Number(software.download_count || 0))}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-stone-500">Updated</p>
-          <p className="mt-1 font-semibold text-stone-50">{formatRelativeTime(software.updated_at || software.created_at)}</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-9000">Updated</p>
+          <p className="mt-1 font-semibold text-slate-900">{formatRelativeTime(software.updated_at || software.created_at)}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-stone-500">Access</p>
-          <p className="mt-1 font-semibold text-stone-50">{software.viewer_has_access ? 'Allowed' : 'Restricted'}</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-9000">Access</p>
+          <p className="mt-1 font-semibold text-slate-900">{software.viewer_has_access ? 'Allowed' : 'Restricted'}</p>
         </div>
       </div>
 
@@ -185,7 +185,7 @@ function SoftwareSection({ software, isLoading, isError, onRetry }: { software: 
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-stone-50">My software</h2>
+          <h2 className="text-lg font-semibold text-slate-900">My software</h2>
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
@@ -206,7 +206,7 @@ function SoftwareSection({ software, isLoading, isError, onRetry }: { software: 
         icon={<PackageOpen size={18} />}
         title="You haven't uploaded any software yet."
         description="Upload your first package to start tracking releases and downloads."
-        primaryAction={{ label: 'Upload software', onClick: () => navigate('/workspace/upload-project') }}
+        primaryAction={{ label: 'Upload software', onClick: () => navigate('/workspace/upload-software') }}
       />
     );
   }
@@ -214,8 +214,8 @@ function SoftwareSection({ software, isLoading, isError, onRetry }: { software: 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-stone-50">My software</h2>
-        <button type="button" onClick={() => navigate('/workspace/software')} className="inline-flex items-center gap-1 text-sm text-teal-300 transition-colors hover:text-teal-200">
+        <h2 className="text-lg font-semibold text-slate-900">My software</h2>
+        <button type="button" onClick={() => navigate('/workspace/softwares')} className="inline-flex items-center gap-1 text-sm text-blue-600 transition-colors hover:text-blue-700">
           View all <ArrowRight size={14} />
         </button>
       </div>
@@ -249,14 +249,14 @@ function AttentionPanel({ software }: { software: Software[] }) {
 
   if (!attentionItems.length) {
     return (
-      <Card className="border-stone-800 bg-stone-950/30">
+      <Card className="border-blue-600/10 bg-white/70">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-200">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-green-600/25 bg-green-600/10 text-green-700">
             <BadgeCheck size={16} />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-stone-50">Nothing requires attention.</h3>
-            <p className="mt-1 text-sm text-stone-400">Your current software inventory is in a healthy state.</p>
+            <h3 className="text-base font-semibold text-slate-900">Nothing requires attention.</h3>
+            <p className="mt-1 text-sm text-slate-500">Your current software inventory is in a healthy state.</p>
           </div>
         </div>
       </Card>
@@ -264,16 +264,16 @@ function AttentionPanel({ software }: { software: Software[] }) {
   }
 
   return (
-    <Card className="border-stone-800 bg-stone-950/30">
+    <Card className="border-blue-600/10 bg-white/70">
       <div className="flex items-center gap-2">
-        <ShieldAlert size={16} className="text-amber-300" />
-        <h3 className="text-lg font-semibold text-stone-50">Attention</h3>
+        <ShieldAlert size={16} className="text-amber-600" />
+        <h3 className="text-lg font-semibold text-slate-900">Attention</h3>
       </div>
       <div className="mt-4 space-y-3">
         {attentionItems.map((item) => (
-          <div key={item.id} className="rounded-xl border border-stone-800 bg-stone-900/60 p-3">
-            <p className="text-sm font-medium text-stone-50">{item.title}</p>
-            <p className="mt-1 text-xs text-stone-400">{item.description}</p>
+          <div key={item.id} className="rounded-xl border border-blue-600/10 bg-slate-50/90 p-3">
+            <p className="text-sm font-medium text-slate-900">{item.title}</p>
+            <p className="mt-1 text-xs text-slate-500">{item.description}</p>
           </div>
         ))}
       </div>
@@ -300,22 +300,22 @@ function ActivityFeed({ software }: { software: Software[] }) {
   }
 
   return (
-    <Card className="border-stone-800 bg-stone-950/30">
+    <Card className="border-blue-600/10 bg-white/70">
       <div className="flex items-center gap-2">
-        <Activity size={16} className="text-teal-300" />
+        <Activity size={16} className="text-blue-600" />
         <h3 className="text-lg font-semibold text-slate-900">Recent activity</h3>
       </div>
       <div className="mt-4 space-y-3">
         {items.map((item) => (
-          <div key={item.id} className="flex gap-3 rounded-xl border border-stone-800 bg-stone-900/60 p-3">
-            <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/10 text-teal-300">
+          <div key={item.id} className="flex gap-3 rounded-xl border border-blue-600/10 bg-slate-50/90 p-3">
+            <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600">
               <Download size={12} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-stone-100">{item.title}</p>
-              <p className="mt-1 text-xs text-stone-400">{item.description}</p>
+              <p className="text-sm font-medium text-slate-900">{item.title}</p>
+              <p className="mt-1 text-xs text-slate-500">{item.description}</p>
             </div>
-            <span className="text-[11px] text-stone-500">{formatRelativeTime(item.time)}</span>
+            <span className="text-[11px] text-slate-9000">{formatRelativeTime(item.time)}</span>
           </div>
         ))}
       </div>
@@ -330,7 +330,7 @@ function DiscoverySection({ software, isLoading, isError, onRetry }: { software:
   if (isLoading) {
     return (
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-stone-50">Discover</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Discover</h2>
         <div className="grid gap-3 md:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <Card key={index} className="h-32"><Skeleton className="h-full w-full" /></Card>
@@ -357,26 +357,26 @@ function DiscoverySection({ software, isLoading, isError, onRetry }: { software:
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-stone-50">Discover</h2>
-        <button type="button" onClick={() => navigate('/workspace/discover')} className="inline-flex items-center gap-1 text-sm text-teal-300 transition-colors hover:text-teal-200">
+        <h2 className="text-lg font-semibold text-slate-900">Discover</h2>
+        <button type="button" onClick={() => navigate('/workspace/discover')} className="inline-flex items-center gap-1 text-sm text-blue-600 transition-colors hover:text-blue-700">
           Explore all <ArrowRight size={14} />
         </button>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
         {discoverItems.map((item) => (
-          <Card key={item.id} className="border-stone-800 bg-stone-950/40 p-4">
+          <Card key={item.id} className="border-blue-600/10 bg-white/70 p-4">
             <div className="flex h-full flex-col gap-3">
               <div className="flex items-center justify-between gap-2">
                 <div className="space-y-1">
-                  <h3 className="text-base font-semibold text-stone-50">{item.name}</h3>
-                  <p className="text-xs text-stone-400">{item.latest_version ? `v${item.latest_version}` : 'Version pending'}</p>
+                  <h3 className="text-base font-semibold text-slate-900">{item.name}</h3>
+                  <p className="text-xs text-slate-500">{item.latest_version ? `v${item.latest_version}` : 'Version pending'}</p>
                 </div>
-                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-emerald-200">
+                <span className="rounded-full border border-green-600/25 bg-green-600/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-green-700">
                   {Number(item.price_cents || 0) > 0 ? 'Priced' : 'Free'}
                 </span>
               </div>
-              <p className="line-clamp-3 text-sm text-stone-400">{item.description || 'No description provided.'}</p>
-              <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-stone-400">
+              <p className="line-clamp-3 text-sm text-slate-500">{item.description || 'No description provided.'}</p>
+              <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-slate-500">
                 <span>{formatNumber(Number(item.download_count || 0))} downloads</span>
                 <Button variant="secondary" onClick={() => navigate('/workspace/software-details', { state: { software: item } })}>Open</Button>
               </div>
@@ -394,8 +394,8 @@ export function WorkspaceOverviewPage() {
   const software = softwareQuery.data ?? [];
   const summary = summaryQuery.data ?? { total_packages: software.length, total_versions: 0, total_downloads: 0, published_versions: 0 };
 
-  const metrics: Array<{ label: string; value: number; helper: string; tone: 'teal' | 'amber' | 'sky' | 'rose' }> = [
-    { label: 'Software', value: Number(summary.total_packages ?? software.length), helper: 'Packages in your inventory', tone: 'teal' },
+  const metrics: Array<{ label: string; value: number; helper: string; tone: 'blue' | 'amber' | 'sky' | 'rose' }> = [
+    { label: 'Software', value: Number(summary.total_packages ?? software.length), helper: 'Packages in your inventory', tone: 'blue' },
     { label: 'Versions', value: Number(summary.total_versions ?? software.filter((item) => item.latest_version).length), helper: 'Published version entries', tone: 'amber' },
     { label: 'Downloads', value: Number(summary.total_downloads ?? software.reduce((sum, item) => sum + Number(item.download_count || 0), 0)), helper: 'Total recorded downloads', tone: 'sky' },
     { label: 'Public', value: software.filter((item) => item.is_public).length, helper: 'Visible in discovery', tone: 'rose' },

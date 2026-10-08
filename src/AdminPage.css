@@ -1,22 +1,3 @@
-:root {
-  --adm-bg: #eff4f8;
-  --adm-surface: #ffffff;
-  --adm-surface-soft: #f6fafc;
-  --adm-border: #d7e1ea;
-  --adm-text: #12202e;
-  --adm-muted: #5b6d80;
-  --adm-primary: #0f6a82;
-  --adm-primary-strong: #0a5266;
-  --adm-primary-soft: #e5f5fa;
-  --adm-danger: #b4233f;
-  --adm-warning: #9e5f06;
-  --adm-success: #0f8a5f;
-  --adm-info: #1469b1;
-  --adm-shadow-sm: 0 8px 20px -16px rgba(18, 32, 46, 0.42);
-  --adm-shadow-md: 0 18px 36px -24px rgba(18, 32, 46, 0.48);
-  --adm-font: "Sora", "Manrope", "IBM Plex Sans", "Segoe UI", sans-serif;
-}
-
 .adm-theme-dark {
   --adm-bg: #0d1822;
   --adm-surface: #132231;
@@ -34,9 +15,9 @@
 .adm-root {
   min-height: calc(100vh - 64px);
   background:
-    radial-gradient(760px 300px at 0 -12%, rgba(20, 105, 177, 0.16), transparent 66%),
-    radial-gradient(860px 340px at 100% -16%, rgba(15, 106, 130, 0.14), transparent 68%),
-    linear-gradient(180deg, #f8fbfd 0%, var(--adm-bg) 60%);
+    radial-gradient(760px 300px at 0 -12%, rgba(37, 99, 235, 0.1), transparent 66%),
+    radial-gradient(860px 340px at 100% -16%, rgba(6, 182, 212, 0.08), transparent 68%),
+    linear-gradient(180deg, #f8fbff 0%, var(--adm-bg) 60%);
   color: var(--adm-text);
   font-family: var(--adm-font);
 }
@@ -161,7 +142,7 @@
 .adm-nav-item.active {
   background: linear-gradient(135deg, var(--adm-primary) 0%, var(--adm-primary-strong) 100%);
   color: #fff;
-  box-shadow: 0 12px 22px -14px rgba(15, 106, 130, 0.8);
+  box-shadow: 0 12px 22px -14px rgba(37, 99, 235, 0.8);
 }
 
 .adm-nav-bullet {

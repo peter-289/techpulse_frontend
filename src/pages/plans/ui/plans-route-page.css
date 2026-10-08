@@ -27,15 +27,15 @@
 }
 
 .plan-card.starter {
-  border-top: 4px solid #0ea5e9;
+  border-top: 4px solid #3b82f6;
 }
 
 .plan-card.pro {
-  border-top: 4px solid #6366f1;
+  border-top: 4px solid #1d4ed8;
 }
 
 .plan-card.enterprise {
-  border-top: 4px solid #0f766e;
+  border-top: 4px solid #16a34a;
 }
 
 .plan-top {

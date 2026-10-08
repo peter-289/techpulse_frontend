@@ -47,7 +47,7 @@ function SessionBootstrap() {
 }
 
 export function AppRouter() {
-  const fallback = <div className="p-4 text-sm text-stone-300">Loading route...</div>;
+  const fallback = <div className="p-4 text-sm text-slate-500">Loading route...</div>;
   return (
     <BrowserRouter>
       <SessionBootstrap />
