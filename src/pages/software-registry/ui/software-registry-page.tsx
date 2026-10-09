@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Download, Eye, RefreshCw, Search, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { buildSoftwareDownloadUrl, useSoftwareList } from '../../../entities/software/api/software.queries';
+import { softwareDetailsPath } from '../../../app/router/route-paths';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
 import { Card } from '../../../shared/ui/card/card';
@@ -101,7 +102,7 @@ export function SoftwareRegistryPage({ scope = 'my-software' }: { scope?: 'my-so
 
           <Card className="grid gap-3 border-blue-600/10 bg-white/76 lg:grid-cols-[1fr,220px]">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-3 text-slate-9000" size={15} />
+              <Search className="pointer-events-none absolute left-3 top-3 text-slate-900" size={15} />
               <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={isDiscover ? 'Search discoverable software' : 'Search your software'} />
             </div>
             <Select value={category} onChange={(event) => setCategory(event.target.value)}>
@@ -111,7 +112,7 @@ export function SoftwareRegistryPage({ scope = 'my-software' }: { scope?: 'my-so
             </Select>
           </Card>
 
-          <div className="text-xs text-slate-9000">{isFetching ? 'Refreshing in background...' : `${filtered.length} of ${data?.length ?? 0} packages shown`}</div>
+          <div className="text-xs text-slate-900">{isFetching ? 'Refreshing in background...' : `${filtered.length} of ${data?.length ?? 0} packages shown`}</div>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((pkg) => (
               <Card key={pkg.id} className="transition-colors hover:border-blue-600/30 hover:-translate-y-0.5">
@@ -122,7 +123,7 @@ export function SoftwareRegistryPage({ scope = 'my-software' }: { scope?: 'my-so
                       <Badge variant={pkg.viewer_has_access ? 'success' : 'warning'}>{pkg.viewer_has_access ? 'Available' : 'Locked'}</Badge>
                     </div>
                     <p className="line-clamp-2 min-h-10 text-sm text-slate-600">{pkg.description || 'No description provided.'}</p>
-                    <div className="flex flex-wrap gap-2 text-xs text-slate-9000">
+                    <div className="flex flex-wrap gap-2 text-xs text-slate-900">
                       <span>{pkg.is_public ? 'Public' : 'Private'}</span>
                       <span>{pkg.category}</span>
                       <span>{formatMoney(pkg.price_cents, pkg.currency)}</span>
@@ -134,7 +135,7 @@ export function SoftwareRegistryPage({ scope = 'my-software' }: { scope?: 'my-so
                     <span><strong className="block text-slate-900">{pkg.owner_id || '-'}</strong>Owner</span>
                   </div>
                   <div className="flex gap-2">
-                    <Button className="flex-1" variant="secondary" onClick={() => navigate('/workspace/software-details', { state: { software: pkg } })}>
+                    <Button className="flex-1" variant="secondary" onClick={() => navigate(softwareDetailsPath(pkg.id), { state: { software: pkg } })}>
                       <Eye size={14} /> Details
                     </Button>
                     <Button

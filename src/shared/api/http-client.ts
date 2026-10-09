@@ -25,11 +25,7 @@ let refreshPromise: Promise<void> | null = null;
  * Refresh access token using refresh cookie
  */
 async function refreshAccessToken(): Promise<void> {
-  try {
-    await httpClient.post('/api/v1/auth/refresh');
-  } catch (err) {
-    throw err;
-  }
+  await httpClient.post('/api/v1/auth/refresh');
 }
 
 // Request interceptor
@@ -40,7 +36,6 @@ httpClient.interceptors.request.use(
       delete (config.headers as any)['Content-Type'];
     }
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.debug('[HTTP] %s %s', config.method?.toUpperCase(), config.url);
     }
     return config;

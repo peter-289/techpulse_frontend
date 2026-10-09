@@ -49,7 +49,6 @@ export async function uploadArtifact(
     return response.data as SoftwareUploadResponse;
   } catch (error) {
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.error('Upload artifact error:', error);
     }
     throw error;

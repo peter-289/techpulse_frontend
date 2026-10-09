@@ -20,5 +20,26 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.jsx'],
     globals: true,
     exclude: ['**/node_modules/**', 'e2e/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      include: [
+        'src/entities/**/*.{ts,tsx}',
+        'src/shared/lib/**/*.{ts,tsx}',
+        'src/processes/**/*.{ts,tsx}',
+      ],
+      exclude: [
+        '**/*.test.{ts,tsx}',
+        '**/*.d.ts',
+        'src/entities/**/index.ts',
+        'src/shared/lib/**/index.ts',
+      ],
+      thresholds: {
+        lines: 85,
+        statements: 85,
+        functions: 80,
+        branches: 75,
+      },
+    },
   },
 });

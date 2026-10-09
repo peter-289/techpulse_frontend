@@ -2,6 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { httpClient as api } from '@/shared/api/http-client';
 import { ApiError } from '@/shared/lib/api/api-error';
+import {
+  useAcknowledgeAlert,
+  useAssignUserRole,
+  useReviewSoftwarePackage,
+  useUpdateUserStatus,
+} from './admin.mutations';
 
 const dayKey = (value: string) => new Date(value).toISOString().slice(0, 10);
 const lastNDays = (n: number) => Array.from({ length: n }).map((_, i) => {
@@ -116,17 +122,41 @@ export function useAdminDashboardData() {
     setLastSyncAt(query.data.lastSyncAt || null);
   }, [query.data]);
 
-  const markNotificationRead = useCallback(async (notification: any) => {
-    try {
-      if (notification.apiId) await api.patch(`/api/v1/admin/alerts/${notification.apiId}/ack`);
-    } catch (err) {
-      if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        console.debug('Failed to ack alert:', err);
+  const updateUserStatusMutation = useUpdateUserStatus();
+  const assignUserRoleMutation = useAssignUserRole();
+  const reviewPackageMutation = useReviewSoftwarePackage();
+  const acknowledgeAlertMutation = useAcknowledgeAlert();
+
+  const runOptimistic = useCallback(
+    async (apply: () => void, action: () => Promise<unknown>, failureMessage: string) => {
+      apply();
+      try {
+        await action();
+      } catch (err) {
+        setFeedback({
+          variant: 'error',
+          title: 'Action failed',
+          message: (err as ApiError)?.message || failureMessage,
+        });
+        await query.refetch();
       }
-    }
-    setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, unread: false } : n)));
-  }, []);
+    },
+    [query],
+  );
+
+  const markNotificationRead = useCallback(
+    async (notification: any) => {
+      setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, unread: false } : n)));
+      try {
+        if (notification.apiId) await acknowledgeAlertMutation.mutateAsync(notification.apiId);
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.debug('Failed to ack alert:', err);
+        }
+      }
+    },
+    [acknowledgeAlertMutation],
+  );
 
   const apiError = query.error as ApiError | null;
   return {
@@ -148,11 +178,36 @@ export function useAdminDashboardData() {
     series,
     lastSyncAt,
     setFeedback,
-    updateUserStatus: (id: any, status: any) => setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u))),
-    assignUserRole: (id: any, role: any) => setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u))),
-    approveSoftware: (id: any) => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'Approved' } : s))),
-    rejectSoftware: (id: any) => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'Rejected' } : s))),
-    quarantineSoftware: (id: any) => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'Quarantined' } : s))),
+    updateUserStatus: (id: any, status: any) =>
+      runOptimistic(
+        () => setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u))),
+        () => updateUserStatusMutation.mutateAsync({ userId: id, status }),
+        'Could not update user status.',
+      ),
+    assignUserRole: (id: any, role: any) =>
+      runOptimistic(
+        () => setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u))),
+        () => assignUserRoleMutation.mutateAsync({ userId: id, role }),
+        'Could not update user role.',
+      ),
+    approveSoftware: (id: any) =>
+      runOptimistic(
+        () => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'Approved' } : s))),
+        () => reviewPackageMutation.mutateAsync({ packageId: id, decision: 'approve' }),
+        'Could not approve package.',
+      ),
+    rejectSoftware: (id: any) =>
+      runOptimistic(
+        () => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'Rejected' } : s))),
+        () => reviewPackageMutation.mutateAsync({ packageId: id, decision: 'reject' }),
+        'Could not reject package.',
+      ),
+    quarantineSoftware: (id: any) =>
+      runOptimistic(
+        () => setSoftware((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'Quarantined' } : s))),
+        () => reviewPackageMutation.mutateAsync({ packageId: id, decision: 'quarantine' }),
+        'Could not quarantine package.',
+      ),
     markNotificationRead,
   };
 }

@@ -1,0 +1,368 @@
+/* ==========================================================================
+   Help Centre — TechPulse assistant drawer + floating trigger.
+   Owned by widgets/help-centre. Slide-in from the right, 180–250ms motion.
+   ========================================================================== */
+
+.hc-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  min-height: 52px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3b82f6, var(--lp-primary-strong));
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.34);
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.hc-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.42);
+}
+
+.hc-fab:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 767.98px) {
+  .hc-fab {
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* --- Overlay + panel ------------------------------------------------------ */
+
+.hc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  cursor: default;
+  animation: hc-fade var(--dur-fast) var(--ease-standard);
+}
+
+@keyframes hc-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hc-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 71;
+  display: flex;
+  flex-direction: column;
+  width: min(400px, 100vw);
+  border-left: 1px solid var(--lp-border);
+  background: var(--lp-surface-strong);
+  box-shadow: -28px 0 64px rgba(15, 23, 42, 0.2);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition:
+    transform var(--dur-base) cubic-bezier(0.22, 0.61, 0.36, 1),
+    visibility 0s linear var(--dur-base);
+}
+
+.hc-panel.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition:
+    transform var(--dur-base) cubic-bezier(0.22, 0.61, 0.36, 1),
+    visibility 0s linear 0s;
+}
+
+@media (max-width: 480px) {
+  .hc-panel {
+    width: 100vw;
+    border-left: 0;
+  }
+}
+
+/* --- Header --------------------------------------------------------------- */
+
+.hc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--lp-border);
+  background: color-mix(in srgb, var(--lp-primary) 6%, var(--lp-surface-strong));
+}
+
+.hc-head-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--lp-text);
+}
+
+.hc-head-sub {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--lp-muted);
+}
+
+.hc-close {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -8px -8px 0 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--lp-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.hc-close:hover {
+  background: color-mix(in srgb, var(--lp-primary) 8%, transparent);
+  color: var(--lp-primary);
+}
+
+/* --- Messages ------------------------------------------------------------- */
+
+.hc-messages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  scroll-behavior: smooth;
+}
+
+.hc-msg {
+  position: relative;
+  align-self: flex-start;
+  max-width: 88%;
+  padding: 10px 12px;
+  border: 1px solid var(--lp-border);
+  border-radius: 14px 14px 14px 6px;
+  background: var(--lp-surface);
+  box-shadow: var(--lp-shadow-sm);
+}
+
+.hc-msg.user {
+  align-self: flex-end;
+  border-radius: 14px 14px 6px 14px;
+  background: color-mix(in srgb, var(--lp-primary) 12%, var(--lp-surface-strong));
+  border-color: color-mix(in srgb, var(--lp-primary) 24%, transparent);
+}
+
+.hc-msg-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.hc-msg-author {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+}
+
+.hc-msg.user .hc-msg-author {
+  color: var(--lp-primary);
+}
+
+.hc-msg-time {
+  font-size: 11px;
+  color: var(--lp-muted);
+}
+
+.hc-msg-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.hc-msg-action {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--lp-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
+}
+
+.hc-msg:hover .hc-msg-action,
+.hc-msg:focus-within .hc-msg-action {
+  opacity: 1;
+}
+
+.hc-msg-action:hover {
+  background: color-mix(in srgb, var(--lp-danger) 12%, transparent);
+  color: var(--lp-danger);
+}
+
+.hc-msg-action:focus-visible {
+  opacity: 1;
+}
+
+.hc-msg-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--lp-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.hc-msg-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--lp-border);
+  font-size: 12.5px;
+  color: var(--lp-muted);
+}
+
+.hc-msg-confirm button {
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--lp-border);
+  background: var(--lp-field);
+  color: var(--lp-text);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.hc-msg-confirm button.danger {
+  border-color: color-mix(in srgb, var(--lp-danger) 34%, transparent);
+  color: var(--lp-danger);
+}
+
+.hc-msg-confirm button.danger:hover {
+  background: color-mix(in srgb, var(--lp-danger) 12%, transparent);
+}
+
+/* --- Empty state ---------------------------------------------------------- */
+
+.hc-empty {
+  margin: auto;
+  align-self: center;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.hc-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--lp-primary) 12%, transparent);
+  color: var(--lp-primary);
+}
+
+.hc-empty-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lp-text);
+}
+
+.hc-empty-text {
+  margin: 0;
+  max-width: 240px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--lp-muted);
+}
+
+/* --- Composer ------------------------------------------------------------- */
+
+.hc-composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--lp-border);
+  background: color-mix(in srgb, var(--lp-surface) 70%, transparent);
+}
+
+.hc-composer input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.hc-send {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, var(--lp-primary-strong));
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.26);
+  transition: transform var(--dur-fast) var(--ease-standard), opacity var(--dur-fast) var(--ease-standard);
+}
+
+.hc-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.hc-send:hover:not(:disabled) {
+  transform: translateY(-1px);
+}

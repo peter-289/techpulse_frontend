@@ -1,0 +1,454 @@
+/* Shared scaffolding for workspace feature pages (versions, artifacts,
+   security, audit, analytics, settings). Surfaces come from the global
+   Card/token primitives — this file only adds layout and content patterns. */
+
+.sec-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* --- Page header ---------------------------------------------------------- */
+
+.sec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sec-head-text {
+  min-width: 0;
+}
+
+.sec-eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lp-primary);
+}
+
+.sec-title {
+  margin: 0;
+  font-size: clamp(1.45rem, 1.2rem + 1vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--lp-text);
+}
+
+.sec-desc {
+  margin: 8px 0 0;
+  max-width: 64ch;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--lp-muted);
+}
+
+.sec-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* --- Cards ---------------------------------------------------------------- */
+
+.sec-card {
+  padding: 20px;
+}
+
+.sec-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sec-card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--lp-text);
+}
+
+.sec-card-sub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--lp-muted);
+}
+
+.sec-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* --- Grids ---------------------------------------------------------------- */
+
+.sec-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.sec-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.sec-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sec-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .sec-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .sec-cols-4,
+  .sec-cols-3,
+  .sec-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Stat cards ----------------------------------------------------------- */
+
+.sec-stat {
+  padding: 18px;
+  border-left: 3px solid var(--lp-primary);
+}
+
+.sec-stat.tone-success {
+  border-left-color: var(--lp-success);
+}
+
+.sec-stat.tone-warning {
+  border-left-color: var(--lp-warning);
+}
+
+.sec-stat.tone-danger {
+  border-left-color: var(--lp-danger);
+}
+
+.sec-stat-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+}
+
+.sec-stat-value {
+  margin: 10px 0 0;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--lp-text);
+}
+
+.sec-stat-helper {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--lp-muted);
+}
+
+/* --- Tables --------------------------------------------------------------- */
+
+.sec-table-wrap {
+  overflow-x: auto;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+
+.sec-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.sec-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+  border-bottom: 1px solid var(--lp-border);
+  white-space: nowrap;
+}
+
+.sec-table td {
+  padding: 12px;
+  color: var(--lp-text);
+  border-bottom: 1px solid var(--lp-border);
+  vertical-align: middle;
+}
+
+.sec-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.sec-table tbody tr {
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+.sec-table tbody tr:hover {
+  background: color-mix(in srgb, var(--lp-primary) 5%, transparent);
+}
+
+.sec-table .muted {
+  color: var(--lp-muted);
+}
+
+.sec-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+}
+
+/* --- Pills / notes -------------------------------------------------------- */
+
+.sec-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sec-pills button.is-active {
+  background: color-mix(in srgb, var(--lp-primary) 14%, transparent);
+  border-color: color-mix(in srgb, var(--lp-primary) 28%, transparent);
+  color: var(--lp-primary);
+}
+
+.sec-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--lp-primary) 22%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lp-primary) 7%, transparent);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--lp-muted);
+}
+
+.sec-note > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--lp-primary);
+}
+
+.sec-note strong {
+  color: var(--lp-text);
+}
+
+.sec-empty {
+  padding: 44px 20px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--lp-muted);
+}
+
+/* --- Timeline ------------------------------------------------------------- */
+
+.sec-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.sec-timeline-item {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--lp-border);
+}
+
+.sec-timeline-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sec-timeline-item:first-child {
+  padding-top: 0;
+}
+
+.sec-timeline-dot {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lp-primary) 12%, transparent);
+  color: var(--lp-primary);
+}
+
+.sec-timeline-dot.success {
+  background: color-mix(in srgb, var(--lp-success) 14%, transparent);
+  color: var(--lp-success);
+}
+
+.sec-timeline-dot.warning {
+  background: color-mix(in srgb, var(--lp-warning) 14%, transparent);
+  color: var(--lp-warning);
+}
+
+.sec-timeline-title {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--lp-text);
+}
+
+.sec-timeline-meta {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--lp-muted);
+}
+
+/* --- Bars (analytics) ----------------------------------------------------- */
+
+.sec-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 168px;
+  padding-top: 8px;
+}
+
+.sec-bar {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, #60a5fa, var(--lp-primary));
+  box-shadow: 0 8px 18px -12px rgba(37, 99, 235, 0.8);
+  min-height: 8px;
+}
+
+.sec-bar-labels {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.sec-bar-labels span {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-size: 10.5px;
+  color: var(--lp-muted);
+  overflow: hidden;
+}
+
+/* --- Forms ---------------------------------------------------------------- */
+
+.sec-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.sec-field:last-child {
+  margin-bottom: 0;
+}
+
+.sec-field > label,
+.sec-field > .sec-field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lp-text);
+}
+
+.sec-hint {
+  font-size: 12.5px;
+  color: var(--lp-muted);
+}
+
+.sec-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .sec-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sec-seg {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--lp-border);
+  border-radius: 12px;
+  background: var(--lp-field);
+}
+
+.sec-seg button {
+  min-height: 38px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--lp-muted);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.sec-seg button.is-active {
+  background: color-mix(in srgb, var(--lp-primary) 14%, transparent);
+  border-color: color-mix(in srgb, var(--lp-primary) 26%, transparent);
+  color: var(--lp-primary);
+}
+
+.sec-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--lp-border);
+}
+
+.sec-check:last-of-type {
+  border-bottom: 0;
+}
+
+.sec-check input {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--lp-primary);
+}
+
+.sec-check-label {
+  display: grid;
+  gap: 2px;
+}
+
+.sec-check-label span {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--lp-text);
+}

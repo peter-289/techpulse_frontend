@@ -3,8 +3,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { httpClient as api } from '@/shared/api/http-client';
+import { getErrorDetail, getErrorStatus } from '@/shared/lib/api/api-error';
 import { Button, Card } from '../../../../shared/ui';
-import '../../../../LoginPage.css';
+import '@/pages/auth/ui/auth.css';
 
 const registrationSchema = z
   .object({
@@ -39,9 +40,9 @@ type AuthNotice = {
   variant?: 'success' | 'error' | 'info' | 'warning';
 };
 
-function getRegistrationErrorMessage(error: any) {
-  const status = error?.response?.status;
-  const detail = String(error?.response?.data?.detail || error?.message || '').toLowerCase();
+function getRegistrationErrorMessage(error: unknown) {
+  const status = getErrorStatus(error);
+  const detail = String(getErrorDetail(error) || '').toLowerCase();
 
   if (status === 409 || detail.includes('already exists')) {
     return 'An account with this email already exists. Try signing in instead.';
@@ -51,7 +52,7 @@ function getRegistrationErrorMessage(error: any) {
     return 'Too many registration attempts. Please wait a moment and try again.';
   }
 
-  if (!error?.response) {
+  if (!status) {
     return "We couldn't reach the server. Check your connection and try again.";
   }
 
@@ -106,6 +107,7 @@ export function RegisterRoutePage({ onBack, onLogin }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState('');
+  const [resending, setResending] = useState(false);
   const form = useForm<RegistrationValues>({
     resolver: zodResolver(registrationSchema),
     defaultValues: { fullname: '', username: '', email: '', password: '', confirm_password: '' },
@@ -142,6 +144,29 @@ export function RegisterRoutePage({ onBack, onLogin }: Props) {
       });
     }
   });
+
+  const handleResend = async () => {
+    if (!verificationEmail) return;
+    setResending(true);
+    try {
+      const res = await api.post('/api/v1/auth/email-verification/resend', { email: verificationEmail });
+      setFeedback({
+        title: 'Verification email sent',
+        message: res.data?.detail || `We re-sent the verification link to ${verificationEmail}.`,
+        variant: 'success',
+      });
+    } catch (error: any) {
+      setFeedback({
+        title: 'Could not resend',
+        message: getErrorDetail(error) || 'Please try again in a moment.',
+        variant: 'error',
+        actionLabel: 'Sign in',
+        action: onLogin,
+      });
+    } finally {
+      setResending(false);
+    }
+  };
 
   const fullnameError = form.formState.errors.fullname?.message;
   const usernameError = form.formState.errors.username?.message;
@@ -221,7 +246,10 @@ export function RegisterRoutePage({ onBack, onLogin }: Props) {
                 <Button className="tp-auth-submit" type="button" onClick={onLogin}>
                   Sign in
                 </Button>
-                <Button className="tp-auth-secondary-button" type="button" variant="secondary" onClick={onBack}>
+                <Button className="tp-auth-secondary-button" type="button" variant="secondary" onClick={handleResend} disabled={resending}>
+                  {resending ? 'Sending…' : 'Resend verification email'}
+                </Button>
+                <Button className="tp-auth-secondary-button" type="button" variant="ghost" onClick={onBack}>
                   Back to home
                 </Button>
               </div>

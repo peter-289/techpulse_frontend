@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import DashboardLayout from '../../../dashboard/DashboardLayout';
-import { TIER_LABELS } from '../../../constants/registryEnums';
-import FeedbackMessage from '../../../components/FeedbackMessage';
-import useSoftwareRegistry from '../../../hooks/useSoftwareRegistry';
+import { useNavigate } from 'react-router-dom';
+import { TIER_LABELS } from '@/entities/software/model/registry-enums';
+import FeedbackMessage from '@/shared/ui/feedback-message/feedback-message';
+import { useConfirmCheckout, useCreateCheckout } from '@/entities/software/api/software.mutations';
 import { errorMessageFrom, notifyToast } from '@/shared/lib/toast/toast';
 import './checkout-route-page.css';
 
@@ -16,14 +16,14 @@ function formatMoney(cents, currency = 'USD') {
 
 export default function CheckoutPage({
   user,
-  onNavigate,
-  onLogout,
   selectedPlan,
   selectedProject,
   onBack,
   onComplete,
 }) {
-  const { createCheckout, confirmCheckout } = useSoftwareRegistry();
+  const navigate = useNavigate();
+  const { mutateAsync: createCheckout } = useCreateCheckout();
+  const { mutateAsync: confirmCheckout } = useConfirmCheckout();
   const [form, setForm] = useState({
     name: user?.full_name || user?.username || '',
     email: user?.email || '',
@@ -115,41 +115,24 @@ export default function CheckoutPage({
 
   if (!hasCheckoutTarget) {
     return (
-      <DashboardLayout
-        user={user}
-        activePage="checkout"
-        onNavigate={onNavigate}
-        onLogout={onLogout}
-        title="Checkout"
-        subtitle="Choose a project or plan before paying"
-      >
-        <section className="tp-dashboard-grid checkout-grid">
+      <section className="tp-dashboard-grid checkout-grid">
           <article className="tp-panel tp-span-8 checkout-empty">
             <h1>No item selected</h1>
             <p>Return to the project library or plans page and choose what you want to buy.</p>
             <div className="checkout-actions">
-              <button className="tp-btn tp-btn-primary" type="button" onClick={() => onNavigate('projects')}>
+              <button className="tp-btn tp-btn-primary" type="button" onClick={() => navigate('/workspace/softwares')}>
                 Browse projects
               </button>
-              <button className="tp-btn tp-btn-secondary" type="button" onClick={() => onNavigate('plans')}>
+              <button className="tp-btn tp-btn-secondary" type="button" onClick={() => navigate('/workspace/plans')}>
                 View plans
               </button>
             </div>
           </article>
         </section>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout
-      user={user}
-      activePage="checkout"
-      onNavigate={onNavigate}
-      onLogout={onLogout}
-      title="Checkout"
-      subtitle={isProjectCheckout ? 'Complete project purchase' : 'Secure your subscription'}
-    >
       <section className="tp-dashboard-grid checkout-grid">
         <article className="tp-panel tp-span-7 checkout-form">
           <h1>Checkout</h1>
@@ -275,6 +258,5 @@ export default function CheckoutPage({
           </div>
         </aside>
       </section>
-    </DashboardLayout>
   );
 }

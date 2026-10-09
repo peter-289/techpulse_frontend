@@ -1,20 +1,19 @@
 import { Command } from 'cmdk';
-import { Compass, Gauge, LayoutDashboard, UploadCloud } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSessionStore } from '../../../processes/auth/model/session-store';
+import { workspaceNavItems } from '../../../shared/navigation/workspace-navigation';
 import { useUiStore } from '../../../shared/store/ui-store';
 import './command-palette.css';
-
-const entries = [
-  { label: 'Dashboard', path: '/workspace/overview', icon: Gauge },
-  { label: 'My Software', path: '/workspace/softwares', icon: LayoutDashboard },
-  { label: 'Discover', path: '/workspace/discover', icon: Compass },
-  { label: 'Upload Software', path: '/workspace/upload-software', icon: UploadCloud },
-];
 
 export function CommandPalette() {
   const navigate = useNavigate();
   const open = useUiStore((s) => s.commandPaletteOpen);
   const setOpen = useUiStore((s) => s.setCommandPaletteOpen);
+  const setHelpCentreOpen = useUiStore((s) => s.setHelpCentreOpen);
+  const user = useSessionStore((s) => s.user);
+  const isAdmin = String((user as any)?.role || '').toLowerCase() === 'admin';
+
+  const items = workspaceNavItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <Command.Dialog
@@ -28,20 +27,24 @@ export function CommandPalette() {
       <Command.Input className="cp-input" placeholder="Search workspaces, software and modules…" />
       <Command.List className="cp-list">
         <Command.Empty className="cp-empty">No results found.</Command.Empty>
-        <Command.Group heading="Navigation" className="cp-group">
-          {entries.map((entry) => {
-            const Icon = entry.icon;
+        <Command.Group heading="Workspace" className="cp-group">
+          {items.map((item) => {
+            const Icon = item.icon;
             return (
               <Command.Item
-                key={entry.path}
+                key={item.id}
                 className="cp-item"
                 onSelect={() => {
-                  navigate(entry.path);
+                  if (item.action === 'help') {
+                    setHelpCentreOpen(true);
+                  } else if (item.to) {
+                    navigate(item.to);
+                  }
                   setOpen(false);
                 }}
               >
                 <Icon size={16} />
-                {entry.label}
+                {item.label}
               </Command.Item>
             );
           })}

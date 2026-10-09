@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@config "../../../tailwind.config.js";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+@source "../../**/*.{ts,tsx,jsx}";
 
 /* ---------------------------------------------------------------------------
    TechPulse design tokens — single source of truth.
@@ -10,11 +14,15 @@
 :root {
   /* --- Landing palette (canonical) ------------------------------------- */
   --lp-bg: #eef3fb;
+  --lp-canvas: #f8fbff;
   --lp-surface: rgba(255, 255, 255, 0.76);
   --lp-surface-strong: #ffffff;
   --lp-surface-muted: rgba(242, 246, 252, 0.94);
+  --lp-field: rgba(255, 255, 255, 0.9);
+  --lp-chrome: rgba(248, 251, 255, 0.86);
   --lp-text: #0f172a;
   --lp-muted: #526174;
+  --lp-placeholder: #7c8ba1;
   --lp-border: rgba(37, 99, 235, 0.1);
   --lp-primary: #2563eb;
   --lp-primary-strong: #1d4ed8;
@@ -154,7 +162,7 @@ body {
   background:
     radial-gradient(circle at 18% 0%, rgba(37, 99, 235, 0.08), transparent 32%),
     radial-gradient(circle at 84% 8%, rgba(6, 182, 212, 0.08), transparent 26%),
-    linear-gradient(180deg, #f8fbff 0%, var(--lp-bg) 100%);
+    linear-gradient(180deg, var(--lp-canvas) 0%, var(--lp-bg) 100%);
   background-attachment: fixed;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -248,14 +256,14 @@ h6 {
 }
 
 .tp-btn-secondary {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--lp-field);
   color: var(--lp-text);
   border-color: rgba(37, 99, 235, 0.14);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
 }
 
 .tp-btn-secondary:hover:not(:disabled) {
-  background: #fff;
+  background: var(--lp-surface-strong);
   border-color: rgba(37, 99, 235, 0.24);
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
 }
@@ -307,7 +315,7 @@ select {
   padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(37, 99, 235, 0.16);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--lp-field);
   color: var(--lp-text);
   font-family: inherit;
   font-size: 0.9rem;
@@ -321,14 +329,14 @@ select {
 
 input::placeholder,
 textarea::placeholder {
-  color: #7c8ba1;
+  color: var(--lp-placeholder);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   border-color: var(--lp-primary);
-  background: #fff;
+  background: var(--lp-surface-strong);
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
@@ -343,7 +351,7 @@ select:disabled {
   padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(37, 99, 235, 0.16);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--lp-field);
   color: var(--lp-text);
   font-family: inherit;
   font-size: 0.9rem;
@@ -357,7 +365,7 @@ select:disabled {
 
 .tp-field:focus {
   border-color: var(--lp-primary);
-  background: #fff;
+  background: var(--lp-surface-strong);
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
@@ -365,7 +373,7 @@ select:disabled {
 .tp-panel,
 .tp-card {
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.76);
+  background: var(--lp-surface);
   padding: 24px;
   border: 1px solid var(--lp-border);
   box-shadow: var(--lp-shadow-sm);
@@ -384,4 +392,122 @@ select:disabled {
 /* --- Small helpers ------------------------------------------------------- */
 .tp-muted {
   color: var(--lp-muted);
+}
+
+/* --- Global dark theme ----------------------------------------------------
+   Applied via `data-theme="dark"` on <html> by the global theme store.
+   One block, no page-specific themes: every workspace surface reads these
+   tokens (lp = landing DNA, tp/adm = legacy content pages, --color-* = the
+   Tailwind primitives emitted by the v4 build).
+   ------------------------------------------------------------------------ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Landing palette (canonical) */
+  --lp-bg: #0b1220;
+  --lp-canvas: #070c18;
+  --lp-surface: rgba(17, 27, 45, 0.78);
+  --lp-surface-strong: #131d31;
+  --lp-surface-muted: rgba(23, 34, 54, 0.92);
+  --lp-field: rgba(15, 23, 42, 0.72);
+  --lp-chrome: rgba(11, 18, 32, 0.86);
+  --lp-text: #e7edf8;
+  --lp-muted: #9aa9bf;
+  --lp-placeholder: #8494ab;
+  --lp-border: rgba(96, 165, 250, 0.18);
+  --lp-primary: #3b82f6;
+  --lp-primary-strong: #2563eb;
+  --lp-success: #22c55e;
+  --lp-warning: #f59e0b;
+  --lp-danger: #ef4444;
+  --lp-shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.38);
+  --lp-shadow-md: 0 18px 42px rgba(0, 0, 0, 0.46);
+  --lp-shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.56);
+
+  /* Semantic aliases */
+  --bg: var(--lp-bg);
+  --panel: var(--lp-surface);
+  --panel-strong: var(--lp-surface-strong);
+  --panel-muted: var(--lp-surface-muted);
+  --fg: var(--lp-text);
+  --muted: var(--lp-muted);
+  --line: var(--lp-border);
+
+  /* Legacy HSL triplets */
+  --color-bg-base: 222 47% 8%;
+  --color-bg-surface: 222 47% 10%;
+  --color-bg-elevated: 222 47% 11%;
+  --color-bg-subtle: 222 47% 12%;
+  --color-text-primary: 222 47% 94%;
+  --color-text-secondary: 216 28% 76%;
+  --color-text-muted: 215 17% 66%;
+  --color-border: 222 47% 22%;
+  --color-border-subtle: 222 47% 17%;
+
+  /* Legacy `tp-*` tokens (content pages) */
+  --tp-bg: #0b1220;
+  --tp-card: #131d31;
+  --tp-text: #e7edf8;
+  --tp-muted: #9aa9bf;
+  --tp-line: rgba(96, 165, 250, 0.2);
+  --tp-primary: #3b82f6;
+  --tp-primary-strong: #2563eb;
+  --tp-success: #22c55e;
+  --tp-danger: #ef4444;
+  --tp-shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.38);
+  --tp-shadow-md: 0 18px 42px rgba(0, 0, 0, 0.46);
+  --tp-shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.56);
+
+  /* Legacy `adm-*` tokens (admin console) */
+  --adm-bg: #0b1220;
+  --adm-surface: #131d31;
+  --adm-surface-soft: #16213a;
+  --adm-border: #25334d;
+  --adm-text: #e7edf8;
+  --adm-muted: #9aa9bf;
+  --adm-primary: #3b82f6;
+  --adm-primary-strong: #2563eb;
+  --adm-primary-soft: rgba(59, 130, 246, 0.14);
+  --adm-shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.38);
+  --adm-shadow-md: 0 18px 42px rgba(0, 0, 0, 0.46);
+
+  /* Shadows */
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.38);
+  --shadow-md: 0 18px 42px rgba(0, 0, 0, 0.46);
+  --shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.56);
+  --shadow-1: 0 8px 20px rgba(0, 0, 0, 0.38);
+
+  /* Tailwind primitives (referenced by compiled utilities) */
+  --color-white: #131d31;
+  --color-slate-50: #101a2c;
+  --color-slate-100: #16213a;
+  --color-slate-200: #25334d;
+  --color-slate-300: #3b4c6b;
+  --color-slate-400: #64748b;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #b3c0d3;
+  --color-slate-700: #cbd5e1;
+  --color-slate-900: #e8eefb;
+  --color-blue-50: #14213b;
+  --color-blue-500: #60a5fa;
+  --color-blue-600: #3b82f6;
+  --color-blue-700: #2563eb;
+  --color-red-500: #f87171;
+  --color-red-600: #ef4444;
+  --color-red-700: #fca5a5;
+  --color-green-600: #22c55e;
+  --color-green-700: #4ade80;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #fbbf24;
+  --color-amber-700: #fcd34d;
+}
+
+/* `--color-white` doubles as the "on-primary" text colour, so re-establish
+   pure white wherever it is used as foreground (gradients, badges, avatars). */
+[data-theme='dark'] .text-white {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .text-white\/90 {
+  color: rgba(255, 255, 255, 0.9);
 }

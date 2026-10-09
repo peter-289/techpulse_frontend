@@ -29,6 +29,38 @@ export class ApiError extends Error {
 }
 
 /**
+ * Read the HTTP status from either a normalized ApiError or a raw Axios error.
+ */
+export function getErrorStatus(error: unknown): number | undefined {
+  if (error instanceof ApiError) return error.status;
+  return (error as { response?: { status?: number } })?.response?.status;
+}
+
+/**
+ * Read the most useful error detail string from either a normalized ApiError
+ * or a raw Axios error.
+ */
+export function getErrorDetail(error: unknown): string | undefined {
+  const candidate = error as {
+    details?: unknown;
+    response?: { data?: unknown };
+    message?: string;
+  };
+  const data = candidate?.details ?? candidate?.response?.data;
+  if (typeof data === 'string') return data;
+  if (data && typeof data === 'object') {
+    const detail = (data as { detail?: unknown; message?: unknown; error?: unknown }).detail;
+    if (typeof detail === 'string') return detail;
+    const message =
+      (data as { message?: unknown; error?: unknown }).message ??
+      (data as { error?: unknown }).error;
+    if (typeof message === 'string') return message;
+  }
+  if (typeof candidate?.message === 'string') return candidate.message;
+  return undefined;
+}
+
+/**
  * Normalize Axios error to ApiError
  */
 export function normalizeAxiosError(error: any): ApiError {

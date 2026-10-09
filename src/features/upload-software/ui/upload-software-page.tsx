@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../../shared/lib/query/query-keys';
+import { getErrorDetail } from '../../../shared/lib/api/api-error';
 import { useToast } from '../../../shared/hooks/useToast';
 import { useNavigation } from '../../../shared/hooks/useNavigation';
 import { Button, Card, Input, Select, Textarea } from '../../../shared/ui';
@@ -50,6 +52,7 @@ export function SoftwareUploadPage({
 }: SoftwareUploadPageProps) {
   const toast = useToast();
   const navigate = useNavigation();
+  const queryClient = useQueryClient();
 
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -125,6 +128,9 @@ export function SoftwareUploadPage({
       } finally {
         setIsUploading(false);
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.software.all });
     },
   });
 
@@ -277,7 +283,7 @@ export function SoftwareUploadPage({
       if (onSuccessNavigate) {
         onSuccessNavigate();
       } else {
-        navigate('/software-library');
+        navigate('/workspace/softwares');
       }
 
       // CORRECTION:
@@ -288,19 +294,7 @@ export function SoftwareUploadPage({
       toast({
         variant: 'error',
         title: 'Upload Failed',
-        description:
-          typeof error === 'object' &&
-          error !== null &&
-          'response' in error &&
-          typeof error.response === 'object' &&
-          error.response !== null &&
-          'data' in error.response &&
-          typeof error.response.data === 'object' &&
-          error.response.data !== null &&
-          'detail' in error.response.data &&
-          typeof error.response.data.detail === 'string'
-            ? error.response.data.detail
-            : 'Upload failed. Please try again.',
+        description: getErrorDetail(error) || 'Upload failed. Please try again.',
         duration: 3000,
       });
     }
@@ -308,246 +302,209 @@ export function SoftwareUploadPage({
 
   if (isLoading) {
     return (
-      <Card className="tp-card lp-upload-card">
-        <div className="lp-upload-loading">
-          Loading categories...
-        </div>
-      </Card>
+      <div className="lp-upload-page">
+        <Card className="tp-card lp-upload-card">
+          <div className="lp-upload-loading">
+            Loading categories...
+          </div>
+        </Card>
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <Card className="tp-card lp-upload-card">
-        <div className="lp-upload-error">
-          Failed to load categories. Please refresh and try again.
-        </div>
-      </Card>
+      <div className="lp-upload-page">
+        <Card className="tp-card lp-upload-card">
+          <div className="lp-upload-error">
+            Failed to load categories. Please refresh and try again.
+          </div>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="tp-card lp-upload-card">
-      <form
-        className="lp-upload-form"
-        onSubmit={onSubmit}
-        noValidate
-      >
-        <div className="lp-form-header">
-          <h1 className="lp-form-title">Publish Software</h1>
+    <div className="lp-upload-page">
+      <header className="lp-upload-head">
+        <h1 className="lp-form-title">Publish Software</h1>
 
-          <p className="lp-form-subtitle">
-            Enter software details, version information, and upload
-            artifact files.
-          </p>
-        </div>
+        <p className="lp-form-subtitle">
+          Enter software details, version information, and upload
+          artifact files.
+        </p>
+      </header>
 
-        {/* Software Name */}
-        <div className="lp-form-group">
-          <label
-            className="lp-form-label"
-            htmlFor="name"
-          >
-            Software name
-          </label>
+      <form className="lp-upload-grid" onSubmit={onSubmit} noValidate>
+        <Card className="tp-card lp-upload-card">
+          <h2 className="lp-section-title">Software Information</h2>
 
-          <Input
-            id="name"
-            type="text"
-            {...register('name')}
-            placeholder="Software name"
-            aria-label="Software name"
-          />
-
-          {errors.name && (
-            <p className="lp-form-error">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
-
-        {/* Description */}
-        <div className="lp-form-group">
-          <label
-            className="lp-form-label"
-            htmlFor="description"
-          >
-            Description
-          </label>
-
-          <Textarea
-            id="description"
-            {...register('description')}
-            placeholder="Write software summary, usage notes, and requirements"
-            aria-label="Description"
-          />
-
-          {errors.description && (
-            <p className="lp-form-error">
-              {errors.description.message}
-            </p>
-          )}
-        </div>
-
-        {/* Category */}
-        <div className="lp-form-group">
-          <label
-            className="lp-form-label"
-            htmlFor="categoryId"
-          >
-            Category
-          </label>
-
-          <Select
-            id="categoryId"
-            {...register('categoryId')}
-            aria-label="Category"
-          >
-            <option value="">Select a category</option>
-
-            {categoriesData.map((category) => (
-              <option
-                key={category.id}
-                value={category.id}
-              >
-                {category.name}
-              </option>
-            ))}
-          </Select>
-
-          {errors.categoryId && (
-            <p className="lp-form-error">
-              {errors.categoryId.message}
-            </p>
-          )}
-        </div>
-
-        {/* Version / Price / Currency Row */}
-        <div className="lp-form-row">
           <div className="lp-form-group">
-            <label
-              className="lp-form-label"
-              htmlFor="version"
-            >
-              Version number
+            <label className="lp-form-label" htmlFor="name">
+              Software name
             </label>
 
             <Input
-              id="version"
+              id="name"
               type="text"
-              {...register('version')}
-              placeholder="1.0.0"
-              aria-label="Version number"
+              {...register('name')}
+              placeholder="Software name"
+              aria-label="Software name"
             />
 
-            {errors.version && (
+            {errors.name && (
               <p className="lp-form-error">
-                {errors.version.message}
+                {errors.name.message}
               </p>
             )}
           </div>
 
           <div className="lp-form-group">
-            <label
-              className="lp-form-label"
-              htmlFor="price"
-            >
-              Price
+            <label className="lp-form-label" htmlFor="description">
+              Description
             </label>
 
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              min="0"
-              // CORRECTION:
-              // Zod already performs numeric coercion. Removing
-              // `valueAsNumber` leaves type conversion in one place:
-              // the schema.
-              {...register('price')}
-              placeholder="0.00"
-              aria-label="Price"
+            <Textarea
+              id="description"
+              {...register('description')}
+              placeholder="Write software summary, usage notes, and requirements"
+              aria-label="Description"
             />
 
-            {errors.price && (
+            {errors.description && (
               <p className="lp-form-error">
-                {errors.price.message}
+                {errors.description.message}
               </p>
             )}
           </div>
 
           <div className="lp-form-group">
-            <label
-              className="lp-form-label"
-              htmlFor="currency"
-            >
-              Currency
+            <label className="lp-form-label" htmlFor="categoryId">
+              Category
             </label>
 
             <Select
-              id="currency"
-              {...register('currency')}
-              aria-label="Currency"
+              id="categoryId"
+              {...register('categoryId')}
+              aria-label="Category"
             >
-              <option value="USD">USD</option>
-              <option value="KES">KES</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
+              <option value="">Select a category</option>
+
+              {categoriesData.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </Select>
 
-            {errors.currency && (
+            {errors.categoryId && (
               <p className="lp-form-error">
-                {errors.currency.message}
+                {errors.categoryId.message}
               </p>
             )}
           </div>
-        </div>
 
-        {/* Changelog */}
-        <div className="lp-form-group">
-          <label
-            className="lp-form-label"
-            htmlFor="changelog"
-          >
-            Changelog
-          </label>
+          <div className="lp-form-row">
+            <div className="lp-form-group">
+              <label className="lp-form-label" htmlFor="version">
+                Version number
+              </label>
 
-          <Textarea
-            id="changelog"
-            {...register('changelog')}
-            placeholder="What changed in this release"
-            aria-label="Changelog"
-          />
-        </div>
+              <Input
+                id="version"
+                type="text"
+                {...register('version')}
+                placeholder="1.0.0"
+                aria-label="Version number"
+              />
 
-        {/* Visibility */}
-        <div className="lp-form-group">
-          <label className="lp-form-checkbox">
-            <input
-              type="checkbox"
-              // CORRECTION:
-              // Register visibility with RHF instead of manually
-              // calling setValue(). RHF now tracks the checkbox,
-              // validation state, dirty state, and submitted value.
-              {...register('visibility')}
-              aria-label="Public visibility"
+              {errors.version && (
+                <p className="lp-form-error">
+                  {errors.version.message}
+                </p>
+              )}
+            </div>
+
+            <div className="lp-form-group">
+              <label className="lp-form-label" htmlFor="price">
+                Price
+              </label>
+
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                {...register('price')}
+                placeholder="0.00"
+                aria-label="Price"
+              />
+
+              {errors.price && (
+                <p className="lp-form-error">
+                  {errors.price.message}
+                </p>
+              )}
+            </div>
+
+            <div className="lp-form-group">
+              <label className="lp-form-label" htmlFor="currency">
+                Currency
+              </label>
+
+              <Select
+                id="currency"
+                {...register('currency')}
+                aria-label="Currency"
+              >
+                <option value="USD">USD</option>
+                <option value="KES">KES</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+              </Select>
+
+              {errors.currency && (
+                <p className="lp-form-error">
+                  {errors.currency.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="lp-form-group">
+            <label className="lp-form-label" htmlFor="changelog">
+              Changelog
+            </label>
+
+            <Textarea
+              id="changelog"
+              {...register('changelog')}
+              placeholder="What changed in this release"
+              aria-label="Changelog"
             />
+          </div>
 
-            <span>Public visibility</span>
-          </label>
+          <div className="lp-form-group">
+            <label className="lp-form-checkbox">
+              <input
+                type="checkbox"
+                {...register('visibility')}
+                aria-label="Public visibility"
+              />
 
-          <p className="lp-form-hint">
-            {isPublic
-              ? 'Public software can be discovered and downloaded by authorized users.'
-              : 'Private software is restricted and requires subscription access for non-owners.'}
-          </p>
-        </div>
+              <span>Public visibility</span>
+            </label>
 
-        {/* Artifacts / Files */}
-        <div className="lp-form-group">
-          <label className="lp-form-label">
-            Artifacts
-          </label>
+            <p className="lp-form-hint">
+              {isPublic
+                ? 'Public software can be discovered and downloaded by authorized users.'
+                : 'Private software is restricted and requires subscription access for non-owners.'}
+            </p>
+          </div>
+        </Card>
+
+        <Card className="tp-card lp-upload-card lp-artifact-card">
+          <h2 className="lp-section-title">Software Artifacts</h2>
 
           <div
             className={`lp-drop-zone ${
@@ -611,46 +568,40 @@ export function SoftwareUploadPage({
               {errors.files.message}
             </p>
           )}
-        </div>
 
-        {/* Upload Progress */}
-        {isUploading && (
-          <div className="lp-upload-progress">
-            <div className="lp-progress-bar-container">
-              <div
-                className="lp-progress-bar"
-                style={{
-                  width: `${uploadProgress}%`,
-                }}
-                role="progressbar"
-                aria-valuenow={uploadProgress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-              />
+          {isUploading && (
+            <div className="lp-upload-progress">
+              <div className="lp-progress-bar-container">
+                <div
+                  className="lp-progress-bar"
+                  style={{
+                    width: `${uploadProgress}%`,
+                  }}
+                  role="progressbar"
+                  aria-valuenow={uploadProgress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                />
+              </div>
+
+              <p className="lp-progress-text">
+                {uploadProgress}% uploading...
+              </p>
             </div>
+          )}
 
-            <p className="lp-progress-text">
-              {uploadProgress}% uploading...
-            </p>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          variant="primary"
-          // CORRECTION:
-          // `selectedFiles.length` is no longer needed because files
-          // are part of RHF and Zod validation. `isValid` now reflects
-          // the entire form, including files.
-          disabled={!isValid || isUploading}
-          className="lp-submit-button"
-        >
-          {isUploading
-            ? 'Publishing...'
-            : 'Publish Software'}
-        </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={!isValid || isUploading}
+            className="lp-submit-button"
+          >
+            {isUploading
+              ? 'Publishing...'
+              : 'Publish Software'}
+          </Button>
+        </Card>
       </form>
-    </Card>
+    </div>
   );
 }

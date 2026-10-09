@@ -4,9 +4,10 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import qs from 'qs';
 import { httpClient as api } from '@/shared/api/http-client';
-import FeedbackMessage from '../../../../components/FeedbackMessage';
+import { getErrorDetail } from '@/shared/lib/api/api-error';
+import FeedbackMessage from '@/shared/ui/feedback-message/feedback-message';
 import { Button, Card, Input } from '../../../../shared/ui';
-import '../../../../LoginPage.css';
+import '@/pages/auth/ui/auth.css';
 
 const forgotSchema = z.object({
   email: z.email('Enter a valid email address'),
@@ -29,8 +30,8 @@ export function ForgotPasswordRoutePage({ onBack, onCheckEmail }: Props) {
       const res = await api.post('/api/v1/auth/password-reset/requests', qs.stringify(values), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
       setFeedback({ variant: 'success', title: 'Reset link sent', message: res.data?.detail || 'If the e-mail is registered, you will receive a reset link.' });
       onCheckEmail();
-    } catch (err: any) {
-      setFeedback({ variant: 'error', title: 'Request failed', message: err?.response?.data?.detail || 'Failed to submit.' });
+    } catch (err: unknown) {
+      setFeedback({ variant: 'error', title: 'Request failed', message: getErrorDetail(err) || 'Failed to submit.' });
     }
   });
 

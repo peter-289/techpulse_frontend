@@ -1,5 +1,5 @@
 import { Button, Card } from '../../../../shared/ui';
-import '../../../../LoginPage.css';
+import '@/pages/auth/ui/auth.css';
 
 type Props = {
   onBack: () => void;

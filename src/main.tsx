@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { QueryProvider } from './app/providers/query-provider';
 import { AppRouter } from './app/router/app-router';
 import './app/styles/tokens.css';
+import './app/styles/content.css';
 import { Toasts } from './shared/ui/toast/Toasts';
 
 const rootElement = document.getElementById('root');

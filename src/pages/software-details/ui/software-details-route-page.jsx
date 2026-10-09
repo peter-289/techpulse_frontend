@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import DashboardLayout from '../../../dashboard/DashboardLayout';
-import FeedbackMessage from '../../../components/FeedbackMessage';
-import useSoftwareRegistry from '../../../hooks/useSoftwareRegistry';
-import { VersionStatus } from '../../../constants/registryEnums';
+import FeedbackMessage from '@/shared/ui/feedback-message/feedback-message';
+import { useSoftwareVersions } from '@/entities/software/api/software.queries';
+import {
+  useUpdatePricing,
+  useUploadVersion,
+  useVersionLifecycle,
+} from '@/entities/software/api/software.mutations';
+import { VersionStatus } from '@/entities/software/model/registry-enums';
 import { errorMessageFrom, notifyToast } from '@/shared/lib/toast/toast';
 import './software-details-route-page.css';
 
@@ -38,13 +42,14 @@ export default function SoftwareDetailsPage({
   user,
   software,
   onBack,
-  onLogout,
-  onNavigate,
   onOpenVersion,
   onCheckoutProject,
   purchasedProjectIds = [], //NOTE: supposed to be softwareid
 }) {
-  const { fetchSoftwareVersions, uploadSoftwareVersion, updateVersionState, updatePricing } = useSoftwareRegistry();
+  const { mutateAsync: uploadSoftwareVersion } = useUploadVersion();
+  const { mutateAsync: updateVersionState } = useVersionLifecycle();
+  const { mutateAsync: updatePricing } = useUpdatePricing();
+  const versionsQuery = useSoftwareVersions(software?.id, 30);
   const [versions, setVersions] = useState([]);
   const [statusOverrides, setStatusOverrides] = useState({});
   const [notesByVersion, setNotesByVersion] = useState({});
@@ -82,22 +87,14 @@ export default function SoftwareDetailsPage({
   }, [software]);
 
   useEffect(() => {
-    let alive = true;
-    if (!software?.id) return undefined;
-    const load = async () => {
-      try {
-        const items = await fetchSoftwareVersions(software.id, 30);
-        if (!alive) return;
-        setVersions(items);
-      } catch {
-        if (alive) setFeedback({ variant: 'error', title: 'Failed to load versions', message: 'Try again shortly.' });
-      }
-    };
-    load();
-    return () => {
-      alive = false;
-    };
-  }, [fetchSoftwareVersions, software?.id]);
+    if (versionsQuery.data) setVersions(versionsQuery.data);
+  }, [versionsQuery.data]);
+
+  useEffect(() => {
+    if (versionsQuery.isError) {
+      setFeedback({ variant: 'error', title: 'Failed to load versions', message: 'Try again shortly.' });
+    }
+  }, [versionsQuery.isError]);
 
   const resolvedVersions = useMemo(
     () =>
@@ -112,15 +109,7 @@ export default function SoftwareDetailsPage({
 
   if (!software) {
     return (
-      <DashboardLayout
-        user={user}
-        activePage="softwares"
-        onNavigate={onNavigate}
-        onLogout={onLogout}
-        title="Project Details"
-        subtitle="Select a software to manage it"
-      >
-        <section className="tp-dashboard-grid">
+      <section className="tp-dashboard-grid">
           <article className="tp-panel tp-span-8">
             <h1>No software selected</h1>
             <p>Please return to the software library and choose a software to manage.</p>
@@ -129,7 +118,6 @@ export default function SoftwareDetailsPage({
             </button>
           </article>
         </section>
-      </DashboardLayout>
     );
   }
 
@@ -166,8 +154,7 @@ export default function SoftwareDetailsPage({
   };
 
   const loadVersions = async () => {
-    const items = await fetchSoftwareVersions(software.id, 30);
-    setVersions(items);
+    await versionsQuery.refetch();
   };
 
   const handleNewVersion = async (event) => {
@@ -245,15 +232,7 @@ export default function SoftwareDetailsPage({
   if (!isOwner) {
     const publishedVersions = resolvedVersions.filter((row) => row.status !== VersionStatus.DRAFT);
     return (
-      <DashboardLayout
-        user={user}
-        activePage="softwares"
-        onNavigate={onNavigate}
-        onLogout={onLogout}
-        title={software.name || 'Software Details'}
-        subtitle="Software information"
-      >
-        <section className="tp-dashboard-grid sd-grid">
+      <section className="tp-dashboard-grid sd-grid">
           <article className="tp-panel tp-span-8 sd-main">
             <header className="sd-header">
               <div>
@@ -324,19 +303,10 @@ export default function SoftwareDetailsPage({
             </button>
           </aside>
         </section>
-      </DashboardLayout>
     );
   }
 
-  return (
-    <DashboardLayout
-      user={user}
-      activePage="softwares"
-      onNavigate={onNavigate}
-      onLogout={onLogout}
-      title={software.name || 'Software Details'}
-      subtitle="Manage versions, metadata, and lifecycle"
-    >
+return (
       <section className="tp-dashboard-grid sd-grid">
         <article className="tp-panel tp-span-8 sd-main">
           <header className="sd-header">
@@ -550,7 +520,6 @@ export default function SoftwareDetailsPage({
             </button>
           </div>
         </aside>
-      </section>
-    </DashboardLayout>
+    </section>
   );
 }
