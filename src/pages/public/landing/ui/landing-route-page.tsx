@@ -1,5 +1,5 @@
 import { Button, Card } from '../../../../shared/ui';
-import '../../../../LandingPage.css';
+import '@/pages/public/landing/ui/landing.css';
 
 type Props = {
   onRegister: () => void;

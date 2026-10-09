@@ -1,23 +1,41 @@
-import { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AppShell } from '../../widgets/app-shell/ui/app-shell';
+import { Suspense, lazy, useEffect, type ReactNode } from 'react';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom';
+import { WorkspaceShell } from '../../widgets/workspace-shell/ui/workspace-shell';
 import { RequireAuth } from './require-auth';
+import { RequireRole } from './require-role';
+import { RouteErrorBoundary } from './route-error-boundary';
+import { RouteLoading } from './route-loading';
+import { ROUTE_PATHS } from './route-paths';
 import { httpClient } from '@/shared/api/http-client';
 import { useSessionStore } from '../../processes/auth/model/session-store';
 
 const SoftwareRegistryPage = lazy(() => import('../../pages/software-registry/ui/software-registry-page').then((m) => ({ default: m.SoftwareRegistryPage })));
 const WorkspaceOverviewPage = lazy(() => import('../../pages/workspace-overview/ui/workspace-overview-page').then((m) => ({ default: m.WorkspaceOverviewPage })));
+const VersionsPage = lazy(() => import('../../pages/workspace-sections/ui/versions-page').then((m) => ({ default: m.VersionsPage })));
+const ArtifactsPage = lazy(() => import('../../pages/workspace-sections/ui/artifacts-page').then((m) => ({ default: m.ArtifactsPage })));
+const SecurityPage = lazy(() => import('../../pages/workspace-sections/ui/security-page').then((m) => ({ default: m.SecurityPage })));
+const AuditPage = lazy(() => import('../../pages/workspace-sections/ui/audit-page').then((m) => ({ default: m.AuditPage })));
+const AnalyticsPage = lazy(() => import('../../pages/workspace-sections/ui/analytics-page').then((m) => ({ default: m.AnalyticsPage })));
+const SettingsPage = lazy(() => import('../../pages/workspace-sections/ui/settings-page').then((m) => ({ default: m.SettingsPage })));
 const LandingRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.LandingRoute })));
 const RegisterRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.RegisterRoute })));
 const LoginRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.LoginRoute })));
 const ForgotPasswordRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.ForgotPasswordRoute })));
 const CheckEmailRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.CheckEmailRoute })));
+const PasswordResetRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.PasswordResetRoute })));
+const EmailVerificationRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.EmailVerificationRoute })));
 const UploadWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.UploadWorkspaceRoute })));
 const SoftwareDetailsWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.SoftwareDetailsWorkspaceRoute })));
 const VersionDetailsWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.VersionDetailsWorkspaceRoute })));
+const LegacySoftwareDetailsRedirect = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.LegacySoftwareDetailsRedirect })));
+const LegacyVersionDetailsRedirect = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.LegacyVersionDetailsRedirect })));
 const PlansWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.PlansWorkspaceRoute })));
 const CheckoutWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.CheckoutWorkspaceRoute })));
 const AdminWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.AdminWorkspaceRoute })));
+
+function withSuspense(node: ReactNode) {
+  return <Suspense fallback={<RouteLoading />}>{node}</Suspense>;
+}
 
 function SessionBootstrap() {
   const setSession = useSessionStore((s) => s.setSession);
@@ -46,35 +64,73 @@ function SessionBootstrap() {
   return null;
 }
 
-export function AppRouter() {
-  const fallback = <div className="p-4 text-sm text-slate-500">Loading route...</div>;
+function RootLayout() {
   return (
-    <BrowserRouter>
+    <>
       <SessionBootstrap />
-      <Routes>
-        <Route path="/" element={<Suspense fallback={fallback}><LandingRoute /></Suspense>} />
-        <Route path="/register" element={<Suspense fallback={fallback}><RegisterRoute /></Suspense>} />
-        <Route path="/login" element={<Suspense fallback={fallback}><LoginRoute /></Suspense>} />
-        <Route path="/forgot-password" element={<Suspense fallback={fallback}><ForgotPasswordRoute /></Suspense>} />
-        <Route path="/check-email" element={<Suspense fallback={fallback}><CheckEmailRoute /></Suspense>} />
-
-        <Route element={<RequireAuth />}>
-          <Route path="/workspace/upload-software" element={<Suspense fallback={fallback}><UploadWorkspaceRoute /></Suspense>} />
-          <Route path="/workspace/software-details" element={<Suspense fallback={fallback}><SoftwareDetailsWorkspaceRoute /></Suspense>} />
-          <Route path="/workspace/version-details" element={<Suspense fallback={fallback}><VersionDetailsWorkspaceRoute /></Suspense>} />
-          <Route path="/workspace/plans" element={<Suspense fallback={fallback}><PlansWorkspaceRoute /></Suspense>} />
-          <Route path="/workspace/checkout" element={<Suspense fallback={fallback}><CheckoutWorkspaceRoute /></Suspense>} />
-          <Route path="/workspace/admin" element={<Suspense fallback={fallback}><AdminWorkspaceRoute /></Suspense>} />
-          <Route path="/workspace/overview" element={<AppShell><Suspense fallback={fallback}><WorkspaceOverviewPage /></Suspense></AppShell>} />
-          <Route path="/workspace/softwares" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="my-software" /></Suspense></AppShell>} />
-          <Route path="/workspace/discover" element={<AppShell><Suspense fallback={fallback}><SoftwareRegistryPage scope="discover" /></Suspense></AppShell>} />
-        </Route>
-
-        <Route path="/workspace" element={<Navigate to="/workspace/overview" replace />} />
-        <Route path="/workspace/software-registry" element={<Navigate to="/workspace/software" replace />} />
-        <Route path="/workspace/software-library" element={<Navigate to="/workspace/discover" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+      <Outlet />
+    </>
   );
+}
+
+const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    errorElement: <RouteErrorBoundary />,
+    children: [
+      { path: ROUTE_PATHS.landing, element: withSuspense(<LandingRoute />) },
+      { path: ROUTE_PATHS.register, element: withSuspense(<RegisterRoute />) },
+      { path: ROUTE_PATHS.login, element: withSuspense(<LoginRoute />) },
+      { path: ROUTE_PATHS.forgotPassword, element: withSuspense(<ForgotPasswordRoute />) },
+      { path: ROUTE_PATHS.checkEmail, element: withSuspense(<CheckEmailRoute />) },
+      { path: ROUTE_PATHS.passwordReset, element: withSuspense(<PasswordResetRoute />) },
+      { path: ROUTE_PATHS.emailVerification, element: withSuspense(<EmailVerificationRoute />) },
+
+      {
+        element: <RequireAuth />,
+        errorElement: <RouteErrorBoundary />,
+        children: [
+          {
+            element: <WorkspaceShell />,
+            errorElement: <RouteErrorBoundary />,
+            children: [
+              { path: ROUTE_PATHS.workspaceOverview, element: withSuspense(<WorkspaceOverviewPage />) },
+              { path: ROUTE_PATHS.workspaceSoftwares, element: withSuspense(<SoftwareRegistryPage scope="my-software" />) },
+              { path: ROUTE_PATHS.workspaceDiscover, element: withSuspense(<SoftwareRegistryPage scope="discover" />) },
+              { path: ROUTE_PATHS.workspaceUploadSoftware, element: withSuspense(<UploadWorkspaceRoute />) },
+              { path: ROUTE_PATHS.workspaceVersions, element: withSuspense(<VersionsPage />) },
+              { path: ROUTE_PATHS.workspaceArtifacts, element: withSuspense(<ArtifactsPage />) },
+              { path: ROUTE_PATHS.workspaceSecurity, element: withSuspense(<SecurityPage />) },
+              { path: ROUTE_PATHS.workspaceAudit, element: withSuspense(<AuditPage />) },
+              { path: ROUTE_PATHS.workspaceAnalytics, element: withSuspense(<AnalyticsPage />) },
+              { path: ROUTE_PATHS.workspaceSettings, element: withSuspense(<SettingsPage />) },
+
+              { path: ROUTE_PATHS.softwareDetails, element: withSuspense(<SoftwareDetailsWorkspaceRoute />) },
+              { path: ROUTE_PATHS.softwareVersionDetails, element: withSuspense(<VersionDetailsWorkspaceRoute />) },
+              { path: ROUTE_PATHS.workspacePlans, element: withSuspense(<PlansWorkspaceRoute />) },
+              { path: ROUTE_PATHS.workspaceCheckout, element: withSuspense(<CheckoutWorkspaceRoute />) },
+              {
+                path: ROUTE_PATHS.workspaceAdmin,
+                element: (
+                  <RequireRole requiredRole="admin">{withSuspense(<AdminWorkspaceRoute />)}</RequireRole>
+                ),
+              },
+            ],
+          },
+        ],
+      },
+
+      { path: ROUTE_PATHS.legacySoftwareDetails, element: withSuspense(<LegacySoftwareDetailsRedirect />) },
+      { path: ROUTE_PATHS.legacyVersionDetails, element: withSuspense(<LegacyVersionDetailsRedirect />) },
+      { path: '/workspace', element: <Navigate to={ROUTE_PATHS.workspaceOverview} replace /> },
+      { path: '/workspace/software-registry', element: <Navigate to={ROUTE_PATHS.workspaceSoftwares} replace /> },
+      { path: '/workspace/software-library', element: <Navigate to={ROUTE_PATHS.workspaceDiscover} replace /> },
+      { path: '/workspace/resources', element: <Navigate to={ROUTE_PATHS.workspaceOverview} replace /> },
+      { path: '*', element: <Navigate to={ROUTE_PATHS.landing} replace /> },
+    ],
+  },
+]);
+
+export function AppRouter() {
+  return <RouterProvider router={router} />;
 }

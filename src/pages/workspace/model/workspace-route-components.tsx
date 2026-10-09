@@ -1,118 +1,148 @@
 import { useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { httpClient as authApi } from '@/shared/api/http-client';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSessionStore } from '../../../processes/auth/model/session-store';
+import { useSoftwareDetail, useSoftwareVersion } from '../../../entities/software/api/software.queries';
+import { RouteLoading } from '../../../app/router/route-loading';
+import {
+  ROUTE_PATHS,
+  softwareDetailsPath,
+  softwareVersionDetailsPath,
+} from '../../../app/router/route-paths';
 import { UploadWorkspacePage } from '../../upload-workspace/ui/upload-workspace-page';
 import SoftwareDetailsRoutePage from '../../software-details/ui/software-details-route-page';
 import VersionDetailsRoutePage from '../../version-details/ui/version-details-route-page';
 import PlansRoutePage from '../../plans/ui/plans-route-page';
 import CheckoutRoutePage from '../../checkout/ui/checkout-route-page';
-import { AdminWorkspacePage } from '../../admin-workspace/ui/admin-workspace-page';
+import AdminPage from '@/pages/admin/ui/admin-page';
 
-function useWorkspaceRouteContext() {
-  const navigate = useNavigate();
-  const user = useSessionStore((s) => s.user) as any;
-  const clearSession = useSessionStore((s) => s.clearSession);
-
-  const onLogout = async () => {
-    try {
-      await authApi.post('/api/v1/auth/logout');
-    } catch {}
-    clearSession();
-    navigate('/');
-  };
-
-  const onNavigate = (target: string) => {
-    const map: Record<string, string> = {
-      resources: '/workspace/resources',
-      softwares: '/workspace/softwares',
-      upload_software: '/workspace/upload-software',
-      plans: '/workspace/plans',
-      admin: '/workspace/admin',
-    };
-    if (target === 'support_ai' || target === 'developers' || target === 'api_docs' || target === 'kb' || target === 'settings') return;
-    navigate(map[target] || '/workspace/resources');
-  };
-
-  return { navigate, user, onLogout, onNavigate };
-}
+type SoftwareLike = { id: string | number; name?: string } & Record<string, unknown>;
+type VersionLike = { version: string } & Record<string, unknown>;
 
 export function UploadWorkspaceRoute() {
-  const { user, onNavigate, onLogout } = useWorkspaceRouteContext();
-  return <UploadWorkspacePage user={user} onNavigate={onNavigate} onLogout={onLogout} />;
+  return <UploadWorkspacePage />;
 }
 
 export function SoftwareDetailsWorkspaceRoute() {
+  const { softwareId } = useParams();
+  const navigate = useNavigate();
   const location = useLocation();
-  const { navigate, user, onNavigate, onLogout } = useWorkspaceRouteContext();
-  const software = (location.state as any)?.software || null;
+  const user = useSessionStore((s) => s.user);
+  const stateSoftware = (location.state as { software?: SoftwareLike } | null)?.software ?? null;
+  const detailQuery = useSoftwareDetail(softwareId);
+  const software = (detailQuery.data as SoftwareLike | undefined) ?? stateSoftware;
   const purchasedProjectIds = useMemo(() => [], []);
+
+  if (!software && detailQuery.isLoading) {
+    return <RouteLoading label="Loading software…" />;
+  }
 
   return (
     <SoftwareDetailsRoutePage
       user={user}
       software={software}
-      onBack={() => navigate('/workspace/softwares')}
-      onLogout={onLogout}
-      onNavigate={onNavigate}
+      onBack={() => navigate(ROUTE_PATHS.workspaceSoftwares)}
       purchasedProjectIds={purchasedProjectIds}
-      onOpenVersion={(item: any, version: any) => navigate('/workspace/version-details', { state: { software: item, version } })}
-      onCheckoutProject={(project: any) => navigate('/workspace/checkout', { state: { project } })}
+      onOpenVersion={(item: SoftwareLike, version: VersionLike) =>
+        navigate(softwareVersionDetailsPath(item.id, version.version), {
+          state: { software: item, version },
+        })
+      }
+      onCheckoutProject={(project: SoftwareLike) =>
+        navigate(ROUTE_PATHS.workspaceCheckout, { state: { project } })
+      }
     />
   );
 }
 
 export function VersionDetailsWorkspaceRoute() {
+  const { softwareId, version } = useParams();
+  const navigate = useNavigate();
   const location = useLocation();
-  const { navigate, user, onNavigate, onLogout } = useWorkspaceRouteContext();
-  const software = (location.state as any)?.software || null;
-  const version = (location.state as any)?.version || null;
+  const user = useSessionStore((s) => s.user);
+  const stateSoftware = (location.state as { software?: SoftwareLike } | null)?.software ?? null;
+  const stateVersion = (location.state as { version?: VersionLike } | null)?.version ?? null;
+  const detailQuery = useSoftwareDetail(softwareId);
+  const { versionData } = useSoftwareVersion(softwareId, version);
+  const software = (detailQuery.data as SoftwareLike | undefined) ?? stateSoftware;
+  const resolvedVersion = (versionData as VersionLike | null) ?? stateVersion;
+
+  if (!software && detailQuery.isLoading) {
+    return <RouteLoading label="Loading version…" />;
+  }
 
   return (
     <VersionDetailsRoutePage
       user={user}
       software={software}
-      version={version}
-      onBack={() => navigate('/workspace/software-details', { state: { software } })}
-      onLogout={onLogout}
-      onNavigate={onNavigate}
+      version={resolvedVersion}
+      onBack={() =>
+        software?.id
+          ? navigate(softwareDetailsPath(software.id))
+          : navigate(ROUTE_PATHS.workspaceVersions)
+      }
     />
   );
 }
 
+/** Redirect legacy state-carrying detail routes to their deep-linkable equivalents. */
+export function LegacySoftwareDetailsRedirect() {
+  const location = useLocation();
+  const software = (location.state as { software?: SoftwareLike } | null)?.software;
+  if (software?.id != null) {
+    return <Navigate to={softwareDetailsPath(software.id)} state={location.state} replace />;
+  }
+  return <Navigate to={ROUTE_PATHS.workspaceSoftwares} replace />;
+}
+
+export function LegacyVersionDetailsRedirect() {
+  const location = useLocation();
+  const software = (location.state as { software?: SoftwareLike } | null)?.software;
+  const version = (location.state as { version?: VersionLike } | null)?.version;
+  if (software?.id != null && version?.version) {
+    return (
+      <Navigate
+        to={softwareVersionDetailsPath(software.id, version.version)}
+        state={location.state}
+        replace
+      />
+    );
+  }
+  if (software?.id != null) {
+    return <Navigate to={softwareDetailsPath(software.id)} replace />;
+  }
+  return <Navigate to={ROUTE_PATHS.workspaceVersions} replace />;
+}
+
 export function PlansWorkspaceRoute() {
-  const { navigate, user, onNavigate, onLogout } = useWorkspaceRouteContext();
+  const navigate = useNavigate();
   return (
     <PlansRoutePage
-      user={user}
-      onNavigate={onNavigate}
-      onLogout={onLogout}
-      onBack={() => navigate('/workspace/softwares')}
-      onSelectPlan={(plan: any) => navigate('/workspace/checkout', { state: { plan } })}
+      onBack={() => navigate(ROUTE_PATHS.workspaceSoftwares)}
+      onSelectPlan={(plan: unknown) =>
+        navigate(ROUTE_PATHS.workspaceCheckout, { state: { plan } })
+      }
     />
   );
 }
 
 export function CheckoutWorkspaceRoute() {
+  const navigate = useNavigate();
   const location = useLocation();
-  const { navigate, user, onNavigate, onLogout } = useWorkspaceRouteContext();
-  const selectedPlan = (location.state as any)?.plan || null;
-  const selectedProject = (location.state as any)?.project || null;
+  const user = useSessionStore((s) => s.user);
+  const selectedPlan = (location.state as { plan?: unknown } | null)?.plan ?? null;
+  const selectedProject = (location.state as { project?: unknown } | null)?.project ?? null;
 
   return (
     <CheckoutRoutePage
       user={user}
-      onNavigate={onNavigate}
-      onLogout={onLogout}
       selectedPlan={selectedPlan}
       selectedProject={selectedProject}
-      onBack={() => navigate('/workspace/softwares')}
-      onComplete={() => navigate('/workspace/softwares')}
+      onBack={() => navigate(ROUTE_PATHS.workspaceSoftwares)}
+      onComplete={() => navigate(ROUTE_PATHS.workspaceSoftwares)}
     />
   );
 }
 
 export function AdminWorkspaceRoute() {
-  const { navigate, user, onNavigate } = useWorkspaceRouteContext();
-  return <AdminWorkspacePage user={user} onBack={() => navigate('/workspace/resources')} onNavigate={onNavigate} />;
+  return <AdminPage />;
 }

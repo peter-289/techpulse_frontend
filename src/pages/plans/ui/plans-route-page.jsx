@@ -1,6 +1,5 @@
 import React from 'react';
-import DashboardLayout from '../../../dashboard/DashboardLayout';
-import { SubscriptionTier, TIER_LABELS } from '../../../constants/registryEnums';
+import { SubscriptionTier, TIER_LABELS } from '@/entities/software/model/registry-enums';
 import './plans-route-page.css';
 
 const PLANS = [
@@ -30,16 +29,8 @@ const PLANS = [
   },
 ];
 
-export default function PlansPage({ user, onNavigate, onLogout, onSelectPlan, onBack }) {
+export default function PlansPage({ onSelectPlan, onBack }) {
   return (
-    <DashboardLayout
-      user={user}
-      activePage="plans"
-      onNavigate={onNavigate}
-      onLogout={onLogout}
-      title="Subscription Plans"
-      subtitle="Unlock private downloads with the right tier"
-    >
       <section className="tp-dashboard-grid plans-grid">
         <article className="tp-panel tp-span-12 plans-header">
           <div>
@@ -76,6 +67,5 @@ export default function PlansPage({ user, onNavigate, onLogout, onSelectPlan, on
           </article>
         ))}
       </section>
-    </DashboardLayout>
   );
 }

@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import DashboardLayout from '../../../dashboard/DashboardLayout';
-import { VersionStatus } from '../../../constants/registryEnums';
-import useSoftwareRegistry from '../../../hooks/useSoftwareRegistry';
+import React, { useState } from 'react';
+import { VersionStatus } from '@/entities/software/model/registry-enums';
+import { useVersionLifecycle } from '@/entities/software/api/software.mutations';
 import './version-details-route-page.css';
 
 function formatDate(value) {
@@ -18,32 +17,17 @@ export default function VersionDetailPage({
   software,
   version,
   onBack,
-  onLogout,
-  onNavigate,
 }) {
   const [notes, setNotes] = useState(version?.release_notes || '');
   const [status, setStatus] = useState(version?.status || (version?.is_published ? VersionStatus.PUBLISHED : VersionStatus.DRAFT));
   const [feedback, setFeedback] = useState(null);
-  const { updateVersionState } = useSoftwareRegistry();
+  const { mutateAsync: updateVersionState } = useVersionLifecycle();
   const isOwner = String(software?.owner_id) === String(user?.id);
-
-  const headline = useMemo(() => {
-    if (!software || !version) return 'Version details';
-    return `${software.name} - v${version.version}`;
-  }, [software, version]);
 
   if (!software || !version) {
     return (
-      <DashboardLayout
-        user={user}
-        activePage="projects"
-        onNavigate={onNavigate}
-        onLogout={onLogout}
-        title="Version Details"
-        subtitle="Select a version to inspect"
-      >
-        <section className="tp-dashboard-grid">
-          <article className="tp-panel tp-span-8">
+      <section className="tp-dashboard-grid">
+        <article className="tp-panel tp-span-8">
             <h1>No version selected</h1>
             <p>Please return to the project details page and choose a version.</p>
             <button className="tp-btn tp-btn-primary" type="button" onClick={onBack}>
@@ -51,19 +35,10 @@ export default function VersionDetailPage({
             </button>
           </article>
         </section>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout
-      user={user}
-      activePage="projects"
-      onNavigate={onNavigate}
-      onLogout={onLogout}
-      title={headline}
-      subtitle={isOwner ? 'Lifecycle controls and release metadata' : 'Release information'}
-    >
       <section className="tp-dashboard-grid vd-grid">
         <article className="tp-panel tp-span-8">
           <header className="vd-header">
@@ -185,6 +160,5 @@ export default function VersionDetailPage({
           </aside>
         )}
       </section>
-    </DashboardLayout>
   );
 }

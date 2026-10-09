@@ -1,0 +1,61 @@
+/* Shared content layout primitives for workspace feature pages.
+   Previously defined inside the legacy DashboardLayout stylesheet;
+   the dashboard grid + panel + column spans are now global so that
+   any page may compose them without embedding a private layout shell. */
+
+.tp-panel {
+  border: 1px solid var(--lp-border);
+  background: var(--lp-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--lp-shadow-sm);
+  padding: var(--tp-space-4);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.tp-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.tp-span-12 {
+  grid-column: span 12;
+}
+
+.tp-span-8 {
+  grid-column: span 8;
+}
+
+.tp-span-6 {
+  grid-column: span 6;
+}
+
+.tp-span-4 {
+  grid-column: span 4;
+}
+
+@media (max-width: 1024px) {
+  .tp-dashboard-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .tp-span-8,
+  .tp-span-6,
+  .tp-span-4 {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 700px) {
+  .tp-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-span-12,
+  .tp-span-8,
+  .tp-span-6,
+  .tp-span-4 {
+    grid-column: span 1;
+  }
+}

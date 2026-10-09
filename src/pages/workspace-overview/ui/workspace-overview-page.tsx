@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Activity, ArrowRight, BadgeCheck, Download, PackageOpen, RefreshCw, Search, ShieldAlert, Sparkles, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { buildSoftwareDownloadUrl, useSoftwareAdminSummary, useSoftwareList } from '../../../entities/software/api/software.queries';
+import { softwareDetailsPath } from '../../../app/router/route-paths';
 import type { Software } from '../../../entities/software/model/software.schema';
 import { Button } from '../../../shared/ui/button/button';
 import { Card } from '../../../shared/ui/card/card';
@@ -22,6 +23,7 @@ function formatRelativeTime(dateValue?: string | null) {
 }
 
 function DashboardHeader() {
+  const navigate = useNavigate();
   return (
     <header className="flex flex-col gap-4 rounded-2xl border border-blue-600/10 bg-white/76 backdrop-blur-xl p-6 shadow-[0_18px_42px_rgba(15,23,42,0.09)] lg:flex-row lg:items-end lg:justify-between">
       <div className="space-y-3">
@@ -31,7 +33,7 @@ function DashboardHeader() {
           <p className="max-w-2xl text-sm text-slate-600">Manage your software, verify release health, and discover what is available to download.</p>
         </div>
       </div>
-      <Button onClick={() => window.location.assign('/workspace/upload-software')}>
+      <Button onClick={() => navigate('/workspace/upload-software')}>
         <Upload size={15} /> Upload software
       </Button>
     </header>
@@ -157,15 +159,15 @@ function SoftwareCard({ software, onOpen, onDownload }: { software: Software; on
 
       <div className="mt-auto grid grid-cols-3 gap-2 rounded-xl border border-blue-600/10 bg-slate-50/90 p-2 text-xs text-slate-500">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-9000">Downloads</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-900">Downloads</p>
           <p className="mt-1 font-semibold text-slate-900">{formatNumber(Number(software.download_count || 0))}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-9000">Updated</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-900">Updated</p>
           <p className="mt-1 font-semibold text-slate-900">{formatRelativeTime(software.updated_at || software.created_at)}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-9000">Access</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-900">Access</p>
           <p className="mt-1 font-semibold text-slate-900">{software.viewer_has_access ? 'Allowed' : 'Restricted'}</p>
         </div>
       </div>
@@ -224,7 +226,7 @@ function SoftwareSection({ software, isLoading, isError, onRetry }: { software: 
           <SoftwareCard
             key={item.id}
             software={item}
-            onOpen={() => navigate('/workspace/software-details', { state: { software: item } })}
+            onOpen={() => navigate(softwareDetailsPath(item.id), { state: { software: item } })}
             onDownload={() => {
               if (item.latest_version) {
                 window.location.assign(buildSoftwareDownloadUrl(item.id, item.latest_version));
@@ -315,7 +317,7 @@ function ActivityFeed({ software }: { software: Software[] }) {
               <p className="text-sm font-medium text-slate-900">{item.title}</p>
               <p className="mt-1 text-xs text-slate-500">{item.description}</p>
             </div>
-            <span className="text-[11px] text-slate-9000">{formatRelativeTime(item.time)}</span>
+            <span className="text-[11px] text-slate-900">{formatRelativeTime(item.time)}</span>
           </div>
         ))}
       </div>
@@ -378,7 +380,7 @@ function DiscoverySection({ software, isLoading, isError, onRetry }: { software:
               <p className="line-clamp-3 text-sm text-slate-500">{item.description || 'No description provided.'}</p>
               <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-slate-500">
                 <span>{formatNumber(Number(item.download_count || 0))} downloads</span>
-                <Button variant="secondary" onClick={() => navigate('/workspace/software-details', { state: { software: item } })}>Open</Button>
+                <Button variant="secondary" onClick={() => navigate(softwareDetailsPath(item.id), { state: { software: item } })}>Open</Button>
               </div>
             </div>
           </Card>

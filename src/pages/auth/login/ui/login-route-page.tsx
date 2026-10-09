@@ -4,8 +4,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import qs from 'qs';
 import { httpClient as authApi } from '@/shared/api/http-client';
+import { getErrorStatus } from '@/shared/lib/api/api-error';
 import { Button, Card } from '../../../../shared/ui';
-import '../../../../LoginPage.css';
+import '@/pages/auth/ui/auth.css';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -26,8 +27,8 @@ type Props = {
   onRegister: () => void;
 };
 
-function getLoginErrorMessage(error: any) {
-  const status = error?.response?.status;
+function getLoginErrorMessage(error: unknown) {
+  const status = getErrorStatus(error);
 
   if (status === 401 || status === 403) {
     return 'Invalid username or password.';
@@ -37,7 +38,7 @@ function getLoginErrorMessage(error: any) {
     return 'Too many sign-in attempts. Please wait a moment and try again.';
   }
 
-  if (!error?.response) {
+  if (!status) {
     return "We couldn't reach the server. Check your connection and try again.";
   }
 

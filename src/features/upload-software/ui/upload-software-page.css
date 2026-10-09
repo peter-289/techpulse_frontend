@@ -1,4 +1,29 @@
 /* Page Container */
+.lp-upload-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.lp-upload-head {
+  padding-bottom: 0.25rem;
+}
+
+.lp-upload-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .lp-upload-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .lp-upload-card {
   border-radius: 1.6rem;
   background: var(--lp-surface);
@@ -6,6 +31,14 @@
   border: 1px solid var(--lp-border);
   box-shadow: var(--lp-shadow-md);
   backdrop-filter: blur(18px);
+}
+
+.lp-section-title {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--lp-text);
 }
 
 /* Form Header */

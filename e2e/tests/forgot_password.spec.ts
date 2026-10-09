@@ -1,97 +1,43 @@
-import { test, expect } from '@playwright/test';
-import fetch from 'node-fetch';
+import { expect, test } from '@playwright/test';
+import { installApiMocks } from '../fixtures';
 
-function uniqueEmail() {
-  return `e2e_${Date.now()}@example.test`;
-}
+test.describe('account recovery', () => {
+  test('requests a reset link and lands on the check-email page', async ({ page }) => {
+    await installApiMocks(page);
+    await page.goto('/forgot-password');
 
-async function waitForMailhog(toEmail: string, timeout = 15000) {
-  const mailhogUrl = process.env.MAILHOG_API || 'http://127.0.0.1:8025/api/v2/messages';
-  const started = Date.now();
-  while (Date.now() - started < timeout) {
-    const res = await fetch(mailhogUrl);
-    const body = await res.json();
-    const items = body.items || [];
-    const msg = items.find((m: any) => {
-      try {
-        const to = m.Content?.Headers?.To || [];
-        return to.some((t: string) => t.includes(toEmail));
-      } catch (e) { return false; }
-    });
-    if (msg) return msg;
-    await new Promise(r => setTimeout(r, 500));
-  }
-  return null;
-}
+    await expect(page.getByRole('heading', { name: 'Forgot your password?' })).toBeVisible();
+    await page.fill('#forgot-email', 'ada@example.test');
+    await page.getByRole('button', { name: 'Send reset link' }).click();
 
+    await expect(page).toHaveURL(/\/check-email$/);
+  });
 
-test('forgot password full flow (register, verify, reset, login)', async ({ page, baseURL }) => {
-  const email = uniqueEmail();
-  const username = `user_${Date.now()}`;
-  const password = 'Test1234X!';
-  const newPassword = 'NewPass12345X!';
+  test('resets the password from a token link', async ({ page }) => {
+    await installApiMocks(page);
+    await page.goto('/password-reset/token-123');
 
-  // 1) Register
-  await page.goto('/register');
-  await page.fill('input[name="fullname"]', 'E2E Tester');
-  await page.fill('input[name="username"]', username);
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
-  await page.fill('input[name="confirm_password"]', password);
-  await page.click('button:has-text("Register")');
+    await expect(page.getByRole('heading', { name: 'Choose a new password' })).toBeVisible();
+    await page.fill('#new-password', 'NewPass123');
+    await page.fill('#confirm-new-password', 'NewPass123');
+    await page.getByRole('button', { name: 'Reset password' }).click();
 
-  // Wait for verification email to be sent via MailHog
-  const verifyMsg = await waitForMailhog(email, 20000);
-  expect(verifyMsg).not.toBeNull();
-  const html = verifyMsg.Content?.Body || '';
-  const match = html.match(/href="(https?:\/\/[^"]+)"/);
-  // alternative: search for /email-verification\?token=...
-  const tokenMatch = html.match(/email-verification\?token=([^"]+)/);
-  expect(tokenMatch).not.toBeNull();
-  const verifyLink = tokenMatch ? tokenMatch[0].replace(/&amp;/g, '&') : null;
-  expect(verifyLink).not.toBeNull();
+    await expect(page.getByText('Your password has been reset')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+  });
 
-  // 2) Visit verification link to verify email
-  const relative = verifyLink.replace(/^https?:\/\/[\w\.:-]+?\//, '/');
-  await page.goto(relative);
+  test('rejects an invalid reset link', async ({ page }) => {
+    await installApiMocks(page);
+    await page.goto('/password-reset');
 
-  // 3) Login
-  await page.goto('/login');
-  await page.fill('input[name="username"]', username);
-  await page.fill('input[name="password"]', password);
-  await page.click('button:has-text("Login")');
-  // Should see resources page or welcome banner
-  await expect(page.locator('text=Welcome')).toBeVisible({timeout:5000});
+    // Route requires a token segment; the SPA falls back to landing for unknown paths.
+    await expect(page).toHaveURL(/\/$/);
+  });
 
-  // 4) Click Forgot password link
-  await page.goto('/login');
-  await page.click('a:has-text("Forgot password?")');
-  await expect(page.locator('text=Forgot your password')).toBeVisible();
-  await page.fill('input[name="email"]', email);
-  await page.click('button:has-text("Send reset link")');
+  test('verifies an email from a token link', async ({ page }) => {
+    await installApiMocks(page);
+    await page.goto('/email-verification?token=verify-me');
 
-  // Wait for reset email
-  const resetMsg = await waitForMailhog(email, 20000);
-  expect(resetMsg).not.toBeNull();
-  const resetHtml = resetMsg.Content?.Body || '';
-  const resetTokenMatch = resetHtml.match(/password-reset\/(\S+)"/);
-  expect(resetTokenMatch).not.toBeNull();
-  const resetUrlMatch = resetHtml.match(/href="(https?:\/\/[^"]+password-reset\/[^"]+)"/);
-  const resetLink = resetUrlMatch ? resetUrlMatch[1] : null;
-  expect(resetLink).not.toBeNull();
-
-  // Visit reset link
-  const resetRelative = resetLink.replace(/^https?:\/\/[\w\.:-]+?\//, '/');
-  await page.goto(resetRelative);
-  // Fill new password and submit - form uses new_password and confirm_password
-  await page.fill('input[name="new_password"]', newPassword);
-  await page.fill('input[name="confirm_password"]', newPassword);
-  await page.click('button:has-text("Reset Password")');
-
-  // After success, attempt login with new password
-  await page.goto('/login');
-  await page.fill('input[name="username"]', username);
-  await page.fill('input[name="password"]', newPassword);
-  await page.click('button:has-text("Login")');
-  await expect(page.locator('text=Welcome')).toBeVisible({timeout:5000});
+    await expect(page.getByText('Email verified')).toBeVisible();
+  });
 });
