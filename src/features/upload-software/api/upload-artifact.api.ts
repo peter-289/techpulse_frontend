@@ -17,7 +17,7 @@ export async function uploadArtifact(
   formData.append('software_name', input.name);
   formData.append('software_description', input.description);
   formData.append('category_id', input.categoryId);
-  formData.append('visibility', String(input.visibility));
+  formData.append('visibility', input.visibility ? 'public' : 'private');
   if (input.price != null) {
     formData.append('price_cents', String(Math.round(Number(input.price) * 100)));
   }

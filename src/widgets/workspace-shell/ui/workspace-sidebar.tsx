@@ -11,6 +11,7 @@ import {
 } from '@/shared/navigation/workspace-navigation';
 import { useSessionStore } from '@/processes/auth/model/session-store';
 import { useUiStore } from '@/shared/store/ui-store';
+import { ROUTE_PATHS } from '@/app/router/route-paths';
 
 function displayName(user: Record<string, unknown> | null): string {
   const value = user?.full_name ?? user?.username ?? user?.name;
@@ -53,7 +54,7 @@ export function WorkspaceSidebar({ mobileOpen, onNavigate, ref }: Props) {
       /* session teardown continues even if the API call fails */
     }
     clearSession();
-    navigate('/login');
+    navigate(ROUTE_PATHS.login);
   };
 
   const handleItemClick = (item: WorkspaceNavItem) => {
@@ -76,7 +77,7 @@ export function WorkspaceSidebar({ mobileOpen, onNavigate, ref }: Props) {
       aria-label="Workspace navigation"
     >
       <div className="wsp-sidebar-head">
-        <Link className="wsp-brand" to="/workspace/overview" onClick={onNavigate}>
+        <Link className="wsp-brand" to={ROUTE_PATHS.workspaceOverview} onClick={onNavigate}>
           <span className="wsp-brand-mark" aria-hidden="true">
             <Layers3 size={17} />
           </span>
@@ -123,7 +124,7 @@ export function WorkspaceSidebar({ mobileOpen, onNavigate, ref }: Props) {
               return (
                 <Link
                   key={item.id}
-                  to={item.to ?? '/workspace/overview'}
+                  to={item.to ?? ROUTE_PATHS.workspaceOverview}
                   className={className}
                   onClick={() => handleItemClick(item)}
                   title={item.label}

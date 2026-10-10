@@ -18,9 +18,9 @@ const lastNDays = (n: number) => Array.from({ length: n }).map((_, i) => {
 
 async function fetchAdminDashboard() {
   const [u, p, s, a, ev] = await Promise.all([
-    api.get('/api/v1/users', { params: { limit: 30 } }),
-    api.get('/api/v1/software-management/admin/packages', { params: { limit: 30 } }),
-    api.get('/api/v1/software-management/admin/summary'),
+    api.get('/api/v1/admin/users', { params: { limit: 30 } }),
+    api.get('/api/v1/admin/software/packages', { params: { limit: 30 } }),
+    api.get('/api/v1/admin/software/summary'),
     api.get('/api/v1/admin/alerts', { params: { only_unacknowledged: false, limit: 100 } }),
     api.get('/api/v1/admin/audit-events', { params: { limit: 400 } }),
   ]);

@@ -1,6 +1,7 @@
 import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 import { Button } from '../../shared/ui/button/button';
+import { ROUTE_PATHS } from './route-paths';
 
 function describe(error: unknown): { title: string; message: string } {
   if (isRouteErrorResponse(error)) {
@@ -33,7 +34,7 @@ export function RouteErrorBoundary() {
           <Button variant="secondary" onClick={() => navigate(-1)}>
             Go back
           </Button>
-          <Button onClick={() => navigate('/workspace/overview')}>
+          <Button onClick={() => navigate(ROUTE_PATHS.workspaceOverview)}>
             <RotateCcw size={15} /> Workspace home
           </Button>
         </div>

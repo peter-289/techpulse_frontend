@@ -8,7 +8,7 @@ export function useUpdateUserStatus() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, status }: { userId: string | number; status: string }) => {
-      const response = await api.patch(`/api/v1/users/${userId}`, { status });
+      const response = await api.patch(`/api/v1/admin/users/${userId}`, { status });
       return response.data;
     },
     onSuccess: () => invalidateAdmin(queryClient),
@@ -19,7 +19,7 @@ export function useAssignUserRole() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, role }: { userId: string | number; role: string }) => {
-      const response = await api.patch(`/api/v1/users/${userId}`, { role });
+      const response = await api.patch(`/api/v1/admin/users/${userId}`, { role });
       return response.data;
     },
     onSuccess: () => invalidateAdmin(queryClient),
@@ -41,7 +41,7 @@ export function useUpdateUserProfile() {
       if (fullName !== undefined) payload.full_name = fullName;
       if (email !== undefined) payload.email = email;
       if (role !== undefined) payload.role = role;
-      const response = await api.patch(`/api/v1/users/${userId}`, payload);
+      const response = await api.patch(`/api/v1/admin/users/${userId}`, payload);
       return response.data;
     },
     onSuccess: () => invalidateAdmin(queryClient),
@@ -55,7 +55,7 @@ export function useReviewSoftwarePackage() {
   return useMutation({
     mutationFn: async ({ packageId, decision }: { packageId: string | number; decision: PackageDecision }) => {
       const response = await api.patch(
-        `/api/v1/software-management/admin/packages/${packageId}`,
+        `/api/v1/admin/software/packages/${packageId}`,
         { action: decision },
       );
       return response.data;

@@ -75,6 +75,7 @@ export function LoginRoute() {
       }
     } catch {
       setSession(null);
+      throw new Error('Unable to restore the authenticated session after login.');
     }
   };
 

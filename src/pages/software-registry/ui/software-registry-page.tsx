@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Download, Eye, RefreshCw, Search, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { buildSoftwareDownloadUrl, useSoftwareList } from '../../../entities/software/api/software.queries';
-import { softwareDetailsPath } from '../../../app/router/route-paths';
+import { ROUTE_PATHS, softwareDetailsPath } from '../../../app/router/route-paths';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
 import { Card } from '../../../shared/ui/card/card';
@@ -59,7 +59,7 @@ export function SoftwareRegistryPage({ scope = 'my-software' }: { scope?: 'my-so
           <Button variant="secondary" onClick={() => refetch()} disabled={isFetching}>
             <RefreshCw size={15} /> Refresh
           </Button>
-          <Button onClick={() => navigate('/workspace/upload-software')}>
+          <Button onClick={() => navigate(ROUTE_PATHS.workspaceUploadSoftware)}>
             <Upload size={15} /> Upload
           </Button>
         </div>

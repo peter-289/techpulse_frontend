@@ -6,7 +6,7 @@
   background:
     radial-gradient(circle at 18% 0%, rgba(37, 99, 235, 0.08), transparent 32%),
     radial-gradient(circle at 84% 8%, rgba(6, 182, 212, 0.08), transparent 26%),
-    linear-gradient(180deg, #f8fbff 0%, #eef3fb 100%);
+    linear-gradient(180deg, var(--lp-canvas) 0%, var(--lp-bg) 100%);
   color: var(--lp-text);
   position: relative;
   overflow: hidden;
@@ -48,11 +48,11 @@
 
 .tp-auth-panel {
   border-radius: 1.6rem;
-  border: 1px solid rgba(37, 99, 235, 0.1);
+  border: 1px solid var(--lp-border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.64)),
+    linear-gradient(180deg, color-mix(in srgb, var(--lp-surface-strong) 80%, transparent), color-mix(in srgb, var(--lp-surface) 82%, transparent)),
     linear-gradient(160deg, rgba(37, 99, 235, 0.06), rgba(6, 182, 212, 0.03));
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.09);
+  box-shadow: var(--lp-shadow-md);
   padding: clamp(1.25rem, 2vw, 2rem);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -60,15 +60,12 @@
 
 .tp-auth-card {
   border-radius: 1.6rem;
-  border: 1px solid rgba(96, 165, 250, 0.16);
+  border: 1px solid var(--lp-border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(244, 248, 255, 0.96));
-  box-shadow:
-    0 30px 80px rgba(2, 6, 23, 0.28),
-    0 0 0 1px rgba(255, 255, 255, 0.64) inset,
-    0 0 30px rgba(59, 130, 246, 0.12);
+    linear-gradient(180deg, var(--lp-surface-strong), var(--lp-surface-muted));
+  box-shadow: var(--lp-shadow-lg);
   padding: clamp(1.15rem, 1.5vw + 0.9rem, 1.8rem);
-  color: #0f172a;
+  color: var(--lp-text);
   display: grid;
   gap: 1rem;
 }
@@ -123,9 +120,9 @@
 .tp-auth-panel-list li {
   padding: 0.95rem 1rem;
   border-radius: 1rem;
-  border: 1px solid rgba(37, 99, 235, 0.1);
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--lp-border);
+  background: color-mix(in srgb, var(--lp-surface-strong) 70%, transparent);
+  box-shadow: var(--lp-shadow-sm);
 }
 
 .tp-auth-panel-list strong {
@@ -188,20 +185,20 @@
   border-radius: 999px;
   font-size: 0.74rem;
   font-weight: 700;
-  color: #1d4ed8;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.16);
+  color: var(--lp-primary-strong);
+  background: color-mix(in srgb, var(--lp-primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lp-primary) 16%, transparent);
 }
 
 .tp-auth-back-inline {
-  color: #5b728a;
+  color: var(--lp-muted);
   font-size: 0.86rem;
   font-weight: 600;
   margin-left: auto;
 }
 
 .tp-auth-back-inline:hover {
-  color: #1d4ed8;
+  color: var(--lp-primary-strong);
 }
 
 .tp-auth-heading {
@@ -215,17 +212,17 @@
   letter-spacing: 0.14em;
   font-size: 0.72rem;
   font-weight: 800;
-  color: #2563eb;
+  color: var(--lp-primary);
 }
 
 .tp-auth-heading h1 {
   font-size: clamp(1.65rem, 1.2vw + 1.25rem, 2.2rem);
-  color: #0f172a;
+  color: var(--lp-text);
 }
 
 .tp-auth-heading p {
   margin: 0;
-  color: #526174;
+  color: var(--lp-muted);
   line-height: 1.65;
 }
 
@@ -237,37 +234,37 @@
 .tp-auth-banner {
   padding: 0.9rem 1rem;
   border-radius: 1rem;
-  background: linear-gradient(180deg, rgba(239, 246, 255, 0.98), rgba(248, 251, 255, 0.96));
-  border: 1px solid rgba(96, 165, 250, 0.18);
-  color: #0f172a;
+  background: color-mix(in srgb, var(--lp-primary) 7%, var(--lp-surface-strong));
+  border: 1px solid color-mix(in srgb, var(--lp-primary) 18%, transparent);
+  color: var(--lp-text);
   display: grid;
   gap: 0.2rem;
 }
 
 .tp-auth-banner-error {
-  background: linear-gradient(180deg, rgba(254, 242, 242, 0.98), rgba(255, 248, 248, 0.96));
-  border-color: rgba(239, 68, 68, 0.18);
-  color: #991b1b;
+  background: color-mix(in srgb, var(--lp-danger) 9%, var(--lp-surface-strong));
+  border-color: color-mix(in srgb, var(--lp-danger) 22%, transparent);
+  color: var(--lp-danger);
 }
 
 .tp-auth-banner-success {
-  background: linear-gradient(180deg, rgba(240, 253, 244, 0.98), rgba(248, 255, 250, 0.96));
-  border-color: rgba(34, 197, 94, 0.18);
-  color: #14532d;
+  background: color-mix(in srgb, var(--lp-success) 9%, var(--lp-surface-strong));
+  border-color: color-mix(in srgb, var(--lp-success) 22%, transparent);
+  color: var(--lp-success);
 }
 
 .tp-auth-banner-action {
   border: 0;
   background: transparent;
   padding: 0;
-  color: #2563eb;
+  color: var(--lp-primary);
   font-weight: 700;
   justify-self: start;
   cursor: pointer;
 }
 
 .tp-auth-banner-error .tp-auth-banner-action {
-  color: #b91c1c;
+  color: var(--lp-danger);
 }
 
 .tp-auth-banner strong {
@@ -287,7 +284,7 @@
 }
 
 .tp-auth-field label {
-  color: #223247;
+  color: var(--lp-text);
   font-size: 0.92rem;
   font-weight: 700;
 }
@@ -296,9 +293,9 @@
   min-height: 2.75rem;
   padding: 0.78rem 0.9rem;
   border-radius: 0.95rem;
-  border: 1px solid #c7d5e7;
-  background: #fff;
-  color: #0f172a;
+  border: 1px solid color-mix(in srgb, var(--lp-primary) 16%, var(--lp-border));
+  background: var(--lp-field);
+  color: var(--lp-text);
   font-size: 0.98rem;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
   transition:
@@ -313,19 +310,19 @@
 }
 
 .tp-auth-field input::placeholder {
-  color: #94a3b8;
+  color: var(--lp-placeholder);
 }
 
 .tp-auth-field input:focus,
 .tp-auth-field input:focus-visible {
   outline: none;
-  border-color: rgba(59, 130, 246, 0.75);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+  border-color: var(--lp-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lp-primary) 16%, transparent);
 }
 
 .tp-auth-field input[aria-invalid="true"] {
-  border-color: rgba(220, 38, 38, 0.56);
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+  border-color: var(--lp-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lp-danger) 12%, transparent);
 }
 
 .tp-input-with-toggle {
@@ -347,10 +344,10 @@
   justify-content: center;
   min-height: 1.85rem;
   padding: 0.25rem 0.6rem;
-  border: 1px solid rgba(37, 99, 235, 0.18);
+  border: 1px solid color-mix(in srgb, var(--lp-primary) 18%, transparent);
   border-radius: 0.6rem;
-  background: rgba(37, 99, 235, 0.06);
-  color: #1d4ed8;
+  background: color-mix(in srgb, var(--lp-primary) 6%, transparent);
+  color: var(--lp-primary-strong);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -363,9 +360,9 @@
 }
 
 .tp-toggle-password:hover {
-  background: rgba(37, 99, 235, 0.12);
-  border-color: rgba(37, 99, 235, 0.32);
-  color: #1e40af;
+  background: color-mix(in srgb, var(--lp-primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--lp-primary) 32%, transparent);
+  color: var(--lp-primary-strong);
 }
 
 .tp-toggle-password:focus-visible {
@@ -374,7 +371,7 @@
 }
 
 .tp-toggle-password:active {
-  background: rgba(37, 99, 235, 0.18);
+  background: color-mix(in srgb, var(--lp-primary) 18%, transparent);
 }
 
 .tp-password-rules {
@@ -383,7 +380,7 @@
   list-style: none;
   display: grid;
   gap: 0.24rem;
-  color: #64748b;
+  color: var(--lp-muted);
   font-size: 0.82rem;
 }
 
@@ -394,7 +391,7 @@
 }
 
 .tp-password-rules li.ok {
-  color: #16a34a;
+  color: var(--lp-success);
   font-weight: 600;
 }
 
@@ -406,11 +403,11 @@
 }
 
 .tp-auth-field-hint {
-  color: #64748b;
+  color: var(--lp-muted);
 }
 
 .tp-auth-field-error {
-  color: #b91c1c;
+  color: var(--lp-danger);
 }
 
 .tp-auth-links {
@@ -420,13 +417,13 @@
 
 .tp-auth-link {
   padding: 0;
-  color: #2563eb;
+  color: var(--lp-primary);
   font-size: 0.88rem;
   font-weight: 700;
 }
 
 .tp-auth-link:hover {
-  color: #1d4ed8;
+  color: var(--lp-primary-strong);
   text-decoration: underline;
 }
 
@@ -434,9 +431,9 @@
   width: 100%;
   min-height: 2.9rem;
   border-radius: 1rem !important;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+  background: linear-gradient(135deg, #3b82f6, var(--lp-primary-strong)) !important;
   color: #fff !important;
-  border: 1px solid rgba(96, 165, 250, 0.45) !important;
+  border: 1px solid color-mix(in srgb, #60a5fa 45%, transparent) !important;
   box-shadow:
     0 18px 34px rgba(37, 99, 235, 0.28),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset;
@@ -449,7 +446,7 @@
 
 .tp-auth-submit:hover {
   transform: translateY(-1px);
-  background: linear-gradient(135deg, #60a5fa, #2563eb) !important;
+  background: linear-gradient(135deg, #60a5fa, var(--lp-primary)) !important;
   box-shadow:
     0 22px 40px rgba(37, 99, 235, 0.34),
     0 0 24px rgba(59, 130, 246, 0.16);
@@ -476,7 +473,7 @@
   justify-content: center;
   gap: 0.45rem;
   flex-wrap: wrap;
-  color: #526174;
+  color: var(--lp-muted);
   font-size: 0.93rem;
 }
 
@@ -485,8 +482,8 @@
   gap: 0.55rem;
   padding: 1rem;
   border-radius: 1rem;
-  border: 1px solid rgba(34, 197, 94, 0.18);
-  background: linear-gradient(180deg, rgba(240, 253, 244, 0.98), rgba(248, 255, 250, 0.96));
+  border: 1px solid color-mix(in srgb, var(--lp-success) 22%, transparent);
+  background: color-mix(in srgb, var(--lp-success) 9%, var(--lp-surface-strong));
 }
 
 .tp-auth-success-label {
@@ -495,18 +492,18 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #15803d;
+  color: var(--lp-success);
 }
 
 .tp-auth-success h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: #0f172a;
+  color: var(--lp-text);
 }
 
 .tp-auth-success p {
   margin: 0;
-  color: #476174;
+  color: var(--lp-muted);
   line-height: 1.6;
 }
 
@@ -518,9 +515,9 @@
 }
 
 .tp-auth-secondary-button {
-  background: rgba(255, 255, 255, 0.72) !important;
-  color: #0f172a !important;
-  border: 1px solid rgba(59, 130, 246, 0.16) !important;
+  background: var(--lp-field) !important;
+  color: var(--lp-text) !important;
+  border: 1px solid color-mix(in srgb, var(--lp-primary) 16%, transparent) !important;
 }
 
 .tp-auth-secondary-button:hover {
@@ -528,13 +525,13 @@
 }
 
 .tp-auth-register {
-  color: #2563eb;
+  color: var(--lp-primary);
   font-weight: 700;
   padding: 0;
 }
 
 .tp-auth-register:hover {
-  color: #1d4ed8;
+  color: var(--lp-primary-strong);
 }
 
 @media (max-width: 960px) {

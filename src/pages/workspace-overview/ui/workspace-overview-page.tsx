@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Activity, ArrowRight, BadgeCheck, Download, PackageOpen, RefreshCw, Search, ShieldAlert, Sparkles, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { buildSoftwareDownloadUrl, useSoftwareAdminSummary, useSoftwareList } from '../../../entities/software/api/software.queries';
+import { buildSoftwareDownloadUrl, useSoftwareList, useSoftwareSummary } from '../../../entities/software/api/software.queries';
 import { softwareDetailsPath } from '../../../app/router/route-paths';
 import type { Software } from '../../../entities/software/model/software.schema';
 import { Button } from '../../../shared/ui/button/button';
@@ -392,7 +392,7 @@ function DiscoverySection({ software, isLoading, isError, onRetry }: { software:
 
 export function WorkspaceOverviewPage() {
   const softwareQuery = useSoftwareList(50);
-  const summaryQuery = useSoftwareAdminSummary();
+  const summaryQuery = useSoftwareSummary();
   const software = softwareQuery.data ?? [];
   const summary = summaryQuery.data ?? { total_packages: software.length, total_versions: 0, total_downloads: 0, published_versions: 0 };
 

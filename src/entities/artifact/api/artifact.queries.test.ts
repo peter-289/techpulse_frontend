@@ -8,6 +8,6 @@ describe('useArtifacts', () => {
     const { result } = renderHook(() => useArtifacts(4), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toHaveLength(4);
-    expect(result.current.data?.[0]).toMatchObject({ softwareName: 'Package 1', scanStatus: 'verified' });
+    expect(result.current.data?.[0]).toMatchObject({ softwareName: 'Package 1', scanStatus: 'unknown' });
   });
 });

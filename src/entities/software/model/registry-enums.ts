@@ -9,6 +9,7 @@ export const VersionStatus = Object.freeze({
   PUBLISHED: 'Published',
   DEPRECATED: 'Deprecated',
   REVOKED: 'Revoked',
+  ARCHIVED: 'Archived',
 });
 
 export const SubscriptionTier = Object.freeze({

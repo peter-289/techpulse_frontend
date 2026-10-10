@@ -9,13 +9,13 @@ describe('support queries', () => {
     const { result } = renderHook(() => useSupportMessages(5), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toHaveLength(5);
-    expect(result.current.data?.[0]?.content).toContain('Mock support message');
+    expect(result.current.data?.[0]?.user_message).toContain('Mock support message');
   });
 
   it('sends a support message', async () => {
     const { result } = renderHook(() => useSendSupportMessage(), { wrapper: createWrapper() });
     const message = await result.current.mutateAsync('Hello support');
     expect(message.role).toBe('assistant');
-    expect(message.content).toContain('Hello support');
+    expect(message.assistant_message).toContain('Hello support');
   });
 });

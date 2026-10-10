@@ -18,6 +18,7 @@ export const ROUTE_PATHS = {
   workspaceSoftwares: '/workspace/softwares',
   workspaceDiscover: '/workspace/discover',
   workspaceUploadSoftware: '/workspace/upload-software',
+  workspaceUploadVersion: '/workspace/upload-version',
   workspaceVersions: '/workspace/versions',
   workspaceArtifacts: '/workspace/artifacts',
   workspaceSecurity: '/workspace/security',

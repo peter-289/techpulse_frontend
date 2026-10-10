@@ -11,7 +11,8 @@ export type UploadVersionInput = {
   softwareId: string | number;
   version: string;
   releaseNotes?: string;
-  file: File;
+  file?: File;
+  files?: File[];
   onUploadProgress?: (event: { loaded: number; total?: number }) => void;
 };
 
@@ -23,7 +24,9 @@ export function useUploadVersion() {
       const payload = new FormData();
       payload.append('version', input.version);
       payload.append('release_notes', input.releaseNotes || '');
-      payload.append('file', input.file);
+      const files = input.files?.length ? input.files : input.file ? [input.file] : [];
+      if (!files.length) throw new Error('At least one artifact is required.');
+      files.forEach((file) => payload.append('files', file));
       const config: Parameters<typeof api.post>[2] = {
         headers: { 'Content-Type': 'multipart/form-data' },
       };
@@ -49,10 +52,11 @@ const lifecycleEndpoint = (status: string): string | null => {
   const action = status.toLowerCase();
   if (action.startsWith('deprecat')) return 'deprecate';
   if (action.startsWith('revok')) return 'revoke';
+  if (action.startsWith('archiv')) return 'archive';
   return null;
 };
 
-/** Deprecate or revoke a released version. */
+/** Apply a supported lifecycle transition to a released version. */
 export function useVersionLifecycle() {
   const queryClient = useQueryClient();
   return useMutation({

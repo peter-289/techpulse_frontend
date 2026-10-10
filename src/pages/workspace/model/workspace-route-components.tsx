@@ -8,7 +8,6 @@ import {
   softwareDetailsPath,
   softwareVersionDetailsPath,
 } from '../../../app/router/route-paths';
-import { UploadWorkspacePage } from '../../upload-workspace/ui/upload-workspace-page';
 import SoftwareDetailsRoutePage from '../../software-details/ui/software-details-route-page';
 import VersionDetailsRoutePage from '../../version-details/ui/version-details-route-page';
 import PlansRoutePage from '../../plans/ui/plans-route-page';
@@ -17,10 +16,6 @@ import AdminPage from '@/pages/admin/ui/admin-page';
 
 type SoftwareLike = { id: string | number; name?: string } & Record<string, unknown>;
 type VersionLike = { version: string } & Record<string, unknown>;
-
-export function UploadWorkspaceRoute() {
-  return <UploadWorkspacePage />;
-}
 
 export function SoftwareDetailsWorkspaceRoute() {
   const { softwareId } = useParams();

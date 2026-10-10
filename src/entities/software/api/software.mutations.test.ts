@@ -32,11 +32,11 @@ describe('software mutations', () => {
     ).resolves.toBeTruthy();
   });
 
-  it('rejects unsupported lifecycle actions', async () => {
+  it('supports archive lifecycle actions', async () => {
     const { result } = renderHook(() => useVersionLifecycle(), { wrapper: createWrapper() });
     await expect(
       result.current.mutateAsync({ softwareId: 'pkg-1', version: '1.0.0', status: 'Archived' }),
-    ).rejects.toThrow('Unsupported lifecycle action: Archived');
+    ).resolves.toBeTruthy();
   });
 
   it('updates pricing', async () => {

@@ -36,7 +36,7 @@ describe('useAdminDashboardData', () => {
 
   it('surfaces a feedback error and refetches when an action fails', async () => {
     server.use(
-      http.patch('/api/v1/users/:id', () =>
+      http.patch('/api/v1/admin/users/:id', () =>
         HttpResponse.json({ detail: 'Nope' }, { status: 500 }),
       ),
     );

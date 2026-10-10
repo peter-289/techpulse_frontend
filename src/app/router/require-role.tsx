@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSessionStore } from '../../processes/auth/model/session-store';
+import { ROUTE_PATHS } from './route-paths';
 
 /**
  * Role gate for routes that require an elevated session.
@@ -13,7 +14,7 @@ export function RequireRole({ requiredRole, children }: { requiredRole: string; 
   const currentRole = String((user as { role?: unknown } | null)?.role || '').toLowerCase();
 
   if (currentRole !== requiredRole.toLowerCase()) {
-    return <Navigate to="/workspace/overview" replace state={{ from: location.pathname }} />;
+    return <Navigate to={ROUTE_PATHS.workspaceOverview} replace state={{ from: location.pathname }} />;
   }
 
   return <>{children}</>;

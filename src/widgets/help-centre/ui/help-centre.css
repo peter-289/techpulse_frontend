@@ -106,9 +106,28 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--lp-border);
   background: color-mix(in srgb, var(--lp-primary) 6%, var(--lp-surface-strong));
+}
+
+.hc-head-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.hc-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--lp-primary), var(--lp-primary-strong));
+  color: #ffffff;
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--lp-primary) 24%, transparent);
 }
 
 .hc-head-title {
@@ -120,9 +139,20 @@
 }
 
 .hc-head-sub {
-  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 3px 0 0;
   font-size: 12.5px;
   color: var(--lp-muted);
+}
+
+.hc-status-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: #22c55e;
 }
 
 .hc-close {
@@ -159,17 +189,22 @@
   gap: 14px;
   padding: 16px;
   scroll-behavior: smooth;
+  background:
+    radial-gradient(circle at 0 0, color-mix(in srgb, var(--lp-primary) 5%, transparent), transparent 34%),
+    var(--lp-bg);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--lp-primary) 30%, transparent) transparent;
 }
 
 .hc-msg {
   position: relative;
   align-self: flex-start;
   max-width: 88%;
-  padding: 10px 12px;
+  padding: 10px 12px 9px;
   border: 1px solid var(--lp-border);
   border-radius: 14px 14px 14px 6px;
   background: var(--lp-surface);
-  box-shadow: var(--lp-shadow-sm);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
 .hc-msg.user {
@@ -212,30 +247,30 @@
 .hc-msg-action {
   display: inline-grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   padding: 0;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--lp-primary) 14%, var(--lp-border));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lp-surface-strong) 78%, transparent);
   color: var(--lp-muted);
   cursor: pointer;
-  opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
-}
-
-.hc-msg:hover .hc-msg-action,
-.hc-msg:focus-within .hc-msg-action {
   opacity: 1;
+  transition: color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
 }
 
 .hc-msg-action:hover {
-  background: color-mix(in srgb, var(--lp-danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--lp-danger) 35%, var(--lp-border));
+  background: color-mix(in srgb, var(--lp-danger) 9%, var(--lp-surface-strong));
   color: var(--lp-danger);
 }
 
 .hc-msg-action:focus-visible {
   opacity: 1;
+}
+
+.hc-msg.user .hc-msg-action {
+  background: color-mix(in srgb, var(--lp-primary) 10%, var(--lp-surface-strong));
 }
 
 .hc-msg-text {
@@ -280,6 +315,16 @@
 
 .hc-msg-confirm button.danger:hover {
   background: color-mix(in srgb, var(--lp-danger) 12%, transparent);
+}
+
+.hc-msg-confirm button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.hc-msg-confirm [role='alert'] {
+  flex-basis: 100%;
+  color: var(--lp-danger);
 }
 
 /* --- Empty state ---------------------------------------------------------- */
@@ -338,18 +383,18 @@
   min-width: 0;
   min-height: 42px;
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 999px;
 }
 
 .hc-send {
   flex: none;
   display: inline-grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 50%;
   background: linear-gradient(135deg, #3b82f6, var(--lp-primary-strong));
   color: #ffffff;
   cursor: pointer;

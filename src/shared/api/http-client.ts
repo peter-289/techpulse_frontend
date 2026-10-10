@@ -21,6 +21,20 @@ const httpClient: AxiosInstance = axios.create({
 
 let refreshPromise: Promise<void> | null = null;
 
+const publicPaths = new Set([
+  '/',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/check-email',
+  '/password-reset',
+  '/email-verification',
+]);
+
+function isPublicPath(pathname: string): boolean {
+  return publicPaths.has(pathname) || pathname.startsWith('/password-reset/');
+}
+
 /**
  * Refresh access token using refresh cookie
  */
@@ -68,7 +82,7 @@ httpClient.interceptors.response.use(
         return httpClient(config);
       } catch (refreshErr) {
         // Redirect to login on refresh failure
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !isPublicPath(window.location.pathname)) {
           window.location.assign('/login');
         }
         return Promise.reject(normalizeAxiosError(refreshErr as AxiosError));

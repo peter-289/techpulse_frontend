@@ -12,6 +12,7 @@ describe('queryKeys', () => {
       'abc',
       { limit: 5 },
     ]);
+    expect(queryKeys.software.summary()).toEqual(['software', 'summary']);
     expect(queryKeys.software.adminSummary()).toEqual(['software', 'admin-summary']);
   });
 

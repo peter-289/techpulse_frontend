@@ -1,0 +1,150 @@
+.version-upload-card {
+  width: 100%;
+  max-width: 920px;
+}
+
+.version-upload-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+
+.version-upload-field {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.version-upload-field > span:first-child {
+  color: var(--lp-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.version-upload-field em {
+  margin-left: 5px;
+  color: var(--lp-muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.version-upload-field input,
+.version-upload-field select,
+.version-upload-field textarea {
+  width: 100%;
+}
+
+.version-upload-field textarea {
+  min-height: 126px;
+  resize: vertical;
+}
+
+.version-upload-span {
+  grid-column: 1 / -1;
+}
+
+.version-upload-file-control {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px dashed color-mix(in srgb, var(--lp-primary) 35%, var(--lp-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--lp-primary) 4%, transparent);
+}
+
+.version-upload-file-control input[type='file'] {
+  width: 100%;
+  color: var(--lp-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.version-upload-file-control small {
+  color: var(--lp-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.version-upload-files {
+  margin-top: -4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--lp-primary) 5%, transparent);
+  color: var(--lp-muted);
+  font-size: 12.5px;
+}
+
+.version-upload-files strong {
+  color: var(--lp-text);
+  font-weight: 600;
+}
+
+.version-upload-files ul {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.version-upload-files li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.version-upload-progress {
+  display: grid;
+  gap: 8px;
+}
+
+.version-upload-progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--lp-muted);
+  font-size: 12px;
+}
+
+.version-upload-progress-label strong {
+  color: var(--lp-primary);
+}
+
+.version-upload-progress progress {
+  width: 100%;
+  height: 8px;
+  accent-color: var(--lp-primary);
+}
+
+.version-upload-feedback {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--lp-danger) 25%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--lp-danger) 7%, transparent);
+  color: var(--lp-danger);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.version-upload-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--lp-border);
+}
+
+@media (max-width: 720px) {
+  .version-upload-form {
+    grid-template-columns: 1fr;
+  }
+
+  .version-upload-actions {
+    flex-direction: column-reverse;
+  }
+
+  .version-upload-actions .tp-btn {
+    width: 100%;
+  }
+}

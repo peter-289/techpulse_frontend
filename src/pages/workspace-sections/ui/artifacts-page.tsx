@@ -1,5 +1,6 @@
 import { Boxes } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useArtifacts } from '@/entities/artifact/api/artifact.queries';
 import { classifyScanStatus } from '@/entities/security/model/security.schema';
 import { Badge } from '@/shared/ui/badge/badge';
@@ -73,7 +74,7 @@ export function ArtifactsPage() {
         <p>
           <strong>How artifacts work.</strong> Each upload is unpacked, hashed and scanned before it
           can be distributed. Files never reach subscribers while their scan is pending. See the{' '}
-          <Link to="/workspace/security">Security Center</Link> for the full breakdown.
+          <Link to={ROUTE_PATHS.workspaceSecurity}>Security Center</Link> for the full breakdown.
         </p>
       </SectionNote>
 

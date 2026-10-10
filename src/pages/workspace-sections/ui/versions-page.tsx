@@ -14,7 +14,7 @@ type VersionStatus = 'Published' | 'In review' | 'Draft' | 'Yanked';
 
 function toStatus(item: SoftwareVersionFeedItem): VersionStatus {
   const value = `${item.status} ${item.artifact_status ?? ''}`.toLowerCase();
-  if (value.includes('revoke') || value.includes('yank') || value.includes('deprecat') || value.includes('block')) {
+  if (value.includes('revoke') || value.includes('yank') || value.includes('deprecat') || value.includes('archive') || value.includes('block')) {
     return 'Yanked';
   }
   if (value.includes('review') || value.includes('pending')) return 'In review';
@@ -61,7 +61,7 @@ export function VersionsPage() {
         title="Version Registry"
         description="Every release published to the TechPulse network, grouped by software and lifecycle stage."
         actions={
-          <Link to="/workspace/upload-software" className="tp-btn tp-btn-primary">
+            <Link to="/workspace/upload-version" className="tp-btn tp-btn-primary">
             <ArrowUpCircle size={16} />
             Upload a version
           </Link>

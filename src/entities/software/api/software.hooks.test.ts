@@ -4,6 +4,7 @@ import { createWrapper, renderHook } from '../../../test/render';
 import {
   buildSoftwareDownloadUrl,
   useSoftwareAdminSummary,
+  useSoftwareSummary,
   useSoftwareDetail,
   useSoftwareList,
   useSoftwareVersion,
@@ -60,6 +61,12 @@ describe('software query hooks', () => {
 
   it('loads the admin summary', async () => {
     const { result } = renderHook(() => useSoftwareAdminSummary(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toMatchObject({ total_packages: 4, total_downloads: 1234 });
+  });
+
+  it('loads the authenticated user summary', async () => {
+    const { result } = renderHook(() => useSoftwareSummary(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toMatchObject({ total_packages: 4, total_downloads: 1234 });
   });

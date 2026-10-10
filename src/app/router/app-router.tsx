@@ -8,15 +8,17 @@ import { RouteLoading } from './route-loading';
 import { ROUTE_PATHS } from './route-paths';
 import { httpClient } from '@/shared/api/http-client';
 import { useSessionStore } from '../../processes/auth/model/session-store';
+import { VersionsPage } from '../../pages/workspace-sections/ui/versions-page';
+import { ArtifactsPage } from '../../pages/workspace-sections/ui/artifacts-page';
+import { SecurityPage } from '../../pages/workspace-sections/ui/security-page';
+import { AuditPage } from '../../pages/workspace-sections/ui/audit-page';
+import { AnalyticsPage } from '../../pages/workspace-sections/ui/analytics-page';
+import { SettingsPage } from '../../pages/workspace-sections/ui/settings-page';
+import { UploadWorkspaceRoute } from '../../pages/upload-workspace/ui/upload-workspace-route';
+import { UploadVersionPage } from '../../pages/upload-version/ui/upload-version-page';
+import { SoftwareRegistryPage } from '../../pages/software-registry/ui/software-registry-page';
 
-const SoftwareRegistryPage = lazy(() => import('../../pages/software-registry/ui/software-registry-page').then((m) => ({ default: m.SoftwareRegistryPage })));
 const WorkspaceOverviewPage = lazy(() => import('../../pages/workspace-overview/ui/workspace-overview-page').then((m) => ({ default: m.WorkspaceOverviewPage })));
-const VersionsPage = lazy(() => import('../../pages/workspace-sections/ui/versions-page').then((m) => ({ default: m.VersionsPage })));
-const ArtifactsPage = lazy(() => import('../../pages/workspace-sections/ui/artifacts-page').then((m) => ({ default: m.ArtifactsPage })));
-const SecurityPage = lazy(() => import('../../pages/workspace-sections/ui/security-page').then((m) => ({ default: m.SecurityPage })));
-const AuditPage = lazy(() => import('../../pages/workspace-sections/ui/audit-page').then((m) => ({ default: m.AuditPage })));
-const AnalyticsPage = lazy(() => import('../../pages/workspace-sections/ui/analytics-page').then((m) => ({ default: m.AnalyticsPage })));
-const SettingsPage = lazy(() => import('../../pages/workspace-sections/ui/settings-page').then((m) => ({ default: m.SettingsPage })));
 const LandingRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.LandingRoute })));
 const RegisterRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.RegisterRoute })));
 const LoginRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.LoginRoute })));
@@ -24,7 +26,6 @@ const ForgotPasswordRoute = lazy(() => import('../../pages/auth/model/auth-route
 const CheckEmailRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.CheckEmailRoute })));
 const PasswordResetRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.PasswordResetRoute })));
 const EmailVerificationRoute = lazy(() => import('../../pages/auth/model/auth-route-components').then((m) => ({ default: m.EmailVerificationRoute })));
-const UploadWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.UploadWorkspaceRoute })));
 const SoftwareDetailsWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.SoftwareDetailsWorkspaceRoute })));
 const VersionDetailsWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.VersionDetailsWorkspaceRoute })));
 const LegacySoftwareDetailsRedirect = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.LegacySoftwareDetailsRedirect })));
@@ -98,6 +99,7 @@ const router = createBrowserRouter([
               { path: ROUTE_PATHS.workspaceSoftwares, element: withSuspense(<SoftwareRegistryPage scope="my-software" />) },
               { path: ROUTE_PATHS.workspaceDiscover, element: withSuspense(<SoftwareRegistryPage scope="discover" />) },
               { path: ROUTE_PATHS.workspaceUploadSoftware, element: withSuspense(<UploadWorkspaceRoute />) },
+              { path: ROUTE_PATHS.workspaceUploadVersion, element: withSuspense(<UploadVersionPage />) },
               { path: ROUTE_PATHS.workspaceVersions, element: withSuspense(<VersionsPage />) },
               { path: ROUTE_PATHS.workspaceArtifacts, element: withSuspense(<ArtifactsPage />) },
               { path: ROUTE_PATHS.workspaceSecurity, element: withSuspense(<SecurityPage />) },

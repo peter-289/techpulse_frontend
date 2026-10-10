@@ -1,7 +1,8 @@
-import { ShieldAlert, ShieldCheck, Shield } from 'lucide-react';
-import { useSecurityScans } from '@/entities/security/api/security.queries';
+import { RefreshCw, ShieldAlert, ShieldCheck, Shield } from 'lucide-react';
+import { useSecurityScans, useSecuritySummary } from '@/entities/security/api/security.queries';
+import { useRescanArtifact } from '@/entities/security/api/security.mutations';
 import { Badge } from '@/shared/ui/badge/badge';
-import { EmptyState, ErrorState, LoadingState } from '@/shared/ui';
+import { Button, EmptyState, ErrorState, LoadingState } from '@/shared/ui';
 import {
   SectionCard,
   SectionNote,
@@ -25,12 +26,16 @@ function relativeTime(value: string) {
 
 export function SecurityPage() {
   const query = useSecurityScans();
+  const summaryQuery = useSecuritySummary();
+  const rescan = useRescanArtifact();
   const scans = query.data ?? [];
+  const summary = summaryQuery.data;
 
-  const threats = scans.filter((scan) => scan.result === 'threat').length;
-  const pending = scans.filter((scan) => scan.result === 'pending').length;
-  const clean = scans.filter((scan) => scan.result === 'clean').length;
-  const passRate = scans.length ? ((clean / scans.length) * 100).toFixed(1) : '—';
+  const threats = summary?.threats ?? 0;
+  const pending = summary?.pending ?? 0;
+  const clean = summary?.clean ?? 0;
+  const totalScans = summary?.total_scans ?? 0;
+  const passRate = totalScans ? ((clean / totalScans) * 100).toFixed(1) : '—';
 
   return (
     <div className="sec-page">
@@ -41,9 +46,9 @@ export function SecurityPage() {
       />
 
       <StatGrid>
-        <StatCard label="Pass rate" value={scans.length ? `${passRate}%` : '—'} helper={`${scans.length} scans analysed`} tone="success" />
+        <StatCard label="Pass rate" value={totalScans ? `${passRate}%` : '—'} helper={`${totalScans} scans analysed`} tone="success" />
         <StatCard label="Threats blocked" value={threats} helper="Quarantined, never shipped" tone="danger" />
-        <StatCard label="Scans" value={scans.length} helper="Across every version" />
+        <StatCard label="Scans" value={totalScans} helper="Across every version" />
         <StatCard label="Quarantine" value={pending} helper="Held for investigation" tone="warning" />
       </StatGrid>
 
@@ -58,7 +63,7 @@ export function SecurityPage() {
       <SectionCard
         title="Recent scans"
         subtitle="Latest analysis results across your catalog"
-        actions={<Badge variant="info">{scans.length} results</Badge>}
+        actions={<Badge variant="info">{totalScans} results</Badge>}
       >
         {query.isLoading ? (
           <LoadingState label="Loading scan results…" />
@@ -85,6 +90,13 @@ export function SecurityPage() {
                       {scan.quarantineReason ? ` · ${scan.quarantineReason}` : ''}
                     </p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    disabled={!scan.artifactId || rescan.isPending}
+                    onClick={() => rescan.mutate(scan.artifactId)}
+                  >
+                    <RefreshCw size={14} /> Rescan
+                  </Button>
                 </div>
               );
             })}

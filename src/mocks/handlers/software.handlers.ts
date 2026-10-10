@@ -42,6 +42,18 @@ export const handlers = [
       })),
     );
   }),
+  http.get('/api/v1/software-management/:id/versions/:version', ({ params }) => HttpResponse.json({
+    id: `ver-${params.version}`,
+    software_id: String(params.id),
+    version: String(params.version),
+    is_published: true,
+    status: 'published',
+    download_count: 10,
+    release_notes: 'Mock release notes',
+    created_at: new Date().toISOString(),
+    published_at: new Date().toISOString(),
+    artifacts: [],
+  })),
   http.get('/api/v1/software-management/:id', ({ params }) => {
     const item = sampleSoftware.find((row) => row.id === params.id) ?? sampleSoftware[0];
     return HttpResponse.json(item);

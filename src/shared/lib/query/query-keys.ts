@@ -9,6 +9,7 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.software.all, 'detail', id] as const,
     versions: (softwareId: string, limit: number) =>
       [...queryKeys.software.all, 'versions', softwareId, { limit }] as const,
+    summary: () => [...queryKeys.software.all, 'summary'] as const,
     adminSummary: () => [...queryKeys.software.all, 'admin-summary'] as const,
   },
   categories: {

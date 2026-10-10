@@ -89,15 +89,37 @@ export function useSoftwareVersionsFeed(limit = 100) {
 export function useSoftwareVersion(
   softwareId?: string | null,
   version?: string | null,
-  limit = 50,
+  _limit = 50,
 ) {
-  const query = useSoftwareVersions(softwareId, limit);
-  const versionData = query.data?.find((row) => row.version === version) ?? null;
-  return { ...query, versionData };
+  const query = useQuery({
+    queryKey: [...queryKeys.software.all, 'version', String(softwareId || ''), String(version || '')] as const,
+    queryFn: async () => {
+      const response = await api.get(
+        `/api/v1/software-management/${softwareId}/versions/${encodeURIComponent(String(version))}`,
+      );
+      return softwareVersionSchema.parse(response.data);
+    },
+    enabled: Boolean(softwareId && version),
+    retry: false,
+  });
+  return { ...query, versionData: query.data ?? null };
+}
+
+async function fetchSoftwareSummary(): Promise<SoftwareSummary> {
+  const response = await api.get('/api/v1/software-management/summary');
+  return softwareSummarySchema.parse(response.data || {});
+}
+
+export function useSoftwareSummary() {
+  return useQuery({
+    queryKey: queryKeys.software.summary(),
+    queryFn: fetchSoftwareSummary,
+    retry: false,
+  });
 }
 
 async function fetchAdminSummary(): Promise<SoftwareSummary> {
-  const response = await api.get('/api/v1/software-management/admin/summary');
+  const response = await api.get('/api/v1/admin/software/summary');
 
   //console.log("SUMMARY RESPONSE:", response.data);
   const parsed = softwareSummarySchema.parse(response.data || {});

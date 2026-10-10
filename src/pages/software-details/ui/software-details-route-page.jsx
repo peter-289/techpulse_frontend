@@ -51,7 +51,6 @@ export default function SoftwareDetailsPage({
   const { mutateAsync: updatePricing } = useUpdatePricing();
   const versionsQuery = useSoftwareVersions(software?.id, 30);
   const [versions, setVersions] = useState([]);
-  const [statusOverrides, setStatusOverrides] = useState({});
   const [notesByVersion, setNotesByVersion] = useState({});
   const [metadata, setMetadata] = useState({
     name: software?.name || '',
@@ -100,11 +99,10 @@ export default function SoftwareDetailsPage({
     () =>
       versions.map((row) => ({
         ...row,
-        status: statusOverrides[row.version]
-          || (row.is_published ? VersionStatus.PUBLISHED : VersionStatus.DRAFT),
+        status: row.status || (row.is_published ? VersionStatus.PUBLISHED : VersionStatus.DRAFT),
         notes: notesByVersion[row.version] || row.release_notes || '',
       })),
-    [versions, statusOverrides, notesByVersion]
+    [versions, notesByVersion]
   );
 
   if (!software) {
@@ -128,8 +126,7 @@ export default function SoftwareDetailsPage({
         version,
         status,
       });
-      setStatusOverrides((prev) => ({ ...prev, [version]: status }));
-      setNotesByVersion((prev) => ({ ...prev, [version]: prev[version] || EMPTY_NOTES }));
+      await versionsQuery.refetch();
       setFeedback({ variant: 'success', title: 'Lifecycle updated', message: `Version ${version} marked ${status}.` });
     } catch (err) {
       setFeedback({ variant: 'error', title: 'Lifecycle update failed', message: err?.message || 'Try again.' });
@@ -409,15 +406,21 @@ return (
                   </div>
                   <div className="sd-version-actions">
                     <button type="button" onClick={() => onOpenVersion?.(software, row)}>View</button>
-                    <button type="button" onClick={() => handleStatusUpdate(row.version, VersionStatus.DEPRECATED)}>
-                      Deprecate
-                    </button>
-                    <button type="button" onClick={() => handleStatusUpdate(row.version, VersionStatus.REVOKED)}>
-                      Revoke
-                    </button>
-                    <button type="button" className="sd-danger" onClick={() => handleDeleteVersion(row.version)}>
-                      Delete
-                    </button>
+                    {String(row.status).toLowerCase() === 'published' && (
+                      <button type="button" onClick={() => handleStatusUpdate(row.version, VersionStatus.DEPRECATED)}>
+                        Deprecate
+                      </button>
+                    )}
+                    {!['revoked', 'archived', 'deleted'].includes(String(row.status).toLowerCase()) && (
+                      <button type="button" onClick={() => handleStatusUpdate(row.version, VersionStatus.REVOKED)}>
+                        Revoke
+                      </button>
+                    )}
+                    {['published', 'deprecated', 'revoked'].includes(String(row.status).toLowerCase()) && (
+                      <button type="button" className="sd-danger" onClick={() => handleStatusUpdate(row.version, VersionStatus.ARCHIVED)}>
+                        Archive
+                      </button>
+                    )}
                   </div>
                   <div className="sd-version-notes">
                     <label>

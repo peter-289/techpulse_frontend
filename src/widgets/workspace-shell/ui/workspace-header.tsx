@@ -6,6 +6,7 @@ import { getPageContext } from '@/shared/navigation/workspace-navigation';
 import { useSessionStore } from '@/processes/auth/model/session-store';
 import { useThemeStore } from '@/shared/store/theme-store';
 import { useUiStore } from '@/shared/store/ui-store';
+import { ROUTE_PATHS } from '@/app/router/route-paths';
 
 /** Closes on outside pointer input and on Escape. */
 function useDismissable(open: boolean, setOpen: (value: boolean) => void) {
@@ -109,7 +110,7 @@ function UserMenu() {
     }
     setOpen(false);
     clearSession();
-    navigate('/login');
+    navigate(ROUTE_PATHS.login);
   };
 
   return (
@@ -134,7 +135,7 @@ function UserMenu() {
             {email && <div className="wsp-menu-header-meta">{email}</div>}
           </div>
           <div className="wsp-menu-list">
-            <Link className="wsp-menu-item" to="/workspace/settings" onClick={() => setOpen(false)}>
+            <Link className="wsp-menu-item" to={ROUTE_PATHS.workspaceSettings} onClick={() => setOpen(false)}>
               <Settings size={16} /> Settings
             </Link>
             <button type="button" className="wsp-menu-item danger" onClick={() => void logout()}>
