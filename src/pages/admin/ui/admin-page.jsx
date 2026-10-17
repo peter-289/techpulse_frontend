@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './admin-page.css';
 import FeedbackMessage from '@/shared/ui/feedback-message/feedback-message';
 import { Pill } from './admin-utils';
+import { Layers3 } from 'lucide-react';
 import AdminHeader from './admin-header';
 import SkeletonDashboard from './skeleton-dashboard';
 import OverviewSection from './sections/overview-section';
@@ -14,13 +15,15 @@ import useDebounce from '@/shared/lib/use-debounce';
 import { useAdminDashboardData } from '@/entities/admin/api/admin-dashboard.queries';
 import { useThemeStore } from '@/shared/store/theme-store';
 import { useSessionStore } from '@/processes/auth/model/session-store';
+import { toDate } from './admin-utils';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Dashboard Overview' },
   { id: 'users', label: 'User Management' },
   { id: 'software', label: 'Software Management' },
   { id: 'analytics', label: 'Analytics & Reports' },
-  { id: 'logs', label: 'Activity Logs' },
+  { id: 'logs', label: 'Activity Logs & Security' },
+  { id: 'events', label: 'Domain Events', adminOnly: true },
   { id: 'notifications', label: 'Notifications & Alerts' },
   { id: 'settings', label: 'System Settings' },
   { id: 'profile', label: 'Admin Profile' },
@@ -408,6 +411,43 @@ export default function AdminPage() {
               logPage={logPage}
               setLogPage={setLogPage}
             />
+          )}
+
+          {!loading && activeSection === 'events' && (
+            <section className="adm-panel">
+              <div className="adm-section-head"><h2>Domain Events</h2></div>
+              <div className="adm-table-wrap">
+                <table className="adm-table">
+                  <thead>
+                    <tr>
+                      <th>Event ID</th><th>Type</th><th>Category</th><th>Actor</th><th>Timestamp</th><th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logs.map((log) => (
+                      <tr key={log.id}>
+                        <td>{log.id}</td>
+                        <td>{log.type}</td>
+                        <td>{log.category}</td>
+                        <td>{log.actor}</td>
+                        <td>{toDate(log.time)}</td>
+                        <td>{log.details}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="adm-empty-state" aria-label="No domain events found">
+                <span className="wsp-empty-state-icon" aria-hidden="true">
+                  <Layers3 size={18} />
+                </span>
+                <p className="wsp-empty-state-title">No domain events</p>
+                <p className="wsp-empty-state-text">
+                  Domain events will appear here when available. Use the audit logs section
+                  for recent activity and security alerts for incident tracking.
+                </p>
+              </p>
+            </section>
           )}
 
           {!loading && activeSection === 'notifications' && (

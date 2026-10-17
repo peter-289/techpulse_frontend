@@ -16,6 +16,14 @@ const lastNDays = (n: number) => Array.from({ length: n }).map((_, i) => {
   return dayKey(d.toISOString());
 });
 
+function categorizeEventType(eventType: string): string {
+  const lower = eventType.toLowerCase();
+  if (lower.includes('software') || lower.includes('version') || lower.includes('artifact') || lower.includes('download') || lower.includes('publish') || lower.includes('scan')) return 'domain';
+  if (lower.includes('auth') || lower.includes('access') || lower.includes('login') || lower.includes('failed') || lower.includes('denied')) return 'security';
+  if (lower.includes('cookie') || lower.includes('consent')) return 'system';
+  return 'audit';
+}
+
 async function fetchAdminDashboard() {
   const [u, p, s, a, ev] = await Promise.all([
     api.get('/api/v1/admin/users', { params: { limit: 30 } }),
@@ -60,13 +68,14 @@ async function fetchAdminDashboard() {
     time: item.created_at || new Date().toISOString(),
   }));
 
-  const eventRows = ev.data?.items || [];
+const eventRows = ev.data?.items || [];
   const logs = eventRows.map((item: any) => ({
     id: item.id,
     type: item.event_type || 'Audit event',
+    category: categorizeEventType(item.event_type || ''),
     actor: item.actor_username || item.actor_user_id || 'System',
     details: `${item.method || ''} ${item.path || ''}`.trim() || 'Event details unavailable.',
-    severity: item.success ? 'Info' : 'Warning',
+    severity: item.success ? 'Info' : item.event_type?.includes('failed') || item.event_type?.includes('error') ? 'Warning' : 'Info',
     time: item.occurred_at || new Date().toISOString(),
   }));
 

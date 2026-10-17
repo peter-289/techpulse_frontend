@@ -2,6 +2,80 @@ import { http, HttpResponse } from 'msw';
 
 const now = () => new Date().toISOString();
 
+const sampleUsers = [
+  {
+    id: 'user-1',
+    full_name: 'Admin User',
+    username: 'admin',
+    email: 'admin@techpulse.local',
+    role: 'ADMIN',
+    status: 'VERIFIED',
+    created_at: now(),
+    updated_at: now(),
+  },
+];
+
+
+const sampleAlerts = [
+  {
+    id: 'a1',
+    rule_code: 'AUTH_BRUTE_FORCE_IP',
+    severity: 'high',
+    title: 'Brute force attempt detected',
+    description: 'Multiple failed login attempts from IP 1.2.3.4',
+    actor_user_id: null,
+    ip_address: '1.2.3.4',
+    audit_event_id: null,
+    acknowledged: false,
+    acknowledged_at: null,
+    acknowledged_by_user_id: null,
+    created_at: now(),
+  },
+  {
+    id: 'a2',
+    rule_code: 'EXCESSIVE_FORBIDDEN_REQUESTS',
+    severity: 'medium',
+    title: 'Excessive forbidden requests',
+    description: 'User exceeded rate limit on API endpoints',
+    actor_user_id: 'user-1',
+    ip_address: '5.6.7.8',
+    audit_event_id: 'ev-1',
+    acknowledged: true,
+    acknowledged_at: now(),
+    acknowledged_by_user_id: 'user-1',
+    created_at: now(),
+  },
+];
+
+const sampleAuditEvents = [
+  {
+    id: 'ev-1',
+    event_type: 'auth.login.failed',
+    actor_user_id: 'user-1',
+    method: 'POST',
+    path: '/api/v1/auth/login',
+    status_code: 401,
+    ip_address: '1.2.3.4',
+    user_agent: 'Mozilla/5.0',
+    request_id: 'req-1',
+    metadata: {},
+    occurred_at: now(),
+  },
+  {
+    id: 'ev-2',
+    event_type: 'software.download',
+    actor_user_id: 'user-2',
+    method: 'GET',
+    path: '/api/v1/software-management/pkg-1/download',
+    status_code: 200,
+    ip_address: '5.6.7.8',
+    user_agent: 'Chrome/120.0',
+    request_id: 'req-2',
+    metadata: {},
+    occurred_at: now(),
+  },
+];
+
 export const workspaceHandlers = [
   http.get('/api/v1/software-management/summary', () =>
     HttpResponse.json({
@@ -24,12 +98,20 @@ export const workspaceHandlers = [
       {
         package_id: 'pkg-1',
         name: 'Sonic Booster',
-        latest_version: '2.4.0',
         owner_id: 'user-1',
-        is_public: true,
-        status: 'Approved',
+        status: 'ACTIVE',
         download_count: 6918,
         created_at: now(),
+        updated_at: now(),
+      },
+      {
+        package_id: 'pkg-2',
+        name: 'Video Converter',
+        owner_id: 'user-2',
+        status: 'ACTIVE',
+        download_count: 3245,
+        created_at: now(),
+        updated_at: now(),
       },
     ]),
   ),
@@ -78,9 +160,10 @@ export const workspaceHandlers = [
       },
     ]),
   ),
+  http.get('/api/v1/admin/users', () => HttpResponse.json(sampleUsers)),
+  http.get('/api/v1/admin/alerts', () => HttpResponse.json({ count: sampleAlerts.length, items: sampleAlerts })),
+  http.get('/api/v1/admin/audit-events', () => HttpResponse.json({ count: sampleAuditEvents.length, items: sampleAuditEvents })),
   http.get('/api/v1/analytics', () => HttpResponse.json({})),
-  http.get('/api/v1/admin/alerts', () => HttpResponse.json({ items: [] })),
-  http.get('/api/v1/admin/audit-events', () => HttpResponse.json({ items: [] })),
   http.get('/api/v1/support-chat/messages', ({ request }) => {
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get('limit') || 50);
