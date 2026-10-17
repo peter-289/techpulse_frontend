@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Download, Eye, RefreshCw, Search, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { buildSoftwareDownloadUrl, useSoftwareList } from '../../../entities/software/api/software.queries';
+import { downloadSoftwareVersion, useSoftwareList } from '../../../entities/software/api/software.queries';
 import { ROUTE_PATHS, softwareDetailsPath } from '../../../app/router/route-paths';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
@@ -143,7 +143,7 @@ export function SoftwareRegistryPage({ scope = 'my-software' }: { scope?: 'my-so
                       variant="ghost"
                       disabled={!pkg.viewer_has_access || !pkg.latest_version}
                       onClick={() => {
-                        if (pkg.latest_version) window.location.assign(buildSoftwareDownloadUrl(pkg.id, pkg.latest_version));
+                        if (pkg.latest_version) void downloadSoftwareVersion(pkg.id, pkg.latest_version);
                       }}
                     >
                       <Download size={14} /> Download

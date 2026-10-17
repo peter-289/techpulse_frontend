@@ -140,3 +140,28 @@ export function useSoftwareAdminSummary() {
 export function buildSoftwareDownloadUrl(softwareId: string, version: string) {
   return `/api/v1/software-management/${softwareId}/versions/${encodeURIComponent(version)}/download`;
 }
+
+export async function downloadSoftwareVersion(softwareId: string, version: string): Promise<void> {
+  const response = await api.get(buildSoftwareDownloadUrl(softwareId, version), {
+    responseType: 'blob',
+  });
+  const contentDisposition = response.headers['content-disposition'];
+  const filenameMatch = contentDisposition?.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
+  let filename = `software-${softwareId}-${version}`;
+
+  if (filenameMatch) {
+    const encodedFilename = filenameMatch[1];
+    const plainFilename = filenameMatch[2];
+    filename = encodedFilename ? decodeURIComponent(encodedFilename) : plainFilename;
+  }
+
+  const objectUrl = window.URL.createObjectURL(response.data);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = objectUrl;
+  downloadLink.download = filename;
+  downloadLink.style.display = 'none';
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  downloadLink.remove();
+  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 0);
+}

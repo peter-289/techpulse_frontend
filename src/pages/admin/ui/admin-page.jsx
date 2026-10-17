@@ -97,7 +97,7 @@ export default function AdminPage() {
   );
 
   const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
-  const isSuperAdmin = String(user?.account_type || '').toLowerCase() === 'super_admin';
+  const isSuperAdmin = false;
   const permissions = useMemo(() => ({
     manageUsers: isAdmin,
     suspendAccounts: isAdmin,
@@ -119,12 +119,12 @@ export default function AdminPage() {
 
   const unread = notifications.filter((n) => n.unread).length;
   const metrics = [
-    { label: 'Total Users', value: summary?.total_users ?? users.length, series: series.users },
-    { label: 'Active Users', value: summary?.active_users ?? users.filter((u) => u.status === 'Active').length, series: series.sessions },
-    { label: 'Uploaded Software Packages', value: summary?.total_packages ?? software.length, series: series.users.slice(2) },
-    { label: 'Downloads Today', value: summary?.downloads_today ?? software.reduce((sum, s) => sum + s.downloads, 0), series: series.downloads },
-    { label: 'System Health Status', value: unread > 0 ? 'Warning' : 'Healthy', series: series.sessions.slice(1) },
-    { label: 'Pending Reviews / Flags', value: summary?.pending_reviews ?? software.filter((s) => ['Pending', 'Flagged'].includes(s.status)).length, series: series.users.slice(3) },
+    { label: 'Total Users', value: summary?.total_users ?? 'Unavailable', series: series.users },
+    { label: 'Verified Users', value: summary?.verified_users ?? 'Unavailable', series: series.sessions },
+    { label: 'Software Packages', value: summary?.total_packages ?? 'Unavailable', series: series.users.slice(2) },
+    { label: 'Recorded Downloads', value: summary?.total_downloads ?? 'Unavailable', series: series.downloads },
+    { label: 'Unresolved Alerts', value: unread, series: series.sessions.slice(1) },
+    { label: 'Published Versions', value: summary?.published_versions ?? 'Unavailable', series: series.users.slice(3) },
   ];
   const topSoftware = useMemo(
     () => software.slice().sort((a, b) => b.downloads - a.downloads).slice(0, 5),

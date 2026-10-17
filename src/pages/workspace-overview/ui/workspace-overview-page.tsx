@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Activity, ArrowRight, BadgeCheck, Download, PackageOpen, RefreshCw, Search, ShieldAlert, Sparkles, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { buildSoftwareDownloadUrl, useSoftwareList, useSoftwareSummary } from '../../../entities/software/api/software.queries';
+import { downloadSoftwareVersion, useSoftwareList, useSoftwareSummary } from '../../../entities/software/api/software.queries';
 import { softwareDetailsPath } from '../../../app/router/route-paths';
 import type { Software } from '../../../entities/software/model/software.schema';
 import { Button } from '../../../shared/ui/button/button';
@@ -229,7 +229,7 @@ function SoftwareSection({ software, isLoading, isError, onRetry }: { software: 
             onOpen={() => navigate(softwareDetailsPath(item.id), { state: { software: item } })}
             onDownload={() => {
               if (item.latest_version) {
-                window.location.assign(buildSoftwareDownloadUrl(item.id, item.latest_version));
+                void downloadSoftwareVersion(item.id, item.latest_version);
               }
             }}
           />

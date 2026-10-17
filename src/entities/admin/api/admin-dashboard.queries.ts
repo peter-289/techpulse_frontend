@@ -31,9 +31,9 @@ async function fetchAdminDashboard() {
         name: x.full_name || x.username || `User ${x.id}`,
         email: x.email || 'N/A',
         role: x.role || 'Viewer',
-        status: 'Active',
-        lastActive: x.updated_at || x.created_at || new Date().toISOString(),
-        registered: x.created_at || new Date().toISOString(),
+        status: x.status || 'UNAPPROVED',
+        lastActive: x.updated_at || x.created_at || null,
+        registered: x.created_at || null,
       }))
     : [];
   const software = Array.isArray(p.data)
@@ -43,7 +43,7 @@ async function fetchAdminDashboard() {
         version: x.latest_version || 'N/A',
         owner: x.owner_id || 'Unknown',
         uploadDate: x.created_at || x.updated_at || new Date().toISOString(),
-        status: x.status || (x.is_public ? 'Approved' : 'Pending'),
+        status: x.status || null,
         downloads: Number(x.download_count || 0),
         virusFlagged: Boolean(x.virus_flagged || x.is_flagged),
       }))

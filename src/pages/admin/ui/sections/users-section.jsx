@@ -29,10 +29,10 @@ export default function UsersSection({
       <div className="adm-section-head"><h2>User Management</h2></div>
       <div className="adm-filters">
         <select value={userRole} onChange={(e) => setUserRole(e.target.value)}>
-          <option value="all">Role: all</option><option value="admin">Admin</option><option value="moderator">Moderator</option><option value="developer">Developer</option><option value="viewer">Viewer</option>
+          <option value="all">Role: all</option><option value="admin">Admin</option><option value="user">User</option>
         </select>
         <select value={userStatus} onChange={(e) => setUserStatus(e.target.value)}>
-          <option value="all">Status: all</option><option value="active">Active</option><option value="suspended">Suspended</option>
+          <option value="all">Status: all</option><option value="verified">Verified</option><option value="suspended">Suspended</option><option value="unapproved">Unapproved</option>
         </select>
       </div>
 
@@ -43,7 +43,6 @@ export default function UsersSection({
             <option value="">Bulk actions</option>
             <option value="suspend">Bulk Suspend</option>
             <option value="activate">Bulk Activate</option>
-            <option value="warn">Bulk Warn</option>
           </select>
           <button type="button" onClick={onApplyUserBulkAction} disabled={!userBulkAction}>Apply</button>
         </div>
@@ -85,13 +84,11 @@ export default function UsersSection({
                       aria-label={`Assign role for ${u.name}`}
                       onChange={(e) => assignUserRole(u.id, e.target.value)}
                     >
-                      <option value="Admin">Admin</option>
-                      <option value="Moderator">Moderator</option>
-                      <option value="Developer">Developer</option>
-                      <option value="Viewer">Viewer</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="USER">User</option>
                     </select>
-                    {u.status === 'Suspended'
-                      ? <button type="button" onClick={() => updateUser(u.id, 'Active')}>Activate</button>
+                    {u.status === 'SUSPENDED'
+                      ? <button type="button" onClick={() => updateUser(u.id, 'VERIFIED')}>Reinstate</button>
                       : <button type="button" onClick={() => setConfirm({ title: 'Suspend account', message: `Suspend ${u.name}?`, action: () => updateUser(u.id, 'Suspended') })}>Suspend</button>}
                   </div>
                 </td>
