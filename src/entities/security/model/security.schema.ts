@@ -29,7 +29,13 @@ export type SecuritySummary = z.infer<typeof securitySummarySchema>;
 export function classifyScanStatus(status: unknown): SecurityScan['result'] {
   const value = String(status ?? '').toLowerCase();
   if (!value) return 'unknown';
-  if (value.includes('quarantin') || value.includes('block') || value.includes('threat') || value.includes('malware')) {
+  if (
+    value.includes('quarantin') ||
+    value.includes('block') ||
+    value.includes('threat') ||
+    value.includes('malware') ||
+    value.includes('malicious')
+  ) {
     return 'threat';
   }
   if (value.includes('pending') || value.includes('scan') || value.includes('review')) return 'pending';

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { httpClient as api } from '@/shared/api/http-client';
 import { queryKeys } from '../../../shared/lib/query/query-keys';
+import { fetchSoftwareList } from '../../software/api/software.queries';
 import { artifactSchema, type Artifact } from '../model/artifact.schema';
 
 function mapEndpointRows(data: unknown): Artifact[] {
@@ -25,8 +26,30 @@ function mapEndpointRows(data: unknown): Artifact[] {
 }
 
 async function fetchArtifacts(limit: number): Promise<Artifact[]> {
-  const response = await api.get('/api/v1/software-management/artifacts', { params: { limit } });
-  return mapEndpointRows(response.data);
+  try {
+    const response = await api.get('/api/v1/software-management/artifacts', { params: { limit } });
+    const parsed = mapEndpointRows(response.data);
+    if (parsed.length) return parsed;
+  } catch {
+    // Endpoint not available — fall back to deriving from the software catalogue.
+  }
+
+  const software = await fetchSoftwareList(limit);
+  return software
+    .filter((item) => item.latest_version)
+    .map((item) =>
+      artifactSchema.parse({
+        id: `${item.id}:${item.latest_version}`,
+        softwareId: item.id,
+        softwareName: item.name,
+        version: item.latest_version,
+        fileName: `${item.name}-${item.latest_version}`,
+        sizeBytes: null,
+        sha256: null,
+        scanStatus: 'unknown',
+        createdAt: item.updated_at || item.created_at,
+      }),
+    );
 }
 
 export function useArtifacts(limit = 50) {

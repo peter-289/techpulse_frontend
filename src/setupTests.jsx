@@ -5,6 +5,10 @@
 import '@testing-library/jest-dom';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { server } from './mocks/server';
+import { httpClient } from './shared/api/http-client';
+
+httpClient.defaults.baseURL = 'http://localhost:3000';
+httpClient.defaults.adapter = 'fetch';
 
 if (typeof globalThis.ResizeObserver === 'undefined') {
   globalThis.ResizeObserver = class {

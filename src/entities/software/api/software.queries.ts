@@ -11,12 +11,12 @@ import {
 } from '../model/software.schema';
 
 export function normalizeSoftwareResponse(responseData: unknown): Software[] {
-  const rows = Array.isArray(responseData)
-    ? responseData
-    : [];
-
-  const unwrappedRows = Array.isArray(rows[0]) && rows.length === 2 ? rows[0] : rows;
-
+  let unwrappedRows = responseData;
+  if (Array.isArray(responseData) && responseData.length === 2 && Array.isArray(responseData[0])) {
+    unwrappedRows = responseData[0];
+  } else if (responseData && typeof responseData === 'object' && 'items' in responseData) {
+    unwrappedRows = (responseData as { items: unknown }).items;
+  }
   return (Array.isArray(unwrappedRows) ? unwrappedRows : []).map((row) => softwareSchema.parse(row));
 }
 
@@ -94,10 +94,17 @@ export function useSoftwareVersion(
   const query = useQuery({
     queryKey: [...queryKeys.software.all, 'version', String(softwareId || ''), String(version || '')] as const,
     queryFn: async () => {
-      const response = await api.get(
-        `/api/v1/software-management/${softwareId}/versions/${encodeURIComponent(String(version))}`,
-      );
-      return softwareVersionSchema.parse(response.data);
+      try {
+        const response = await api.get(
+          `/api/v1/software-management/${softwareId}/versions/${encodeURIComponent(String(version))}`,
+        );
+        return softwareVersionSchema.parse(response.data);
+      } catch (err: any) {
+        if (err?.response?.status === 404 || err?.status === 404) {
+          return null;
+        }
+        throw err;
+      }
     },
     enabled: Boolean(softwareId && version),
     retry: false,
@@ -139,29 +146,4 @@ export function useSoftwareAdminSummary() {
 
 export function buildSoftwareDownloadUrl(softwareId: string, version: string) {
   return `/api/v1/software-management/${softwareId}/versions/${encodeURIComponent(version)}/download`;
-}
-
-export async function downloadSoftwareVersion(softwareId: string, version: string): Promise<void> {
-  const response = await api.get(buildSoftwareDownloadUrl(softwareId, version), {
-    responseType: 'blob',
-  });
-  const contentDisposition = response.headers['content-disposition'];
-  const filenameMatch = contentDisposition?.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
-  let filename = `software-${softwareId}-${version}`;
-
-  if (filenameMatch) {
-    const encodedFilename = filenameMatch[1];
-    const plainFilename = filenameMatch[2];
-    filename = encodedFilename ? decodeURIComponent(encodedFilename) : plainFilename;
-  }
-
-  const objectUrl = window.URL.createObjectURL(response.data);
-  const downloadLink = document.createElement('a');
-  downloadLink.href = objectUrl;
-  downloadLink.download = filename;
-  downloadLink.style.display = 'none';
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  downloadLink.remove();
-  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 0);
 }

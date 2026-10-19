@@ -10,7 +10,7 @@ describe('useAdminDashboardData', () => {
     const { result } = renderHook(() => useAdminDashboardData(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.users).toHaveLength(1);
-    expect(result.current.software).toHaveLength(1);
+    expect(result.current.software).toHaveLength(2);
     expect(result.current.summary).toMatchObject({ total_packages: 4 });
     expect(result.current.lastSyncAt).toBeTruthy();
     expect(result.current.feedback).toBeNull();

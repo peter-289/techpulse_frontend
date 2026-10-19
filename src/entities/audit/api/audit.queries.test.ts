@@ -7,6 +7,11 @@ import { useAuditEvents } from './audit.queries';
 
 describe('useAuditEvents', () => {
   it('returns an empty list when there are no events', async () => {
+    server.use(
+      http.get('/api/v1/admin/audit-events', () =>
+        HttpResponse.json({ count: 0, items: [] }),
+      ),
+    );
     const { result } = renderHook(() => useAuditEvents(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([]);
