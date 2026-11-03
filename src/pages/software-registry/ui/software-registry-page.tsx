@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Download, Eye, RefreshCw, Search, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { downloadSoftwareVersion, useSoftwareList } from '../../../entities/software/api/software.queries';
+import {downloadSoftwareVersion, useSoftwareList } from '../../../entities/software/api/software.queries';
 import { ROUTE_PATHS, softwareDetailsPath } from '../../../app/router/route-paths';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';

@@ -135,7 +135,7 @@ Navigation is centralised in `src/shared/navigation/workspace-navigation.ts` (si
 | Login `/login` | Live API | ✅ Complete |
 | Forgot password `/forgot-password` | Live API | ⚠️ Sends email; no reset page |
 | Check email `/check-email` | Static | ✅ Complete |
-| Overview `/workspace/overview` | Live API (`useSoftwareList`, `useSoftwareAdminSummary`) | ✅ Complete |
+| Overview `/workspace/overview` | Live API (``, `useSoftwareAdminSummary`) | ✅ Complete |
 | My Software `/workspace/softwares` | Live API | ✅ Complete |
 | Discover `/workspace/discover` | Live API (same list, client filter) | ✅ Complete |
 | Upload Software `/workspace/upload-software` | Live API | ✅ Complete |
