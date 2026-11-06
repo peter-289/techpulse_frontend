@@ -13,6 +13,7 @@ import VersionDetailsRoutePage from '../../version-details/ui/version-details-ro
 import PlansRoutePage from '../../plans/ui/plans-route-page';
 import CheckoutRoutePage from '../../checkout/ui/checkout-route-page';
 import AdminPage from '@/pages/admin/ui/admin-page';
+import AdminShell from '@/pages/admin/ui/admin-shell';
 
 type SoftwareLike = { id: string | number; name?: string } & Record<string, unknown>;
 type VersionLike = { version: string } & Record<string, unknown>;
@@ -139,5 +140,13 @@ export function CheckoutWorkspaceRoute() {
 }
 
 export function AdminWorkspaceRoute() {
-  return <AdminPage />;
+  return <Navigate to={ROUTE_PATHS.admin} replace />;
+}
+
+export function AdminConsoleRoute() {
+  return (
+    <AdminShell>
+      <AdminPage />
+    </AdminShell>
+  );
 }

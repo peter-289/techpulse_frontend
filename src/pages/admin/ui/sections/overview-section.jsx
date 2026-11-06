@@ -14,7 +14,7 @@ function MiniLine({ points }) {
   );
 }
 
-export default function OverviewSection({ metrics, permissions, series, logs }) {
+export default function OverviewSection({ metrics, permissions, series, logs, health, scans }) {
   return (
     <main className="adm-grid">
       <KpiCards metrics={metrics} />
@@ -34,7 +34,13 @@ export default function OverviewSection({ metrics, permissions, series, logs }) 
           <section><h4>User growth over time</h4><MiniLine points={series.users} /></section>
           <section><h4>Software downloads trend</h4><MiniLine points={series.downloads} /></section>
           <section><h4>Active sessions visualization</h4><MiniLine points={series.sessions} /></section>
-          <section><h4>System usage distribution</h4><ul className="adm-list"><li>Admin: 26%</li><li>Developer: 48%</li><li>Viewer: 26%</li></ul></section>
+          <section><h4>Malware scan results</h4><ul className="adm-list"><li>Successful: {scans?.successful ?? 'Unavailable'}</li><li>Failed: {scans?.failed ?? 'Unavailable'}</li><li>Total: {scans?.total ?? 'Unavailable'}</li></ul></section>
+        </div>
+      </article>
+      <article className="adm-panel adm-wide">
+        <h2>System health</h2>
+        <div className="adm-list adm-health-grid">
+          {Object.entries(health || {}).map(([name, value]) => <div key={name}><strong>{name}</strong>: {value?.status || 'Unavailable'}</div>)}
         </div>
       </article>
       <article className="adm-panel">

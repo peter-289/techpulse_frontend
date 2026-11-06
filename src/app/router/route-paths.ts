@@ -28,6 +28,7 @@ export const ROUTE_PATHS = {
   workspacePlans: '/workspace/plans',
   workspaceCheckout: '/workspace/checkout',
   workspaceAdmin: '/workspace/admin',
+  admin: '/admin',
 
   /** Deep-linkable dynamic routes. */
   softwareDetails: '/workspace/software/:softwareId',

@@ -16,10 +16,12 @@ import { useAdminDashboardData } from '@/entities/admin/api/admin-dashboard.quer
 import { useThemeStore } from '@/shared/store/theme-store';
 import { useSessionStore } from '@/processes/auth/model/session-store';
 import { toDate } from './admin-utils';
+import CategoriesSection from './sections/categories-section';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Dashboard Overview' },
   { id: 'users', label: 'User Management' },
+  { id: 'categories', label: 'Category Management' },
   { id: 'software', label: 'Software Management' },
   { id: 'analytics', label: 'Analytics & Reports' },
   { id: 'logs', label: 'Activity Logs & Security' },
@@ -344,7 +346,7 @@ export default function AdminPage() {
           {loading && <SkeletonDashboard />}
 
           {!loading && activeSection === 'overview' && (
-            <OverviewSection metrics={metrics} permissions={permissions} series={series} logs={logs} />
+            <OverviewSection metrics={metrics} permissions={permissions} series={series} logs={logs} health={summary?.health} scans={summary?.scans} />
           )}
 
           {!loading && activeSection === 'users' && (
@@ -372,6 +374,8 @@ export default function AdminPage() {
               setFeedback={setFeedback}
             />
           )}
+
+          {!loading && activeSection === 'categories' && <CategoriesSection />}
 
           {!loading && activeSection === 'software' && (
             <SoftwareSection

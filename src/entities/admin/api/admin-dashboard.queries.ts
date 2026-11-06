@@ -25,7 +25,8 @@ function categorizeEventType(eventType: string): string {
 }
 
 async function fetchAdminDashboard() {
-  const [u, p, s, a, ev] = await Promise.all([
+  const [o, u, p, a, ev] = await Promise.all([
+    api.get('/api/v1/admin/overview', { params: { days: 30 } }),
     api.get('/api/v1/admin/users', { params: { limit: 30 } }),
     api.get('/api/v1/admin/software/packages', { params: { limit: 30 } }),
     api.get('/api/v1/admin/software/summary'),
@@ -106,7 +107,7 @@ const eventRows = ev.data?.items || [];
     sessions: sessionsDaily,
   };
 
-  return { users, software, summary: s.data || null, notifications, logs, series, lastSyncAt: new Date().toISOString() };
+  return { users, software, summary: o.data || null, notifications, logs, series, lastSyncAt: new Date().toISOString() };
 }
 
 export function useAdminDashboardData() {
@@ -218,5 +219,13 @@ export function useAdminDashboardData() {
         'Could not quarantine package.',
       ),
     markNotificationRead,
+    updateSoftwareStatus: (id: any, status: any) => {
+      const action = String(status).toLowerCase().includes('quarant') ? 'quarantine' : String(status).toLowerCase().includes('reject') ? 'reject' : 'approve';
+      return runOptimistic(
+        () => setSoftware((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item))),
+        () => reviewPackageMutation.mutateAsync({ packageId: id, decision: action as 'approve' | 'reject' | 'quarantine' }),
+        'Could not update software status.',
+      );
+    },
   };
 }

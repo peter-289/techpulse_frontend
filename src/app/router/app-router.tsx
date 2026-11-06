@@ -33,6 +33,7 @@ const LegacyVersionDetailsRedirect = lazy(() => import('../../pages/workspace/mo
 const PlansWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.PlansWorkspaceRoute })));
 const CheckoutWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.CheckoutWorkspaceRoute })));
 const AdminWorkspaceRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.AdminWorkspaceRoute })));
+const AdminConsoleRoute = lazy(() => import('../../pages/workspace/model/workspace-route-components').then((m) => ({ default: m.AdminConsoleRoute })));
 
 function withSuspense(node: ReactNode) {
   return <Suspense fallback={<RouteLoading />}>{node}</Suspense>;
@@ -118,6 +119,14 @@ const router = createBrowserRouter([
                 ),
               },
             ],
+          },
+          {
+            path: ROUTE_PATHS.admin,
+            element: (
+              <RequireRole requiredRole="admin">
+                {withSuspense(<AdminConsoleRoute />)}
+              </RequireRole>
+            ),
           },
         ],
       },

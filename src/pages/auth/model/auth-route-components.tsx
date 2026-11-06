@@ -69,7 +69,7 @@ export function LoginRoute() {
       if (from) {
         navigate(from, { replace: true });
       } else if (String(profile?.role || '').toLowerCase() === 'admin') {
-        navigate(ROUTE_PATHS.workspaceAdmin, { replace: true });
+        navigate(ROUTE_PATHS.admin, { replace: true });
       } else {
         navigate(ROUTE_PATHS.workspaceOverview, { replace: true });
       }
